@@ -121,15 +121,15 @@ export function createApiClient(opts: ClientOptions) {
     answers: { get: (id: string) => get<AnswerDto>(`/answers/${id}`) },
     links: {
       list: () => get<{ items: LinkDto[] }>("/links"),
-      create: (label: string) => post<LinkDto>("/links", { label }),
-      update: (id: string, i: { label?: string; paused?: boolean }) => patch<LinkDto>(`/links/${id}`, i),
+      create: (i: { label: string; prompt?: string; closesAt?: string | null }) => post<LinkDto>("/links", i),
+      update: (id: string, i: { label?: string; paused?: boolean; prompt?: string | null; closesAt?: string | null }) => patch<LinkDto>(`/links/${id}`, i),
       remove: (id: string) => del<void>(`/links/${id}`),
       pause: (paused: boolean, until?: string | null) => post<LinkDto>("/link/pause", { paused, until })
     },
     messages: {
       challenge: () => get<ChallengeDto>("/public/challenge"),
       send: (i: SendMessageInput) => post<SendMessageResultDto>("/messages", i),
-      list: (q: { status?: "inbox" | "filtered" | "archived"; cursor?: string; limit?: number }) => get<Page<MessageDto>>("/messages", q),
+      list: (q: { status?: "inbox" | "filtered" | "archived"; cursor?: string; limit?: number; linkId?: string }) => get<Page<MessageDto>>("/messages", q),
       get: (id: string) => get<MessageDto>(`/messages/${id}`),
       update: (id: string, i: { read?: boolean; status?: "inbox" | "archived" }) => patch<MessageDto>(`/messages/${id}`, i),
       remove: (id: string) => del<void>(`/messages/${id}`),

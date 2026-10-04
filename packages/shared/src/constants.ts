@@ -16,6 +16,7 @@ export const LIMITS = {
   hiddenWordsPerUser: 100,
   linksPerUser: 10,
   linkLabelMax: 40,
+  roundPromptMax: 120,
   avatarMaxBytes: 2 * 1024 * 1024,
   pageSizeDefault: 20,
   pageSizeMax: 50

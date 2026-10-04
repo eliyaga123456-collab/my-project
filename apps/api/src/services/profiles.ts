@@ -14,6 +14,7 @@ type User = typeof users.$inferSelect;
 const DAY = 86_400_000;
 
 export const isPaused = (l: Pick<Link, "paused" | "pausedUntil">) => l.paused && (!l.pausedUntil || l.pausedUntil.getTime() > Date.now());
+export const isClosed = (l: Pick<Link, "closesAt">) => Boolean(l.closesAt && l.closesAt.getTime() <= Date.now());
 
 export interface ResolvedTarget {
   user: User; link: Link; profile: typeof profiles.$inferSelect; settings: typeof settings.$inferSelect;
@@ -34,8 +35,10 @@ export class ProfileService {
   }
 
   toPublic(t: ResolvedTarget): PublicProfileDto {
+    const closed = isClosed(t.link);
     const paused = isPaused(t.link) || !t.settings.acceptingMessages || t.user.status !== "active";
-    return { ...profileDto(this.ctx, t.user, t.profile), acceptingMessages: !paused, linkState: paused ? "paused" : "open", linkLabel: t.link.isPrimary ? null : t.link.label };
+    const base = profileDto(this.ctx, t.user, t.profile);
+    return { ...base, prompt: t.link.prompt ?? base.prompt, acceptingMessages: !paused && !closed, linkState: closed ? "closed" : paused ? "paused" : "open", linkLabel: t.link.isPrimary ? null : t.link.label };
   }
 
   async getPublic(by: { username: string } | { slug: string }): Promise<PublicProfileDto> {
@@ -131,7 +134,7 @@ export class ProfileService {
   }
   linkDto(l: Link, username: string, views = 0, msgs = 0): LinkDto {
     const paused = isPaused(l);
-    return { id: l.id, slug: l.slug, label: l.label, isPrimary: l.isPrimary, paused, pausedUntil: paused ? l.pausedUntil?.toISOString() ?? null : null, url: this.url(l, username), views, messages: msgs, createdAt: l.createdAt.toISOString() };
+    return { id: l.id, slug: l.slug, label: l.label, isPrimary: l.isPrimary, paused, pausedUntil: paused ? l.pausedUntil?.toISOString() ?? null : null, prompt: l.prompt, closesAt: l.closesAt?.toISOString() ?? null, closed: isClosed(l), url: this.url(l, username), views, messages: msgs, createdAt: l.createdAt.toISOString() };
   }
   async getLinkDto(user: User, id: string) {
     const all = await this.listLinks(user);
@@ -139,15 +142,25 @@ export class ProfileService {
     if (!dto) throw E.notFound();
     return dto;
   }
-  async createLink(user: User, label: string) {
+  private parseClose(v: string | null | undefined) {
+    if (!v) return null;
+    const d = new Date(v);
+    if (d.getTime() <= Date.now()) throw E.validation("Choose a closing time in the future.", { closesAt: ["Choose a closing time in the future."] });
+    if (d.getTime() > Date.now() + 366 * DAY) throw E.validation("Rounds can stay open for up to a year.", { closesAt: ["Rounds can stay open for up to a year."] });
+    return d;
+  }
+  async createLink(user: User, input: { label: string; prompt?: string; closesAt?: string | null }) {
+    const label = input.label;
     const [{ n } = { n: 0 }] = await this.ctx.db.select({ n: sql<number>`count(*)::int` }).from(links).where(eq(links.userId, user.id));
     if (n >= LIMITS.linksPerUser) throw E.conflict(`You can have up to ${LIMITS.linksPerUser} links.`);
-    const [l] = await this.ctx.db.insert(links).values({ userId: user.id, slug: generateSlug(10), label }).returning();
+    const [l] = await this.ctx.db.insert(links).values({ userId: user.id, slug: generateSlug(10), label, prompt: input.prompt ?? null, closesAt: this.parseClose(input.closesAt) }).returning();
     return this.linkDto(l!, user.username);
   }
-  async updateLink(user: User, id: string, input: { label?: string; paused?: boolean }) {
+  async updateLink(user: User, id: string, input: { label?: string; paused?: boolean; prompt?: string | null; closesAt?: string | null }) {
     const patch: Partial<typeof links.$inferInsert> = {};
     if (input.label !== undefined) patch.label = input.label;
+    if (input.prompt !== undefined) patch.prompt = input.prompt;
+    if (input.closesAt !== undefined) patch.closesAt = this.parseClose(input.closesAt);
     if (input.paused !== undefined) { patch.paused = input.paused; patch.pausedUntil = null; }
     if (Object.keys(patch).length) {
       const r = await this.ctx.db.update(links).set(patch).where(and(eq(links.id, id), eq(links.userId, user.id))).returning({ id: links.id });

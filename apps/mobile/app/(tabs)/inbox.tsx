@@ -14,7 +14,9 @@ import { errorMessage, isNetworkError } from "@/lib/errors";
 import { useAuth } from "@/providers/AuthProvider";
 import { useNetwork } from "@/providers/NetworkProvider";
 import { useTheme } from "@/theme";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { Chips } from "@/components/Chips";
+import type { LinkDto } from "@unsaid/shared";
 
 const SEGMENTS: SegmentOption<MessageStatus>[] = [
   { value: "inbox", label: "Inbox" },
@@ -33,6 +35,10 @@ export default function Inbox() {
   const router = useRouter();
   const { me, refreshMe } = useAuth();
   const { report, ok } = useNetwork();
+  const params = useLocalSearchParams<{ round?: string }>();
+  const [round, setRound] = useState<string>("all");
+  const [rounds, setRounds] = useState<LinkDto[]>([]);
+  useEffect(() => { if (params.round) setRound(params.round); }, [params.round]);
   const [status, setStatus] = useState<MessageStatus>("inbox");
   const [items, setItems] = useState<MessageDto[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
@@ -43,11 +49,11 @@ export default function Inbox() {
   const [offline, setOffline] = useState(false);
   const seq = useRef(0);
 
-  const load = useCallback(async (mode: "initial" | "refresh", seg: MessageStatus) => {
+  const load = useCallback(async (mode: "initial" | "refresh", seg: MessageStatus, linkId: string = round) => {
     const id = ++seq.current;
     if (mode === "initial") setLoading(true); else setRefreshing(true);
     try {
-      const page = await api.messages.list({ status: seg, limit: 20 });
+      const page = await api.messages.list({ status: seg, limit: 20, ...(linkId !== "all" ? { linkId } : {}) });
       if (id !== seq.current) return;
       setItems(page.items); setCursor(page.nextCursor); setError(null); setOffline(false); ok();
     } catch (e) {
@@ -56,17 +62,17 @@ export default function Inbox() {
     } finally {
       if (id === seq.current) { setLoading(false); setRefreshing(false); }
     }
-  }, [ok, report]);
+  }, [ok, report, round]);
 
-  useEffect(() => { void load("initial", status); }, [status, load]);
-  useFocusEffect(useCallback(() => { void refreshMe().catch(() => undefined); }, [refreshMe]));
+  useEffect(() => { void load("initial", status); }, [status, round, load]);
+  useFocusEffect(useCallback(() => { void refreshMe().catch(() => undefined); api.links.list().then((r) => setRounds(r.items.filter((l) => !l.isPrimary)), () => undefined); }, [refreshMe]));
 
   const loadMore = async () => {
     if (!cursor || loadingMore || loading) return;
     setLoadingMore(true);
     const id = seq.current;
     try {
-      const page = await api.messages.list({ status, cursor, limit: 20 });
+      const page = await api.messages.list({ status, cursor, limit: 20, ...(round !== "all" ? { linkId: round } : {}) });
       if (id !== seq.current) return;
       setItems((cur) => [...cur, ...page.items.filter((p) => !cur.some((c) => c.id === p.id))]);
       setCursor(page.nextCursor);
@@ -83,6 +89,7 @@ export default function Inbox() {
     <View style={{ gap: 14, marginBottom: 16 }}>
       <Text variant="title">Inbox</Text>
       <Text tone="muted">{me ? `@${me.profile.username}` : ""}</Text>
+      {rounds.length > 0 ? <Chips scroll label="Filter by round" value={round} onChange={setRound} options={[{ value: "all", label: "All messages" }, ...rounds.map((r) => ({ value: r.id, label: r.label }))]} /> : null}
       <Tabs options={SEGMENTS} value={status} onChange={setStatus} />
       {error && items.length > 0 ? <ErrorBanner message={error} onRetry={() => load("refresh", status)} /> : null}
     </View>

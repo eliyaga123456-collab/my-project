@@ -11,7 +11,7 @@ import { HOUR, MIN } from "../lib/ratelimit";
 import { messageDto } from "../mappers";
 import { foldForMatching } from "../moderation/normalize";
 import { moderate } from "../moderation/engine";
-import { isPaused, ProfileService } from "./profiles";
+import { isClosed, isPaused, ProfileService } from "./profiles";
 
 type User = typeof users.$inferSelect;
 export interface SenderContext { ip: string; deviceId: string | null }
@@ -50,6 +50,7 @@ export class MessageService {
     const target = await this.profilesSvc.resolveTarget(input.username ? { username: input.username } : { slug: input.slug! });
     if (!target) throw E.notFound("This link doesn't exist.");
     const { user, link, settings: set } = target;
+    if (isClosed(link)) throw new AppError("link_paused", "This round has closed. Thanks for stopping by!");
     if (isPaused(link) || !set.acceptingMessages || user.status !== "active") throw new AppError("link_paused", "This link isn't taking messages right now.");
 
     const src = this.sourceHash(sender.ip);
@@ -124,10 +125,10 @@ export class MessageService {
   }
 
   // ---- inbox ----
-  async list(userId: string, status: MessageStatus, cursor: string | undefined, limit: number): Promise<Page<MessageDto>> {
+  async list(userId: string, status: MessageStatus, cursor: string | undefined, limit: number, linkId?: string): Promise<Page<MessageDto>> {
     const c = decodeCursor(cursor);
     const rows = await this.ctx.db.select({ m: messages, label: links.label, primary: links.isPrimary }).from(messages).leftJoin(links, eq(links.id, messages.linkId))
-      .where(and(eq(messages.recipientId, userId), eq(messages.status, status), c ? or(lt(messages.createdAt, new Date(c.t)), and(eq(messages.createdAt, new Date(c.t)), lt(messages.id, c.id))) : undefined))
+      .where(and(eq(messages.recipientId, userId), eq(messages.status, status), linkId ? eq(messages.linkId, linkId) : undefined, c ? or(lt(messages.createdAt, new Date(c.t)), and(eq(messages.createdAt, new Date(c.t)), lt(messages.id, c.id))) : undefined))
       .orderBy(desc(messages.createdAt), desc(messages.id)).limit(limit + 1);
     const page = rows.slice(0, limit);
     return { items: page.map((r) => messageDto(r.m, r.primary ? null : r.label)), nextCursor: rows.length > limit ? encodeCursor(page.at(-1)!.m.createdAt, page.at(-1)!.m.id) : null };

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Logo } from "@/components/ui";
 
 const links = [
+  { href: "/install", label: "Get the app" },
   { href: "/about", label: "About" },
   { href: "/privacy", label: "Privacy" },
   { href: "/terms", label: "Terms" },

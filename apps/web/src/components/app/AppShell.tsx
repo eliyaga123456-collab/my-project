@@ -13,7 +13,7 @@ import { VerifyBanner } from "./VerifyBanner";
 
 const items = [
   { href: "/inbox", label: "Inbox", icon: Inbox, count: "messages" as const },
-  { href: "/links", label: "Links", icon: Link2 },
+  { href: "/links", label: "Rounds", icon: Link2 },
   { href: "/notifications", label: "Alerts", full: "Notifications", icon: Bell, count: "notifications" as const },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings }

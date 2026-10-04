@@ -5,6 +5,7 @@ import "@fontsource-variable/inter";
 import "./globals.css";
 import { ToastProvider } from "@/components/ui";
 import { SITE_URL } from "@/lib/site";
+import { PwaRegister } from "@/components/pwa/PwaRegister";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -13,7 +14,9 @@ export const metadata: Metadata = {
   applicationName: "EAR",
   openGraph: { type: "website", siteName: "EAR", title: "EAR — say what you really think", description: "Anonymous questions, answered on your terms." },
   twitter: { card: "summary_large_image" },
-  icons: { icon: "/icon.svg" }
+  icons: { icon: "/icon.svg", apple: "/icons/apple-touch-icon.png" },
+  appleWebApp: { capable: true, title: "EAR", statusBarStyle: "black-translucent" },
+  formatDetection: { telephone: false }
 };
 
 export const viewport: Viewport = {
@@ -38,6 +41,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="min-h-dvh">
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-full focus:bg-surface focus:px-4 focus:py-2 focus:shadow-lg">Skip to content</a>
         <ToastProvider>{children}</ToastProvider>
+        <PwaRegister />
       </body>
     </html>
   );

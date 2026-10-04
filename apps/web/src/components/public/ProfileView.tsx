@@ -7,6 +7,7 @@ import { MoreAnswers } from "./MoreAnswers";
 import { RecordView } from "./RecordView";
 
 export function ProfileView({ profile, target, answers, nextCursor }: { profile: PublicProfileDto; target: SendTarget; answers: AnswerDto[]; nextCursor: string | null }) {
+  const closed = profile.linkState === "closed";
   const paused = profile.linkState === "paused" || !profile.acceptingMessages;
   const prompt = profile.prompt?.trim() || "Send me anonymous messages!";
   const now = Date.now();
@@ -16,7 +17,8 @@ export function ProfileView({ profile, target, answers, nextCursor }: { profile:
       <section aria-labelledby="who" className="text-center">
         <Avatar name={profile.displayName} src={profile.avatarUrl} size={96} className="mx-auto" />
         <h1 id="who" className="mt-4 text-3xl font-extrabold sm:text-4xl [overflow-wrap:anywhere]">{profile.displayName}</h1>
-        <p className="text-muted">@{profile.username}{profile.linkLabel ? ` · ${profile.linkLabel}` : ""}</p>
+        <p className="text-muted">@{profile.username}</p>
+        {profile.linkLabel && <p className="mx-auto mt-2 inline-flex items-center gap-1.5 rounded-full border border-line bg-surface/60 px-3 py-1 text-xs font-semibold text-secondary">{closed ? "Round closed" : "Anonymous round"} · {profile.linkLabel}</p>}
         {profile.bio && <p className="mx-auto mt-3 max-w-md [overflow-wrap:anywhere]">{profile.bio}</p>}
       </section>
 
@@ -25,7 +27,7 @@ export function ProfileView({ profile, target, answers, nextCursor }: { profile:
           <Lock className="mt-1.5 size-4 shrink-0 text-secondary" aria-hidden />
           <span className="[overflow-wrap:anywhere]">{prompt}</span>
         </h2>
-        <SendForm target={target} displayName={profile.displayName} initiallyPaused={paused} />
+        <SendForm target={target} displayName={profile.displayName} initiallyPaused={paused} initiallyClosed={closed} />
       </section>
 
       <section aria-labelledby="answers" className="mt-12">

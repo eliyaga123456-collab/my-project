@@ -63,9 +63,15 @@ export type UpdateProfileInput = z.infer<typeof updateProfileInput>;
 export const updateUsernameInput = z.object({ username: usernameSchema });
 
 // ---------- Links ----------
-export const createLinkInput = z.object({ label: trimmed(LIMITS.linkLabelMax, 1) });
+const futureIso = z.string().datetime();
+/** A "round" = an extra link with its own question and optional closing time. */
+export const createLinkInput = z.object({
+  label: trimmed(LIMITS.linkLabelMax, 1),
+  prompt: trimmed(LIMITS.roundPromptMax, 1).optional(),
+  closesAt: futureIso.nullable().optional()
+});
 export const updateLinkInput = z
-  .object({ label: trimmed(LIMITS.linkLabelMax, 1), paused: z.boolean() })
+  .object({ label: trimmed(LIMITS.linkLabelMax, 1), paused: z.boolean(), prompt: trimmed(LIMITS.roundPromptMax, 1).nullable(), closesAt: futureIso.nullable() })
   .partial();
 export const pauseLinkInput = z.object({
   paused: z.boolean(),
@@ -89,6 +95,8 @@ export type SendMessageInput = z.infer<typeof sendMessageInput>;
 export const listMessagesQuery = z.object({
   status: z.enum(MESSAGE_STATUSES).default("inbox"),
   cursor: z.string().max(200).optional(),
+  /** Only messages received through this link / round. */
+  linkId: z.string().uuid().optional(),
   limit: z.coerce.number().int().min(1).max(LIMITS.pageSizeMax).default(LIMITS.pageSizeDefault)
 });
 

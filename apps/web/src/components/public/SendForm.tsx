@@ -11,15 +11,15 @@ import { Button, ButtonLink, TextareaField } from "@/components/ui";
 
 export type SendTarget = { username: string } | { slug: string };
 
-type Phase = "idle" | "sending" | "verifying" | "sent" | "paused" | "missing";
+type Phase = "idle" | "sending" | "verifying" | "sent" | "paused" | "closed" | "missing";
 
 function isChallenge(v: unknown): v is ChallengeDto {
   return !!v && typeof v === "object" && typeof (v as ChallengeDto).prefix === "string" && typeof (v as ChallengeDto).id === "string" && typeof (v as ChallengeDto).difficulty === "number";
 }
 
-export function SendForm({ target, displayName, initiallyPaused }: { target: SendTarget; displayName: string; initiallyPaused: boolean }) {
+export function SendForm({ target, displayName, initiallyPaused, initiallyClosed = false }: { target: SendTarget; displayName: string; initiallyPaused: boolean; initiallyClosed?: boolean }) {
   const [body, setBody] = useState("");
-  const [phase, setPhase] = useState<Phase>(initiallyPaused ? "paused" : "idle");
+  const [phase, setPhase] = useState<Phase>(initiallyClosed ? "closed" : initiallyPaused ? "paused" : "idle");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const area = useRef<HTMLTextAreaElement>(null);
@@ -52,7 +52,7 @@ export function SendForm({ target, displayName, initiallyPaused }: { target: Sen
       setPhase("sent");
     } catch (err) {
       const f = classifySendError(err);
-      if (f.kind === "paused") { setPhase("paused"); return; }
+      if (f.kind === "paused") { setPhase(isApiError(err) && /round has closed/i.test(err.message) ? "closed" : "paused"); return; }
       if (f.kind === "not_found") { setPhase("missing"); return; }
       setPhase("idle");
       if (f.kind === "rejected") setNotice(f.message);
@@ -60,6 +60,16 @@ export function SendForm({ target, displayName, initiallyPaused }: { target: Sen
     }
   }
 
+  if (phase === "closed") {
+    return (
+      <div role="status" className="rounded-lg border border-line bg-raised/50 p-6 text-center animate-ink-in">
+        <PauseCircle className="mx-auto size-9 text-muted" aria-hidden />
+        <h2 className="mt-3 text-xl font-bold">This round has closed</h2>
+        <p className="mt-1 text-muted">{displayName} stopped collecting messages here. Thanks for stopping by!</p>
+        <div className="mt-5"><ButtonLink href="/signup">Start your own round</ButtonLink></div>
+      </div>
+    );
+  }
   if (phase === "paused") {
     return (
       <div role="status" className="rounded-lg border border-line bg-raised/50 p-6 text-center animate-ink-in">

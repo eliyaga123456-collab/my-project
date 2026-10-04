@@ -148,7 +148,7 @@ export function registerRoutes(app: FastifyInstance, ctx: AppContext, svc: { aut
 
     // ---------- links ----------
     api.get("/links", async (req) => ({ items: await profiles.listLinks(requireAuth(req).user) }));
-    api.post("/links", async (req, reply) => reply.status(201).send(await profiles.createLink(requireAuth(req).user, parse(createLinkInput, req.body).label)));
+    api.post("/links", async (req, reply) => reply.status(201).send(await profiles.createLink(requireAuth(req).user, parse(createLinkInput, req.body))));
     api.patch("/links/:id", async (req) => profiles.updateLink(requireAuth(req).user, uuidParam((req.params as { id: string }).id), parse(updateLinkInput, req.body)));
     api.delete("/links/:id", async (req, reply) => { await profiles.deleteLink(requireAuth(req).user, uuidParam((req.params as { id: string }).id)); return reply.status(204).send(); });
     api.post("/link/pause", async (req) => { const i = parse(pauseLinkInput, req.body); return profiles.pausePrimary(requireAuth(req).user, i.paused, i.until); });
@@ -167,7 +167,7 @@ export function registerRoutes(app: FastifyInstance, ctx: AppContext, svc: { aut
     });
     api.get("/messages", async (req) => {
       const q = parse(listMessagesQuery, req.query);
-      return messages.list(requireAuth(req).user.id, q.status, q.cursor, q.limit);
+      return messages.list(requireAuth(req).user.id, q.status, q.cursor, q.limit, q.linkId);
     });
     api.get("/messages/:id", async (req) => messages.get(requireAuth(req).user.id, uuidParam((req.params as { id: string }).id)));
     api.patch("/messages/:id", async (req) => messages.update(requireAuth(req).user.id, uuidParam((req.params as { id: string }).id), parse(updateMessageInput, req.body)));

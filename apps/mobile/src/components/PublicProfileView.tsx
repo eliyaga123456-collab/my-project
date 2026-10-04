@@ -1,3 +1,4 @@
+import { Badge } from "@/components/Badge";
 import { useState } from "react";
 import { View } from "react-native";
 import { useRouter } from "expo-router";
@@ -25,7 +26,7 @@ import { Textarea } from "./Input";
 import { useRequest } from "@/lib/hooks";
 
 type Target = { kind: "u"; username: string } | { kind: "l"; slug: string };
-type Outcome = null | "sent" | "paused" | "rejected" | "rate_limited";
+type Outcome = null | "sent" | "paused" | "closed" | "rejected" | "rate_limited";
 
 export function PublicProfileView({ target }: { target: Target }) {
   const router = useRouter();
@@ -61,7 +62,7 @@ export function PublicProfileView({ target }: { target: Target }) {
     } catch (e) {
       report(e); haptic.error();
       if (e instanceof ApiError) {
-        if (e.code === "link_paused" || e.code === "account_suspended") { setOutcome("paused"); }
+        if (e.code === "link_paused" || e.code === "account_suspended") { setOutcome(/round has closed/i.test(e.message) ? "closed" : "paused"); }
         else if (e.code === "moderation_rejected") setOutcome("rejected");
         else if (e.code === "rate_limited") { setRetryIn(e.retryAfterSeconds ?? null); setOutcome("rate_limited"); }
         else if (e.code === "not_found") setError("This link no longer exists.");
@@ -88,7 +89,8 @@ export function PublicProfileView({ target }: { target: Target }) {
     );
   }
   const p = profile.data;
-  const paused = p.linkState === "paused" || !p.acceptingMessages || outcome === "paused";
+  const closed = p.linkState === "closed" || outcome === "closed";
+  const paused = p.linkState === "paused" || (!p.acceptingMessages && !closed) || outcome === "paused";
   const left = remainingChars(text, LIMITS.messageMax);
 
   return (
@@ -97,7 +99,8 @@ export function PublicProfileView({ target }: { target: Target }) {
       <View style={{ alignItems: "center", gap: 8 }}>
         <Avatar name={p.displayName || p.username} uri={p.avatarUrl} size={84} />
         <Text variant="title">{p.displayName || p.username}</Text>
-        <Text tone="muted">@{p.username}{p.linkLabel ? ` · ${p.linkLabel}` : ""}</Text>
+        <Text tone="muted">@{p.username}</Text>
+        {p.linkLabel ? <Badge label={`${closed ? "Round closed" : "Anonymous round"} · ${p.linkLabel}`} tone="secondary" /> : null}
         {p.bio ? <Text style={{ textAlign: "center" }}>{p.bio}</Text> : null}
       </View>
 
@@ -109,6 +112,8 @@ export function PublicProfileView({ target }: { target: Target }) {
           <Button title="Send another" variant="secondary" small onPress={() => setOutcome(null)} />
           {status !== "authed" ? <Button title="Get your own link" small onPress={() => router.push("/signup")} /> : null}
         </Card>
+      ) : closed ? (
+        <EmptyState icon="pause" title="This round has closed" body={`@${p.username} stopped collecting messages here. Thanks for stopping by!`} />
       ) : paused ? (
         <EmptyState icon="pause" title="Not taking messages right now" body={`@${p.username} has paused this link. Try again later.`} />
       ) : outcome === "rate_limited" ? (
@@ -128,7 +133,7 @@ export function PublicProfileView({ target }: { target: Target }) {
           {error ? <ErrorBanner message={error} /> : null}
           <Textarea
             label={p.prompt || "Send me an anonymous message"} value={text} onChangeText={(t) => { setText(t); if (error) setError(null); }}
-            placeholder="Say the unsaid…" max={LIMITS.messageMax} maxLength={LIMITS.messageMax + 50} accessibilityHint={`${left} characters left`}
+            placeholder="Write something…" max={LIMITS.messageMax} maxLength={LIMITS.messageMax + 50} accessibilityHint={`${left} characters left`}
           />
           <Text variant="caption" tone="muted"><Icon name="lock" size={12} tone="muted" /> Anonymous — {p.displayName || p.username} can't see who you are. Be kind.</Text>
           <Button title={busy === "verifying" ? "Verifying you're human…" : "Send anonymously"} onPress={send} loading={busy !== "idle"} disabled={text.trim().length < LIMITS.messageMin || left < 0} icon={busy === "idle" ? <Icon name="send" size={18} color="#fff" /> : undefined} />

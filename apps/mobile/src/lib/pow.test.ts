@@ -10,7 +10,7 @@ const leadingZeroBits = (h: Uint8Array) => {
 
 describe("proof of work with the pure-JS sha256", () => {
   it("finds a nonce with the required leading zero bits", async () => {
-    const c = { id: "challenge-id-1", algorithm: "sha256-leading-zero-bits" as const, difficulty: 12, prefix: "unsaid:test:", expiresAt: new Date(Date.now() + 60000).toISOString() };
+    const c = { id: "challenge-id-1", algorithm: "sha256-leading-zero-bits" as const, difficulty: 12, prefix: "ear:test:", expiresAt: new Date(Date.now() + 60000).toISOString() };
     const { id, nonce } = await solveChallenge(c, sha256);
     expect(id).toBe(c.id);
     const h = sha256(c.prefix + nonce);

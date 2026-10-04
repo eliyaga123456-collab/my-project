@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { View } from "react-native";
+import { Share, View } from "react-native";
+import { WEB_URL } from "@/lib/env";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { LIMITS } from "@unsaid/shared";
@@ -104,6 +105,7 @@ export default function Me() {
         <NavRow icon="bell" label="Notifications" onPress={() => router.push("/settings/notifications")} />
         <NavRow icon="lock" label="Sessions" onPress={() => router.push("/settings/sessions")} />
         <NavRow icon="lock" label="Change password" onPress={() => router.push("/settings/password")} />
+        <NavRow icon="send" label="Download the app — invite friends" onPress={() => { void Share.share({ message: `Get EAR — anonymous questions & replies: ${WEB_URL}/install`, url: `${WEB_URL}/install` }).catch(() => undefined); }} />
       </Card>
       <Text variant="caption" tone="muted" style={{ textAlign: "center" }}>Signed in as {me.user.email}</Text>
       <Button title="Log out" variant="danger" onPress={() => setConfirmLogout(true)} />

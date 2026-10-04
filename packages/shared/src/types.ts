@@ -52,8 +52,8 @@ export interface AuthResultDto extends MeDto {
 
 export interface PublicProfileDto extends ProfileDto {
   acceptingMessages: boolean;
-  /** `paused` when the owner paused the link, otherwise `open`. */
-  linkState: "open" | "paused";
+  /** `paused` (owner paused it) | `closed` (round ended) | `open`. */
+  linkState: "open" | "paused" | "closed";
   linkLabel?: string | null;
 }
 
@@ -71,6 +71,10 @@ export interface LinkDto {
   isPrimary: boolean;
   paused: boolean;
   pausedUntil: string | null;
+  /** Question shown on the public page for this round (null = profile prompt). */
+  prompt: string | null;
+  closesAt: string | null;
+  closed: boolean;
   url: string;
   views: number;
   messages: number;
@@ -89,6 +93,7 @@ export interface MessageDto {
   body: string;
   status: MessageStatus;
   read: boolean;
+  linkId: string | null;
   linkLabel: string | null;
   /** Present when the automated filter held this message in the filtered folder. */
   filteredCategories: ModerationCategory[];

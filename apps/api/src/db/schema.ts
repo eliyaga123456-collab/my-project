@@ -46,6 +46,8 @@ export const links = pgTable("links", {
   isPrimary: boolean("is_primary").notNull().default(false),
   paused: boolean("paused").notNull().default(false),
   pausedUntil: ts("paused_until"),
+  prompt: text("prompt"),
+  closesAt: ts("closes_at"),
   createdAt: ts("created_at").notNull().defaultNow()
 }, (t) => [uniqueIndex("links_slug_key").on(t.slug), index("links_user_idx").on(t.userId, t.createdAt)]);
 

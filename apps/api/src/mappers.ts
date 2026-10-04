@@ -26,7 +26,7 @@ export const settingsDto = (s: Settings): SettingsDto => ({
 });
 
 export const messageDto = (m: Message, linkLabel: string | null): MessageDto => ({
-  id: m.id, body: m.body, status: m.status, read: Boolean(m.readAt), linkLabel,
+  id: m.id, body: m.body, status: m.status, read: Boolean(m.readAt), linkId: m.linkId, linkLabel,
   filteredCategories: m.filteredCategories as ModerationCategory[],
   reply: m.replyText ? { text: m.replyText, public: m.replyPublic, createdAt: (m.repliedAt ?? m.createdAt).toISOString(), answerId: m.replyPublic ? m.answerId : null } : null,
   createdAt: m.createdAt.toISOString()

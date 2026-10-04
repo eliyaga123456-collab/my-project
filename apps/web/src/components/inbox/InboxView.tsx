@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Copy } from "lucide-react";
-import type { MessageDto, MessageStatus } from "@unsaid/shared";
+import type { LinkDto, MessageDto, MessageStatus } from "@unsaid/shared";
 import { api } from "@/lib/api";
 import { errorMessage } from "@/lib/errors";
 import { Button, EmptyState, ErrorState, ListSkeleton, Tabs, useToast } from "@/components/ui";
@@ -22,6 +23,11 @@ const emptyCopy: Record<MessageStatus, { title: string; description: string }> =
 export function InboxView({ shareUrlPath }: { shareUrlPath: string }) {
   const toast = useToast();
   const { refresh } = useMe();
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const [round, setRound] = useState(params.get("round") ?? "");
+  const [rounds, setRounds] = useState<LinkDto[]>([]);
   const [tab, setTab] = useState<MessageStatus>("inbox");
   const [items, setItems] = useState<MessageDto[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
@@ -31,11 +37,11 @@ export function InboxView({ shareUrlPath }: { shareUrlPath: string }) {
   const [dialog, setDialog] = useState<Dialog>(null);
   const seq = useRef(0);
 
-  const load = useCallback(async (status: MessageStatus) => {
+  const load = useCallback(async (status: MessageStatus, linkId: string) => {
     const id = ++seq.current;
     setState("loading");
     try {
-      const page = await api.messages.list({ status, limit: 20 });
+      const page = await api.messages.list({ status, limit: 20, ...(linkId ? { linkId } : {}) });
       if (id !== seq.current) return;
       setItems(page.items);
       setCursor(page.nextCursor);
@@ -47,13 +53,18 @@ export function InboxView({ shareUrlPath }: { shareUrlPath: string }) {
     }
   }, []);
 
-  useEffect(() => { void load(tab); }, [tab, load]);
+  useEffect(() => { void load(tab, round); }, [tab, round, load]);
+  useEffect(() => { api.links.list().then((r) => setRounds(r.items.filter((l) => !l.isPrimary)), () => undefined); }, []);
+  function pickRound(id: string) {
+    setRound(id);
+    router.replace(id ? `${pathname}?round=${id}` : pathname, { scroll: false });
+  }
 
   async function loadMore() {
     if (!cursor) return;
     setMore(true);
     try {
-      const page = await api.messages.list({ status: tab, cursor, limit: 20 });
+      const page = await api.messages.list({ status: tab, cursor, limit: 20, ...(round ? { linkId: round } : {}) });
       setItems((l) => [...l, ...page.items.filter((n) => !l.some((o) => o.id === n.id))]);
       setCursor(page.nextCursor);
     } catch (e) { toast.error(errorMessage(e)); } finally { setMore(false); }
@@ -128,6 +139,18 @@ export function InboxView({ shareUrlPath }: { shareUrlPath: string }) {
   return (
     <div>
       <div className="mb-6">
+        {rounds.length > 0 && (
+          <div className="mb-4" role="group" aria-label="Filter by round">
+            <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+              {[{ id: "", label: "All messages" }, { id: "__main", label: "" }, ...rounds.map((r) => ({ id: r.id, label: r.label }))].filter((r) => r.id !== "__main").map((r) => (
+                <button key={r.id || "all"} type="button" aria-pressed={round === r.id} onClick={() => pickRound(r.id)}
+                  className={"min-h-11 shrink-0 rounded-full border px-4 text-sm font-semibold transition " + (round === r.id ? "border-transparent bg-primary text-on-primary" : "border-line text-muted hover:bg-raised")}>
+                  {r.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         <Tabs
           label="Message folders"
           idPrefix="inbox-tab"
@@ -140,7 +163,7 @@ export function InboxView({ shareUrlPath }: { shareUrlPath: string }) {
 
       <div role="tabpanel" id="inbox-tab-panel" aria-labelledby={`inbox-tab-${tab}`} aria-live="polite">
         {state === "loading" && <ListSkeleton rows={3} label="Loading messages" />}
-        {state === "error" && <ErrorState message={error} onRetry={() => load(tab)} />}
+        {state === "error" && <ErrorState message={error} onRetry={() => load(tab, round)} />}
         {state === "ready" && items.length === 0 && (
           <EmptyState
             {...emptyCopy[tab]}
