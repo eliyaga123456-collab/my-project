@@ -34,7 +34,7 @@ npm run test:e2e -w @unsaid/web  # Playwright against the running stack
 
 ## Docs
 `docs/PLAN.md` plan and decisions · `docs/ARCHITECTURE.md` · `docs/API.md` · `docs/DATABASE.md` · `docs/SECURITY.md` ·
-`docs/TESTING.md` · `docs/DEPLOYMENT.md` (free-tier hosting) · `docs/CODESPACES.md` · `docs/DESIGN.md` · `FINAL_REPORT.md`
+`docs/TESTING.md` · `docs/DEPLOY_FREE.he.md` (free launch in minutes, Hebrew) · `docs/DEPLOYMENT.md` (free-tier hosting, more options) · `docs/CODESPACES.md` · `docs/DESIGN.md` · `FINAL_REPORT.md`
 
 ## Principles
 Anonymous for the sender, safe for the recipient. Recipients never see sender IP, account, or ids; abuse control uses only a keyed hash that is

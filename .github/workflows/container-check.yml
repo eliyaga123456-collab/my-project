@@ -10,17 +10,14 @@ jobs:
   container:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    services:
-      postgres:
-        image: postgres:16
-        env: { POSTGRES_PASSWORD: postgres }
-        ports: ["5432:5432"]
-        options: >-
-          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - name: Build image
-        run: docker build -t ear .
+        run: docker build -t ear . 2>&1 | tail -n 80; test ${PIPESTATUS[0]} -eq 0
+      - name: Start Postgres
+        run: |
+          docker run -d --name pg --network host -e POSTGRES_PASSWORD=postgres postgres:16
+          for i in $(seq 1 30); do docker exec pg pg_isready -U postgres && break; sleep 2; done
       - name: Run container (production mode, ephemeral secret)
         run: |
           docker run -d --name ear --network host \
@@ -31,4 +28,4 @@ jobs:
         run: bash scripts/container-smoke.sh http://localhost:3000
       - name: Container logs
         if: always()
-        run: docker logs ear 2>&1 | tail -80
+        run: docker logs ear 2>&1 | tail -80 || true
