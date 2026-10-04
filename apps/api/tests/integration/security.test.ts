@@ -337,14 +337,16 @@ describe("avatar upload abuse", () => {
     expect((await up(A.cookie, "a.png", "image/png", corrupt)).statusCode).toBe(415);
   });
 
-  it("oversize (>2MB) -> 413, even when it is a valid image", async () => {
+  it("accepts a large phone-camera sized photo (>2MB) and rejects >10MB with 413", async () => {
     const A = await verifiedUser(t, "alice");
     const noisy = await sharp({ create: { width: 1500, height: 1500, channels: 3 as const, background: "black", noise: { type: "gaussian" as const, mean: 128, sigma: 60 } } }).png().toBuffer();
     expect(noisy.length).toBeGreaterThan(2 * 1024 * 1024);
-    const r = await up(A.cookie, "a.png", "image/png", noisy);
+    expect(noisy.length).toBeLessThan(10 * 1024 * 1024);
+    const ok = await up(A.cookie, "a.png", "image/png", noisy);
+    expect(ok.statusCode).toBe(200);
+    const r = await up(A.cookie, "b.png", "image/png", Buffer.concat([await png(), Buffer.alloc(11 * 1024 * 1024)]));
     expect(r.statusCode).toBe(413);
     expect(json(r).error.code).toBe("payload_too_large");
-    expect((await up(A.cookie, "a.png", "image/png", Buffer.concat([await png(), Buffer.alloc(3 * 1024 * 1024)]))).statusCode).toBe(413);
   });
 
   it("decompression-bomb-ish dimensions (>40MP) are refused without exhausting memory", async () => {

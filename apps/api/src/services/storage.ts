@@ -77,7 +77,7 @@ function sniff(buf: Buffer): "jpeg" | "png" | "webp" | null {
 
 /** Validates (magic bytes + size + decodability), strips ALL metadata (EXIF/GPS) by re-encoding, returns a 512px WebP. */
 export async function processAvatar(input: Buffer): Promise<Buffer> {
-  if (input.length > LIMITS.avatarMaxBytes) throw new AppError("payload_too_large", "Image is too large (max 2 MB).");
+  if (input.length > LIMITS.avatarMaxBytes) throw new AppError("payload_too_large", "Image is too large (max 10 MB).");
   if (!sniff(input)) throw new AppError("unsupported_media", "Use a JPEG, PNG or WebP image.");
   try {
     return await sharp(input, { limitInputPixels: 40_000_000, failOn: "error" })

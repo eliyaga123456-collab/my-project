@@ -199,7 +199,7 @@ export const app: DeepString<typeof en> = {
       uploadAria: "העלאת תמונת פרופיל",
       upload: "העלאת תמונה",
       remove: "הסרה",
-      avatarHint: "JPEG, PNG או WebP עד 2MB.",
+      avatarHint: "JPEG, PNG או WebP עד 10MB.",
       displayName: "שם תצוגה",
       bio: "ביו",
       prompt: "ההנחיה שלכם",
@@ -208,7 +208,7 @@ export const app: DeepString<typeof en> = {
       save: "שמירת הפרופיל",
       saved: "הפרופיל נשמר",
       badType: "אפשר להעלות רק תמונת JPEG, PNG או WebP.",
-      tooBig: "התמונה גדולה מ-2MB. נסו תמונה קטנה יותר.",
+      tooBig: "התמונה גדולה מ-10MB. נסו תמונה קטנה יותר.",
       avatarUpdated: "התמונה עודכנה",
       avatarRemoved: "התמונה הוסרה"
     },

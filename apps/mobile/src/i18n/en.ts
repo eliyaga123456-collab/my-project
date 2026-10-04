@@ -323,7 +323,7 @@ export const en = {
     profileSaved: "Profile saved",
     usernameChanged: "Username changed. Your old link no longer works.",
     photoAccess: "Allow photo access in Settings to choose a picture.",
-    photoTooBig: "That image is over 2 MB. Pick a smaller one.",
+    photoTooBig: "That image is over 10 MB. Pick a smaller one.",
     photoUpdated: "Photo updated",
     photoRemoved: "Photo removed",
     inviteMessage: "Get EAR — anonymous questions & replies: {url}"

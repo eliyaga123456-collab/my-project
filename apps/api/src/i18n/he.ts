@@ -38,7 +38,7 @@ export const HE_EXACT: Record<string, string> = {
   "This link isn't taking messages right now.": "הקישור הזה לא מקבל הודעות כרגע.",
   "This round has closed. Thanks for stopping by!": "הסבב הזה נסגר. תודה שקפצתם!",
   "Your answer can't be published because it may break our community rules.": "אי אפשר לפרסם את התשובה כי היא עלולה להפר את כללי הקהילה.",
-  "Image is too large (max 2 MB).": "התמונה גדולה מדי (עד 2MB).",
+  "Image is too large (max 10 MB).": "התמונה גדולה מדי (עד 10MB).",
   "Too many attempts. Please wait a moment and try again.": "יותר מדי ניסיונות. המתינו רגע ונסו שוב.",
   "Too many requests. Please slow down.": "יותר מדי בקשות. האטו קצת.",
   "Email or password is incorrect.": "האימייל או הסיסמה שגויים.",

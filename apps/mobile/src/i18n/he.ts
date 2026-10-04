@@ -323,7 +323,7 @@ export const he: Dict = {
     profileSaved: "הפרופיל נשמר",
     usernameChanged: "שם המשתמש השתנה. הקישור הישן כבר לא עובד.",
     photoAccess: "אפשרו גישה לתמונות בהגדרות כדי לבחור תמונה.",
-    photoTooBig: "התמונה גדולה מ-2MB. בחרו תמונה קטנה יותר.",
+    photoTooBig: "התמונה גדולה מ-10MB. בחרו תמונה קטנה יותר.",
     photoUpdated: "התמונה עודכנה",
     photoRemoved: "התמונה הוסרה",
     inviteMessage: "מורידים את EAR, שאלות ותשובות אנונימיות: {url}"

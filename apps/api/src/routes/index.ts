@@ -150,7 +150,7 @@ export function registerRoutes(app: FastifyInstance, ctx: AppContext, svc: { aut
       const file = await req.file();
       if (!file) throw E.validation("Choose an image to upload.");
       const buf = await file.toBuffer();
-      if (file.file.truncated) throw new AppError("payload_too_large", "Image is too large (max 2 MB).");
+      if (file.file.truncated) throw new AppError("payload_too_large", "Image is too large (max 10 MB).");
       return profiles.setAvatar(a.user, buf);
     });
     api.delete("/profile/avatar", async (req) => profiles.removeAvatar(requireAuth(req).user));

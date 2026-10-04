@@ -197,7 +197,7 @@ export const app = {
       uploadAria: "Upload profile photo",
       upload: "Upload photo",
       remove: "Remove",
-      avatarHint: "JPEG, PNG or WebP up to 2 MB.",
+      avatarHint: "JPEG, PNG or WebP up to 10 MB.",
       displayName: "Display name",
       bio: "Bio",
       prompt: "Your prompt",
@@ -206,7 +206,7 @@ export const app = {
       save: "Save profile",
       saved: "Profile saved",
       badType: "Use a JPEG, PNG or WebP image.",
-      tooBig: "That image is over 2 MB. Try a smaller one.",
+      tooBig: "That image is over 10 MB. Try a smaller one.",
       avatarUpdated: "Avatar updated",
       avatarRemoved: "Avatar removed"
     },

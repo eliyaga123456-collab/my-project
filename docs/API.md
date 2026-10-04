@@ -43,7 +43,7 @@ Unverified accounts can use the app but cannot publish public answers; admin req
 | GET `/links/public/:slug` | public | `PublicProfileDto` for an extra link |
 | PATCH `/profile` | `{displayName?,bio?,prompt?}` | `ProfileDto` |
 | PATCH `/profile/username` | `{username}` | `ProfileDto` (old link stops working; 1 change / 7 days) |
-| POST `/profile/avatar` | multipart `file` (jpeg/png/webp ≤2MB) | `ProfileDto` |
+| POST `/profile/avatar` | multipart `file` (jpeg/png/webp ≤10MB) | `ProfileDto` |
 | DELETE `/profile/avatar` | – | `ProfileDto` |
 | GET `/links` | – | `{items: LinkDto[]}` (primary first) |
 | POST `/links` | `{label, prompt?, closesAt?}` | `LinkDto` — a **round**: own question and optional closing time (max 10 links) |
