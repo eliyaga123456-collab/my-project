@@ -1,5 +1,6 @@
 import Svg, { Circle, Path, Rect } from "react-native-svg";
 import { useTheme, type Colors } from "@/theme";
+import { useT } from "@/i18n";
 
 export type IconName =
   | "inbox" | "share" | "bell" | "user" | "reply" | "trash" | "flag" | "block" | "copy" | "plus" | "close" | "check"
@@ -31,10 +32,16 @@ const paths: Record<IconName, (c: string) => React.ReactNode> = {
   "wifi-off": (c) => <Path d="M3 3l18 18M5 10a10 10 0 015-2.5M19 10a10 10 0 00-4-2.2M8.5 13.5a6 6 0 013-1.4m4 .6a6 6 0 011 .8M12 18h.01" stroke={c} strokeWidth={1.8} strokeLinecap="round" fill="none" />
 };
 
-export function Icon({ name, size = 22, tone = "text", color }: { name: IconName; size?: number; tone?: keyof Colors; color?: string }) {
+/**
+ * `dir` is for the chevron: "forward" points toward the reading direction's end (list rows), "back" toward its start (back buttons).
+ * Arrow-like glyphs (chevron, send, reply) mirror automatically under an RTL layout; everything else is symmetric.
+ */
+export function Icon({ name, size = 22, tone = "text", color, dir = "forward" }: { name: IconName; size?: number; tone?: keyof Colors; color?: string; dir?: "forward" | "back" }) {
   const { colors } = useTheme();
+  const { isRTL } = useT();
+  const flip = name === "chevron" ? (dir === "back" ? !isRTL : isRTL) : name === "send" || name === "reply" ? isRTL : false;
   return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+    <Svg width={size} height={size} viewBox="0 0 24 24" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={flip ? { transform: [{ scaleX: -1 }] } : undefined}>
       {paths[name](color ?? colors[tone])}
     </Svg>
   );

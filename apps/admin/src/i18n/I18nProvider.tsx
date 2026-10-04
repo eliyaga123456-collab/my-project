@@ -15,7 +15,7 @@ export interface I18n {
   /** plural: picks `<base>_one|_two|_other`; `{n}` is the formatted count. */
   tn: (base: PluralBase, count: number, params?: Params) => string;
   /** enum value -> label, with a safe fallback to the humanised raw value. */
-  te: (group: "role" | "status" | "kind" | "category" | "audit" | "resolution" | "target", value: string) => string;
+  te: (group: "role" | "status" | "kind" | "category" | "audit" | "resolution" | "resolutionNote" | "target", value: string) => string;
   fmt: {
     number: (n: number) => string;
     percent: (r: number) => string;

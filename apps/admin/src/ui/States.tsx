@@ -20,7 +20,7 @@ export function EmptyState({ title, hint, action }: { title: string; hint?: stri
   return (
     <div className="state" role="status">
       <Inbox size={28} aria-hidden />
-      <p className="state-title">{title ?? t("common.couldntLoad")}</p>
+      <p className="state-title">{title}</p>
       {hint && <p className="state-hint">{hint}</p>}
       {action}
     </div>

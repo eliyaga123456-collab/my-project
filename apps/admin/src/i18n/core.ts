@@ -18,7 +18,7 @@ export function dirOf(locale: Locale): "ltr" | "rtl" {
   return RTL_LOCALES.includes(locale) ? "rtl" : "ltr";
 }
 
-/** Stored choice first, then the browser language (he*/iw* -> he), else the default. */
+/** Stored choice first, then the browser language (he or iw -> he), else the default. */
 export function detectLocale(): Locale {
   try { const s = localStorage.getItem(STORAGE_KEY); if (isLocale(s)) return s; } catch { /* storage unavailable */ }
   try {

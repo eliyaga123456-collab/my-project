@@ -22,12 +22,16 @@ export async function clearToken(): Promise<void> {
   cachedToken = null;
   try { await SecureStore.deleteItemAsync(TOKEN_KEY); } catch { /* keystore unavailable */ }
 }
+let currentLang: string = "en";
+/** The UI language sent as `x-lang`, so the API answers errors (moderation, validation, paused rounds) in it. */
+export function setApiLang(lang: string) { currentLang = lang; }
 export function setUnauthorizedHandler(fn: (() => void) | null) { unauthorizedHandler = fn; }
 
 export const api = createApiClient({
   baseUrl: API_URL,
   clientKind: "mobile",
   credentials: "omit",
+  getLang: () => currentLang,
   getToken: async () => (cachedToken === undefined ? loadToken() : cachedToken),
   onUnauthorized: () => unauthorizedHandler?.()
 });

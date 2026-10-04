@@ -3,13 +3,16 @@ import { useColorScheme } from "react-native";
 import { themes, radii, space, brand, palette, type ThemeName } from "@unsaid/tokens";
 
 export type Colors = { [K in keyof (typeof themes)["dark"]]: string };
+let hebrewFonts = false;
+/** Bricolage Grotesque and Inter have no Hebrew glyphs, so Hebrew uses Heebo (same weights). Read lazily at render time. */
+export const setHebrewFonts = (v: boolean) => { hebrewFonts = v; };
 export const fontFamily = {
-  display: "BricolageGrotesque_700Bold",
-  displaySemi: "BricolageGrotesque_600SemiBold",
-  body: "Inter_400Regular",
-  bodyMedium: "Inter_500Medium",
-  bodySemi: "Inter_600SemiBold"
-} as const;
+  get display() { return hebrewFonts ? "Heebo_700Bold" : "BricolageGrotesque_700Bold"; },
+  get displaySemi() { return hebrewFonts ? "Heebo_600SemiBold" : "BricolageGrotesque_600SemiBold"; },
+  get body() { return hebrewFonts ? "Heebo_400Regular" : "Inter_400Regular"; },
+  get bodyMedium() { return hebrewFonts ? "Heebo_500Medium" : "Inter_500Medium"; },
+  get bodySemi() { return hebrewFonts ? "Heebo_600SemiBold" : "Inter_600SemiBold"; }
+};
 
 interface ThemeValue { name: ThemeName; colors: Colors; radii: typeof radii; space: typeof space; brand: typeof brand; palette: typeof palette }
 const ThemeContext = createContext<ThemeValue | null>(null);

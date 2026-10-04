@@ -24,11 +24,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       {createPortal(
         <div className="toasts" role="region" aria-label={t("common.notifications")} aria-live="polite">
-          {items.map((t) => (
-            <div key={t.id} className={`toast toast-${t.kind}`} role={t.kind === "error" ? "alert" : "status"}>
-              {t.kind === "success" ? <CheckCircle2 size={18} aria-hidden /> : <AlertCircle size={18} aria-hidden />}
-              <span>{t.message}</span>
-              <button type="button" className="icon-btn" aria-label={t("common.dismissNotification")} onClick={() => dismiss(t.id)}><X size={16} aria-hidden /></button>
+          {items.map((it) => (
+            <div key={it.id} className={`toast toast-${it.kind}`} role={it.kind === "error" ? "alert" : "status"}>
+              {it.kind === "success" ? <CheckCircle2 size={18} aria-hidden /> : <AlertCircle size={18} aria-hidden />}
+              <span>{it.message}</span>
+              <button type="button" className="icon-btn" aria-label={t("common.dismissNotification")} onClick={() => dismiss(it.id)}><X size={16} aria-hidden /></button>
             </div>
           ))}
         </div>,
