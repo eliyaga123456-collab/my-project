@@ -74,20 +74,31 @@ export default function Me() {
     setBusy(false);
   };
 
-  const pickAvatar = () => guard(async () => {
-    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) { toast.show(t("me.photoAccess"), "info"); return; }
-    const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], allowsEditing: true, aspect: [1, 1], quality: 0.8 });
+  const pickAvatar = async () => {
+    // The system photo picker needs NO storage permission (and asking for READ_MEDIA_IMAGES, which we don't declare, always fails on Android 13+).
+    let res: ImagePicker.ImagePickerResult;
+    try {
+      res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], allowsEditing: true, aspect: [1, 1], quality: 0.8 });
+    } catch (e) {
+      toast.show(t("me.photoPickFailed", { reason: String((e as Error)?.message ?? e).slice(0, 120) }), "error");
+      return;
+    }
     if (res.canceled || !res.assets[0]) return;
     const a = res.assets[0];
     if (a.fileSize && a.fileSize > LIMITS.avatarMaxBytes) { toast.show(t("me.photoTooBig"), "error"); return; }
     const type = a.mimeType === "image/png" || a.mimeType === "image/webp" ? a.mimeType : "image/jpeg";
     const ext = type === "image/png" ? "png" : type === "image/webp" ? "webp" : "jpg";
-    const form = new FormData();
-    form.append("file", { uri: a.uri, name: `avatar.${ext}`, type } as unknown as Blob);
-    const next = await api.profile.uploadAvatar(form);
-    patchMe((m) => ({ ...m, profile: next })); toast.show(t("me.photoUpdated"), "success");
-  });
+    setBusy(true);
+    try {
+      const form = new FormData();
+      form.append("file", { uri: a.uri, name: `avatar.${ext}`, type } as unknown as Blob);
+      const next = await api.profile.uploadAvatar(form);
+      patchMe((m) => ({ ...m, profile: next })); toast.show(t("me.photoUpdated"), "success");
+    } catch (e) {
+      toast.show(t("me.photoUploadFailed", { reason: errorMessage(e) }), "error"); report(e);
+    }
+    setBusy(false);
+  };
   const removeAvatar = () => guard(async () => { const next = await api.profile.removeAvatar(); patchMe((m) => ({ ...m, profile: next })); toast.show(t("me.photoRemoved"), "success"); });
 
   return (

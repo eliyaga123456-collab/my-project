@@ -8,7 +8,7 @@ import { checkForUpdate, downloadAndInstall, installedBuild, updaterEnabled, typ
 import { useToast } from "./Toast";
 
 /** Shows "Update available" on the Me tab for the sideloaded Android build. Renders nothing when there is no update (or on Play/iOS builds). */
-export function UpdateCard() {
+export function UpdateCard({ onlyWhenAvailable = false }: { onlyWhenAvailable?: boolean }) {
   const { t } = useT();
   const [info, setInfo] = useState<UpdateInfo | null>(null);
   const [progress, setProgress] = useState<number | null>(null);
@@ -25,6 +25,7 @@ export function UpdateCard() {
   }, [refresh]);
 
   if (!updaterEnabled()) return null;
+  if (!info?.available && onlyWhenAvailable) return null;
   if (!info?.available) {
     const check = async () => {
       setChecking(true);

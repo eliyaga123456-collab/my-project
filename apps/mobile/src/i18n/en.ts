@@ -349,6 +349,8 @@ export const en = {
     profileSaved: "Profile saved",
     usernameChanged: "Username changed. Your old link no longer works.",
     photoAccess: "Allow photo access in Settings to choose a picture.",
+    photoPickFailed: "Couldn't open your photos: {reason}",
+    photoUploadFailed: "Couldn't upload the photo: {reason}",
     photoTooBig: "That image is over 10 MB. Pick a smaller one.",
     photoUpdated: "Photo updated",
     photoRemoved: "Photo removed",

@@ -18,6 +18,7 @@ import { isolate, useT, type Key } from "@/i18n";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Chips } from "@/components/Chips";
 import { Button } from "@/components/Button";
+import { UpdateCard } from "@/components/UpdateCard";
 import { useQuickRound } from "@/lib/quickRound";
 import type { LinkDto } from "@unsaid/shared";
 
@@ -98,6 +99,7 @@ export default function Inbox() {
 
   const header = (
     <View style={{ gap: 14, marginBottom: 16 }}>
+      <UpdateCard onlyWhenAvailable />
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
         <Text variant="title" style={{ flex: 1 }}>{t("inbox.title")}</Text>
         <Button title={t("share.newRoundShort")} small onPress={() => void quick.create()} loading={quick.busy} />

@@ -349,6 +349,8 @@ export const he: Dict = {
     profileSaved: "הפרופיל נשמר",
     usernameChanged: "שם המשתמש השתנה. הקישור הישן כבר לא עובד.",
     photoAccess: "אפשרו גישה לתמונות בהגדרות כדי לבחור תמונה.",
+    photoPickFailed: "לא הצלחנו לפתוח את התמונות: {reason}",
+    photoUploadFailed: "לא הצלחנו להעלות את התמונה: {reason}",
     photoTooBig: "התמונה גדולה מ-10MB. בחרו תמונה קטנה יותר.",
     photoUpdated: "התמונה עודכנה",
     photoRemoved: "התמונה הוסרה",
