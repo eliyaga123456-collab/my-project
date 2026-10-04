@@ -11,13 +11,14 @@ import { Screen } from "@/components/Screen";
 import { SkeletonList } from "@/components/Skeleton";
 import { Text } from "@/components/Text";
 import { api } from "@/lib/api";
-import { timeAgo } from "@/lib/format";
+import { useT } from "@/i18n";
 import { useRequest } from "@/lib/hooks";
 import { useAuth } from "@/providers/AuthProvider";
 
 export default function MessageScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const { t, formatRelative } = useT();
   const { refreshMe } = useAuth();
   const { data, setData, error, loading, reload } = useRequest(() => api.messages.get(String(id)), [id]);
 
@@ -36,24 +37,24 @@ export default function MessageScreen() {
   return (
     <Screen>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-        <Text variant="title">Message</Text>
-        <IconButton icon="close" label="Close" filled onPress={() => (router.canGoBack() ? router.back() : router.replace("/inbox"))} />
+        <Text variant="title" style={{ flex: 1 }}>{t("message.title")}</Text>
+        <IconButton icon="close" label={t("message.close")} filled onPress={() => (router.canGoBack() ? router.back() : router.replace("/inbox"))} />
       </View>
-      {loading ? <SkeletonList count={1} /> : error || !data ? <ErrorState message={error ?? "Message not found"} onRetry={reload} /> : (
+      {loading ? <SkeletonList count={1} /> : error || !data ? <ErrorState message={error ?? t("message.notFound")} onRetry={reload} /> : (
         <>
           <Card style={{ gap: 12 }}>
-            <Text variant="label" tone="muted">Anonymous · {timeAgo(data.createdAt)}</Text>
+            <Text variant="label" tone="muted">{t("message.anonymousAgo", { time: formatRelative(data.createdAt) })}</Text>
             <Text style={{ fontSize: 20, lineHeight: 29 }} selectable>{data.body}</Text>
           </Card>
           {data.reply ? (
             <Card style={{ gap: 8 }}>
-              <Text variant="label" tone="secondary">{data.reply.public ? "Your public answer" : "Your private reply"}</Text>
+              <Text variant="label" tone="secondary">{data.reply.public ? t("message.yourPublicAnswer") : t("message.yourPrivateReply")}</Text>
               <Text selectable>{data.reply.text}</Text>
             </Card>
           ) : null}
-          <Button title={data.reply ? "Edit reply" : "Reply"} onPress={() => actions.open(data, "reply")} />
-          {data.reply ? <Button title="Share answer" variant="secondary" onPress={() => actions.open(data, "share")} /> : null}
-          <Button title="More actions" variant="ghost" onPress={() => actions.open(data)} />
+          <Button title={data.reply ? t("message.editReply") : t("message.reply")} onPress={() => actions.open(data, "reply")} />
+          {data.reply ? <Button title={t("message.shareAnswer")} variant="secondary" onPress={() => actions.open(data, "share")} /> : null}
+          <Button title={t("message.moreActions")} variant="ghost" onPress={() => actions.open(data)} />
         </>
       )}
       {actions.element}

@@ -9,20 +9,22 @@ import { Text } from "@/components/Text";
 import { useToast } from "@/components/Toast";
 import { api } from "@/lib/api";
 import { errorMessage } from "@/lib/errors";
+import { useT, type Key } from "@/i18n";
 import { useAuth } from "@/providers/AuthProvider";
 import { registerForPush } from "@/lib/push";
 
-const ROWS: { key: keyof NotificationPrefs; label: string; description?: string }[] = [
-  { key: "inAppNewMessage", label: "In-app: new messages" },
-  { key: "pushNewMessage", label: "Push: new messages", description: "A nudge when someone writes to you." },
-  { key: "pushActivity", label: "Push: activity", description: "Safety and account updates." },
-  { key: "emailNewMessage", label: "Email: new messages" },
-  { key: "emailDigest", label: "Email: daily digest" },
-  { key: "emailSafety", label: "Email: safety alerts" }
+const ROWS: { key: keyof NotificationPrefs; label: Key; description?: Key }[] = [
+  { key: "inAppNewMessage", label: "settings.notifications.inAppNewMessage" },
+  { key: "pushNewMessage", label: "settings.notifications.pushNewMessage", description: "settings.notifications.pushNewMessageDesc" },
+  { key: "pushActivity", label: "settings.notifications.pushActivity", description: "settings.notifications.pushActivityDesc" },
+  { key: "emailNewMessage", label: "settings.notifications.emailNewMessage" },
+  { key: "emailDigest", label: "settings.notifications.emailDigest" },
+  { key: "emailSafety", label: "settings.notifications.emailSafety" }
 ];
 
 export default function NotificationSettings() {
   const toast = useToast();
+  const { t } = useT();
   const { me, patchMe } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [busyKey, setBusyKey] = useState<string | null>(null);
@@ -41,12 +43,12 @@ export default function NotificationSettings() {
 
   return (
     <Screen>
-      <SubHeader title="Notifications" />
+      <SubHeader title={t("settings.notifications.title")} />
       {error ? <ErrorBanner message={error} /> : null}
       <Card>
-        {ROWS.map((r) => <SwitchRow key={r.key} label={r.label} description={r.description} value={prefs[r.key]} disabled={busyKey === r.key} onChange={(v) => set(r.key, v)} />)}
+        {ROWS.map((r) => <SwitchRow key={r.key} label={t(r.label)} description={r.description ? t(r.description) : undefined} value={prefs[r.key]} disabled={busyKey === r.key} onChange={(v) => set(r.key, v)} />)}
       </Card>
-      <Text variant="caption" tone="muted">Push notifications also need permission in your device settings.</Text>
+      <Text variant="caption" tone="muted">{t("settings.notifications.footnote")}</Text>
     </Screen>
   );
 }

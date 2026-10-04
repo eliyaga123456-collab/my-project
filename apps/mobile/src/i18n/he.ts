@@ -314,8 +314,7 @@ export const he: Dict = {
     photoTooBig: "התמונה גדולה מ-2MB. בחרו תמונה קטנה יותר.",
     photoUpdated: "התמונה עודכנה",
     photoRemoved: "התמונה הוסרה",
-    inviteMessage: "מורידים את EAR, שאלות ותשובות אנונימיות: {url}",
-    imagePickerPermission: "EAR משתמשת בתמונות שלכם כדי שתוכלו לבחור תמונת פרופיל."
+    inviteMessage: "מורידים את EAR, שאלות ותשובות אנונימיות: {url}"
   },
   settings: {
     safety: {

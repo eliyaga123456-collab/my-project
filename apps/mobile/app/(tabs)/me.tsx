@@ -21,10 +21,13 @@ import { validateUsername } from "@/lib/validation";
 import { useAuth } from "@/providers/AuthProvider";
 import { useNetwork } from "@/providers/NetworkProvider";
 import { Badge } from "@/components/Badge";
+import { LanguagePicker } from "@/components/LanguagePicker";
+import { isolate, stripIsolates, useT } from "@/i18n";
 
 export default function Me() {
   const router = useRouter();
   const toast = useToast();
+  const { t, locale } = useT();
   const { report } = useNetwork();
   const { me, patchMe, logout } = useAuth();
   const [editing, setEditing] = useState(false);
@@ -44,7 +47,7 @@ export default function Me() {
   const openEdit = () => { setDisplayName(p.displayName); setBio(p.bio); setPrompt(p.prompt); setEditing(true); };
   const saveProfile = () => guard(async () => {
     const next = await api.profile.update({ displayName: displayName.trim(), bio: bio.trim(), prompt: prompt.trim() });
-    patchMe((m) => ({ ...m, profile: next })); setEditing(false); toast.show("Profile saved", "success");
+    patchMe((m) => ({ ...m, profile: next })); setEditing(false); toast.show(t("me.profileSaved"), "success");
   });
 
   const saveUsername = async () => {
@@ -53,75 +56,79 @@ export default function Me() {
     setUsernameError(null); setBusy(true);
     try {
       const next = await api.profile.changeUsername(v.value);
-      patchMe((m) => ({ ...m, profile: next, user: { ...m.user, username: next.username } })); setRenaming(false); toast.show("Username changed. Your old link no longer works.", "success");
+      patchMe((m) => ({ ...m, profile: next, user: { ...m.user, username: next.username } })); setRenaming(false); toast.show(t("me.usernameChanged"), "success");
     } catch (e) {
-      if (e instanceof ApiError && (e.code === "conflict" || e.code === "validation_error" || e.code === "rate_limited")) setUsernameError(e.friendly); else { toast.show(errorMessage(e), "error"); report(e); }
+      if (e instanceof ApiError && (e.code === "conflict" || e.code === "validation_error" || e.code === "rate_limited")) setUsernameError(errorMessage(e)); else { toast.show(errorMessage(e), "error"); report(e); }
     }
     setBusy(false);
   };
 
   const pickAvatar = () => guard(async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) { toast.show("Allow photo access in Settings to choose a picture.", "info"); return; }
+    if (!perm.granted) { toast.show(t("me.photoAccess"), "info"); return; }
     const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], allowsEditing: true, aspect: [1, 1], quality: 0.8 });
     if (res.canceled || !res.assets[0]) return;
     const a = res.assets[0];
-    if (a.fileSize && a.fileSize > LIMITS.avatarMaxBytes) { toast.show("That image is over 2 MB. Pick a smaller one.", "error"); return; }
+    if (a.fileSize && a.fileSize > LIMITS.avatarMaxBytes) { toast.show(t("me.photoTooBig"), "error"); return; }
     const type = a.mimeType === "image/png" || a.mimeType === "image/webp" ? a.mimeType : "image/jpeg";
     const ext = type === "image/png" ? "png" : type === "image/webp" ? "webp" : "jpg";
     const form = new FormData();
     form.append("file", { uri: a.uri, name: `avatar.${ext}`, type } as unknown as Blob);
     const next = await api.profile.uploadAvatar(form);
-    patchMe((m) => ({ ...m, profile: next })); toast.show("Photo updated", "success");
+    patchMe((m) => ({ ...m, profile: next })); toast.show(t("me.photoUpdated"), "success");
   });
-  const removeAvatar = () => guard(async () => { const next = await api.profile.removeAvatar(); patchMe((m) => ({ ...m, profile: next })); toast.show("Photo removed", "success"); });
+  const removeAvatar = () => guard(async () => { const next = await api.profile.removeAvatar(); patchMe((m) => ({ ...m, profile: next })); toast.show(t("me.photoRemoved"), "success"); });
 
   return (
     <Screen tabs>
-      <Text variant="title">Me</Text>
+      <Text variant="title">{t("me.title")}</Text>
       <Card style={{ alignItems: "center", gap: 10 }}>
         <Avatar name={p.displayName || p.username} uri={p.avatarUrl} size={88} />
         <Text variant="heading">{p.displayName || p.username}</Text>
-        <Text tone="muted">@{p.username}</Text>
+        <Text tone="muted" style={{ textAlign: "center" }}>{isolate(`@${p.username}`)}</Text>
         {p.bio ? <Text style={{ textAlign: "center" }}>{p.bio}</Text> : null}
         <View style={{ flexDirection: "row", gap: 8, marginTop: 4 }}>
-          <Button title="Edit profile" small variant="secondary" onPress={openEdit} />
-          <Button title={p.avatarUrl ? "Change photo" : "Add photo"} small variant="ghost" onPress={pickAvatar} loading={busy} />
+          <Button title={t("me.editProfile")} small variant="secondary" onPress={openEdit} />
+          <Button title={p.avatarUrl ? t("me.changePhoto") : t("me.addPhoto")} small variant="ghost" onPress={pickAvatar} loading={busy} />
         </View>
-        {p.avatarUrl ? <Button title="Remove photo" small variant="ghost" onPress={removeAvatar} /> : null}
+        {p.avatarUrl ? <Button title={t("me.removePhoto")} small variant="ghost" onPress={removeAvatar} /> : null}
       </Card>
 
       {!me.user.emailVerified ? (
         <Card style={{ gap: 8 }}>
-          <Badge label="Email not verified" tone="warning" />
-          <Text tone="muted">Verify {me.user.email} to publish public answers.</Text>
-          <Button title="Resend verification email" small variant="secondary" onPress={() => guard(async () => { await api.auth.resendVerification(); toast.show("Verification email sent", "success"); })} />
+          <Badge label={t("me.emailNotVerified")} tone="warning" />
+          <Text tone="muted">{t("me.verifyBody", { email: me.user.email })}</Text>
+          <Button title={t("me.resend")} small variant="secondary" onPress={() => guard(async () => { await api.auth.resendVerification(); toast.show(t("me.verificationSent"), "success"); })} />
         </Card>
       ) : null}
 
       <Card style={{ paddingVertical: 4 }}>
-        <NavRow icon="user" label="Username" detail={`@${p.username}`} onPress={() => { setUsername(p.username); setUsernameError(null); setRenaming(true); }} />
-        <NavRow icon="shield" label="Safety & privacy" onPress={() => router.push("/settings/safety")} />
-        <NavRow icon="bell" label="Notifications" onPress={() => router.push("/settings/notifications")} />
-        <NavRow icon="lock" label="Sessions" onPress={() => router.push("/settings/sessions")} />
-        <NavRow icon="lock" label="Change password" onPress={() => router.push("/settings/password")} />
-        <NavRow icon="send" label="Download the app — invite friends" onPress={() => { void Share.share({ message: `Get EAR — anonymous questions & replies: ${WEB_URL}/install` }).catch(() => undefined); }} />
+        <NavRow icon="user" label={t("me.username")} detail={isolate(`@${p.username}`)} onPress={() => { setUsername(p.username); setUsernameError(null); setRenaming(true); }} />
+        <NavRow icon="shield" label={t("me.safety")} onPress={() => router.push("/settings/safety")} />
+        <NavRow icon="bell" label={t("me.notifications")} onPress={() => router.push("/settings/notifications")} />
+        <NavRow icon="lock" label={t("me.sessions")} onPress={() => router.push("/settings/sessions")} />
+        <NavRow icon="lock" label={t("me.changePassword")} onPress={() => router.push("/settings/password")} />
+        <NavRow icon="send" label={t("me.invite")} onPress={() => { void Share.share({ message: stripIsolates(t("me.inviteMessage", { url: `${WEB_URL}/install` })) }).catch(() => undefined); }} />
       </Card>
-      <Text variant="caption" tone="muted" style={{ textAlign: "center" }}>Signed in as {me.user.email}</Text>
-      <Button title="Log out" variant="danger" onPress={() => setConfirmLogout(true)} />
+      <Card style={{ gap: 10 }}>
+        <Text variant="bodyStrong">{locale === "he" ? `${isolate("שפה")} / ${isolate("Language")}` : `${isolate("Language")} / ${isolate("שפה")}`}</Text>
+        <LanguagePicker />
+      </Card>
+      <Text variant="caption" tone="muted" style={{ textAlign: "center" }}>{t("me.signedInAs", { email: me.user.email })}</Text>
+      <Button title={t("me.logOut")} variant="danger" onPress={() => setConfirmLogout(true)} />
 
-      <BottomSheet visible={editing} onClose={() => setEditing(false)} title="Edit profile">
-        <Input label="Display name" value={displayName} onChangeText={setDisplayName} maxLength={LIMITS.displayNameMax} />
-        <Textarea label="Bio" value={bio} onChangeText={setBio} max={LIMITS.bioMax} />
-        <Input label="Prompt shown above the message box" value={prompt} onChangeText={setPrompt} maxLength={LIMITS.promptMax} placeholder="Ask me anything…" />
-        <Button title="Save" onPress={saveProfile} loading={busy} disabled={displayName.trim().length === 0 || bio.length > LIMITS.bioMax} />
+      <BottomSheet visible={editing} onClose={() => setEditing(false)} title={t("me.editTitle")}>
+        <Input label={t("me.displayName")} value={displayName} onChangeText={setDisplayName} maxLength={LIMITS.displayNameMax} />
+        <Textarea label={t("me.bio")} value={bio} onChangeText={setBio} max={LIMITS.bioMax} />
+        <Input label={t("me.prompt")} value={prompt} onChangeText={setPrompt} maxLength={LIMITS.promptMax} placeholder={t("me.promptPlaceholder")} />
+        <Button title={t("common.save")} onPress={saveProfile} loading={busy} disabled={displayName.trim().length === 0 || bio.length > LIMITS.bioMax} />
       </BottomSheet>
-      <BottomSheet visible={renaming} onClose={() => setRenaming(false)} title="Change username">
-        <Text tone="muted">Your old link stops working and you can change this once every 7 days.</Text>
-        <Input label="Username" value={username} onChangeText={(t) => setUsername(t.toLowerCase())} error={usernameError} autoCapitalize="none" autoCorrect={false} maxLength={LIMITS.usernameMax} />
-        <Button title="Change username" onPress={saveUsername} loading={busy} disabled={username === p.username} />
+      <BottomSheet visible={renaming} onClose={() => setRenaming(false)} title={t("me.renameTitle")}>
+        <Text tone="muted">{t("me.renameBody")}</Text>
+        <Input ltr label={t("me.username")} value={username} onChangeText={(t) => setUsername(t.toLowerCase())} error={usernameError} autoCapitalize="none" autoCorrect={false} maxLength={LIMITS.usernameMax} />
+        <Button title={t("me.renameSubmit")} onPress={saveUsername} loading={busy} disabled={username === p.username} />
       </BottomSheet>
-      <ConfirmSheet visible={confirmLogout} title="Log out?" message="You'll stop getting push notifications on this device until you sign in again." confirmLabel="Log out" destructive onConfirm={() => { setConfirmLogout(false); void logout(); }} onCancel={() => setConfirmLogout(false)} />
+      <ConfirmSheet visible={confirmLogout} title={t("me.logoutTitle")} message={t("me.logoutBody")} confirmLabel={t("me.logOut")} destructive onConfirm={() => { setConfirmLogout(false); void logout(); }} onCancel={() => setConfirmLogout(false)} />
     </Screen>
   );
 }

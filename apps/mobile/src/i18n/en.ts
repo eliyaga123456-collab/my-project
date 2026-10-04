@@ -314,8 +314,7 @@ export const en = {
     photoTooBig: "That image is over 2 MB. Pick a smaller one.",
     photoUpdated: "Photo updated",
     photoRemoved: "Photo removed",
-    inviteMessage: "Get EAR — anonymous questions & replies: {url}",
-    imagePickerPermission: "EAR uses your photos so you can choose a profile picture."
+    inviteMessage: "Get EAR — anonymous questions & replies: {url}"
   },
   settings: {
     safety: {

@@ -13,13 +13,14 @@ import { Text } from "@/components/Text";
 import { useToast } from "@/components/Toast";
 import { api } from "@/lib/api";
 import { errorMessage } from "@/lib/errors";
-import { timeAgo } from "@/lib/format";
+import { useT } from "@/i18n";
 import { useRequest } from "@/lib/hooks";
 import { useAuth } from "@/providers/AuthProvider";
 import { Skeleton } from "@/components/Skeleton";
 
 export default function Safety() {
   const toast = useToast();
+  const { t, formatRelative } = useT();
   const { me, patchMe } = useAuth();
   const words = useRequest(() => api.settings.hiddenWords().then((r) => r.items));
   const blocks = useRequest(() => api.blocks.list().then((r) => r.items));
@@ -39,47 +40,47 @@ export default function Safety() {
   };
   const addWord = async () => {
     const w = word.trim().toLowerCase();
-    if (w.length < 2) { setError("Hidden words need at least 2 characters"); return; }
+    if (w.length < 2) { setError(t("settings.safety.wordTooShort")); return; }
     setBusy(true);
     try { const r = await api.settings.addHiddenWord(w); words.setData((d) => [...(d ?? []), r]); setWord(""); setError(null); } catch (e) { fail(e); }
     setBusy(false);
   };
   const removeWord = async (id: string) => { try { await api.settings.removeHiddenWord(id); words.setData((d) => (d ?? []).filter((w) => w.id !== id)); } catch (e) { fail(e); } };
-  const unblock = async (id: string) => { try { await api.blocks.remove(id); blocks.setData((d) => (d ?? []).filter((b) => b.id !== id)); toast.show("Unblocked", "success"); } catch (e) { fail(e); } };
+  const unblock = async (id: string) => { try { await api.blocks.remove(id); blocks.setData((d) => (d ?? []).filter((b) => b.id !== id)); toast.show(t("settings.safety.unblocked"), "success"); } catch (e) { fail(e); } };
 
   return (
     <Screen>
-      <SubHeader title="Safety & privacy" />
+      <SubHeader title={t("settings.safety.title")} />
       {error ? <ErrorBanner message={error} /> : null}
       <Card>
-        <SwitchRow label="Accepting messages" description="Turn off to stop all new anonymous messages." value={me.settings.acceptingMessages} onChange={(v) => setting({ acceptingMessages: v })} />
-        <SwitchRow label="Enhanced moderation" description="A stricter filter. More borderline messages go to Filtered." value={me.settings.enhancedModeration} onChange={(v) => setting({ enhancedModeration: v })} />
-        <SwitchRow label="Show answers publicly" description="Public answers appear on your profile page." value={me.settings.showAnswersPublicly} onChange={(v) => setting({ showAnswersPublicly: v })} />
-        {primary ? <SwitchRow label="Pause my link" description="Visitors see a paused page and can't send anything." value={primary.paused} onChange={togglePause} /> : links.loading ? <Skeleton height={40} /> : null}
+        <SwitchRow label={t("settings.safety.accepting")} description={t("settings.safety.acceptingDesc")} value={me.settings.acceptingMessages} onChange={(v) => setting({ acceptingMessages: v })} />
+        <SwitchRow label={t("settings.safety.enhanced")} description={t("settings.safety.enhancedDesc")} value={me.settings.enhancedModeration} onChange={(v) => setting({ enhancedModeration: v })} />
+        <SwitchRow label={t("settings.safety.showPublic")} description={t("settings.safety.showPublicDesc")} value={me.settings.showAnswersPublicly} onChange={(v) => setting({ showAnswersPublicly: v })} />
+        {primary ? <SwitchRow label={t("settings.safety.pause")} description={t("settings.safety.pauseDesc")} value={primary.paused} onChange={togglePause} /> : links.loading ? <Skeleton height={40} /> : null}
       </Card>
 
-      <Text variant="heading">Hidden words</Text>
-      <Text variant="caption" tone="muted">Messages containing these words go straight to Filtered. Up to {LIMITS.hiddenWordsPerUser}.</Text>
-      <Input label="Add a word" value={word} onChangeText={setWord} maxLength={LIMITS.hiddenWordMax} autoCapitalize="none" autoCorrect={false} returnKeyType="done" onSubmitEditing={addWord} />
-      <Button title="Hide word" small variant="secondary" onPress={addWord} loading={busy} disabled={word.trim().length < 2} />
+      <Text variant="heading">{t("settings.safety.hiddenWords")}</Text>
+      <Text variant="caption" tone="muted">{t("settings.safety.hiddenWordsDesc", { max: LIMITS.hiddenWordsPerUser })}</Text>
+      <Input label={t("settings.safety.addWord")} value={word} onChangeText={setWord} maxLength={LIMITS.hiddenWordMax} autoCapitalize="none" autoCorrect={false} returnKeyType="done" onSubmitEditing={addWord} />
+      <Button title={t("settings.safety.hideWord")} small variant="secondary" onPress={addWord} loading={busy} disabled={word.trim().length < 2} />
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
         {(words.data ?? []).map((w) => (
-          <View key={w.id} style={{ flexDirection: "row", alignItems: "center", paddingLeft: 14, borderRadius: 999, borderWidth: 1, borderColor: "rgba(140,140,170,0.4)" }}>
+          <View key={w.id} style={{ flexDirection: "row", alignItems: "center", paddingStart: 14, borderRadius: 999, borderWidth: 1, borderColor: "rgba(140,140,170,0.4)" }}>
             <Text variant="bodyStrong" style={{ fontSize: 14 }}>{w.word}</Text>
-            <IconButton icon="close" label={`Remove ${w.word}`} size={16} onPress={() => removeWord(w.id)} />
+            <IconButton icon="close" label={t("settings.safety.removeWord", { word: w.word })} size={16} onPress={() => removeWord(w.id)} />
           </View>
         ))}
       </View>
 
-      <Text variant="heading">Blocked sources</Text>
-      <Text variant="caption" tone="muted">EAR blocks an anonymous source (a network), not a person. Someone on a new network could still write to you.</Text>
-      {blocks.loading ? <Skeleton height={48} /> : (blocks.data ?? []).length === 0 ? <Text tone="muted">No blocked sources.</Text> : (blocks.data ?? []).map((b) => (
+      <Text variant="heading">{t("settings.safety.blocked")}</Text>
+      <Text variant="caption" tone="muted">{t("settings.safety.blockedDesc")}</Text>
+      {blocks.loading ? <Skeleton height={48} /> : (blocks.data ?? []).length === 0 ? <Text tone="muted">{t("settings.safety.noBlocked")}</Text> : (blocks.data ?? []).map((b) => (
         <Card key={b.id} style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
           <View style={{ flex: 1 }}>
             <Text variant="bodyStrong">{b.label}</Text>
-            <Text variant="caption" tone="muted">Blocked {timeAgo(b.createdAt)}</Text>
+            <Text variant="caption" tone="muted">{t("settings.safety.blockedAgo", { time: formatRelative(b.createdAt) })}</Text>
           </View>
-          <Button title="Unblock" small variant="secondary" onPress={() => unblock(b.id)} />
+          <Button title={t("settings.safety.unblock")} small variant="secondary" onPress={() => unblock(b.id)} />
         </Card>
       ))}
     </Screen>

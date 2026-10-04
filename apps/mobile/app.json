@@ -36,6 +36,22 @@
       "expo-secure-store",
       "expo-font",
       [
+        "expo-localization",
+        {
+          "supportsRTL": true,
+          "supportedLocales": {
+            "ios": [
+              "en",
+              "he"
+            ],
+            "android": [
+              "en",
+              "he"
+            ]
+          }
+        }
+      ],
+      [
         "expo-notifications",
         {
           "icon": "./assets/notification-icon.png",
@@ -56,6 +72,10 @@
     "icon": "./assets/icon.png",
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "locales": {
+      "en": "./locales/en.json",
+      "he": "./locales/he.json"
     }
   }
 }

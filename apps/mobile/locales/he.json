@@ -1,0 +1,6 @@
+{
+  "ios": {
+    "NSPhotoLibraryUsageDescription": "EAR משתמשת בתמונות שלכם כדי שתוכלו לבחור תמונת פרופיל."
+  },
+  "android": {}
+}
