@@ -5,21 +5,18 @@ import type { ReportAction } from "@unsaid/api-client";
 import { useAuth } from "../auth";
 import { client, errorMessage } from "../lib/client";
 import { usePaged } from "../lib/hooks";
-import { canBan, cleanNote, formatDateTime, formatRelative, labelize } from "../lib/format";
-import { Badge, Button, Card, ConfirmDialog, EmptyState, ErrorState, LoadMore, PageHeader, SkeletonRows, StatusBadge, Tabs, useToast } from "../ui";
+import { canBan, cleanNote } from "../lib/format";
+import { useT, type Key } from "../i18n";
+import { Badge, Button, Card, ConfirmDialog, EmptyState, ErrorState, LoadMore, Ltr, PageHeader, SkeletonRows, StatusBadge, Tabs, useToast } from "../ui";
 
-const SOURCE_NOTE = "Senders are anonymous and have no accounts, so this acts on the anonymous source (a one-way hashed reference), not on the recipient.";
-const COPY: Record<ReportAction, { label: string; title: string; danger: boolean; done: string; body: (r: AdminReportDto) => string }> = {
-  dismiss: { label: "Dismiss", title: "Dismiss report", danger: false, done: "Report dismissed", body: () => "The report will be closed without action." },
-  remove_message: { label: "Remove message", title: "Remove message", danger: true, done: "Message removed", body: () => "The message will be removed from the recipient's inbox and the report resolved. The sender is not penalised." },
-  suspend_user: { label: "Suspend source (7 days)", title: "Suspend source for 7 days", danger: true, done: "Source suspended for 7 days", body: () => `${SOURCE_NOTE} The source will be blocked from sending messages to anyone on EAR for 7 days, and the report resolved.` },
-  ban_user: { label: "Ban source", title: "Ban source", danger: true, done: "Source banned", body: () => `${SOURCE_NOTE} The source will be banned from sending messages platform-wide until an admin lifts the ban, and the report resolved.` }
-};
+const DANGER: Record<ReportAction, boolean> = { dismiss: false, remove_message: true, suspend_user: true, ban_user: true };
 const ICON = { dismiss: X, remove_message: EyeOff, suspend_user: ShieldOff, ban_user: Ban } as const;
+const key = (a: ReportAction, part: "" | ".title" | ".done" | ".body") => `reports.action.${a}${part}` as Key;
 
 export function ReportsPage() {
   const { user } = useAuth();
   const toast = useToast();
+  const { t, tn, te, fmt } = useT();
   const [status, setStatus] = useState<ReportStatus>("open");
   const list = usePaged((cursor) => client.admin.reports({ status, cursor, limit: 20 }), [status]);
   const [pending, setPending] = useState<{ report: AdminReportDto; action: ReportAction } | null>(null);
@@ -34,7 +31,7 @@ export function ReportsPage() {
     setPending(null);
     try {
       await client.admin.resolveReport(report.id, action, cleanNote(note));
-      toast.success(COPY[action].done);
+      toast.success(t(key(action, ".done")));
     } catch (e) {
       if (status === "open") list.setItems((l) => (l.some((r) => r.id === report.id) ? l : [...l.slice(0, index), report, ...l.slice(index)]));
       toast.error(errorMessage(e));
@@ -42,29 +39,35 @@ export function ReportsPage() {
   };
 
   const actions: ReportAction[] = (["dismiss", "remove_message", "suspend_user", ...(canBan(user?.role) ? ["ban_user"] : [])] as ReportAction[]);
+  /** "ban_user:source_expired" -> "Source banned (source expired)" */
+  const resolutionLabel = (r: string) => {
+    const [base, note] = r.split(":");
+    const label = te("resolution", base ?? r);
+    return note ? `${label} (${te("resolutionNote", note)})` : label;
+  };
 
   return (
     <>
-      <PageHeader title="Reports" subtitle="Messages flagged by recipients. Reporter and sender identities are never shown." />
-      <Tabs label="Report status" value={status} onChange={setStatus} tabs={[{ value: "open", label: "Open" }, { value: "resolved", label: "Resolved" }, { value: "dismissed", label: "Dismissed" }]} />
+      <PageHeader title={t("reports.title")} subtitle={t("reports.subtitle")} />
+      <Tabs label={t("reports.statusLabel")} value={status} onChange={setStatus} tabs={[{ value: "open", label: t("reports.tab.open") }, { value: "resolved", label: t("reports.tab.resolved") }, { value: "dismissed", label: t("reports.tab.dismissed") }]} />
       <div className="stack">
-        {list.loading ? <SkeletonRows rows={3} label="Loading reports" /> : list.error ? <ErrorState message={list.error} onRetry={list.reload} /> : list.items.length === 0 ? (
-          <EmptyState title={status === "open" ? "Inbox zero" : `No ${status} reports`} hint={status === "open" ? "No reports need attention." : undefined} />
+        {list.loading ? <SkeletonRows rows={3} label={t("reports.loading")} /> : list.error ? <ErrorState message={list.error} onRetry={list.reload} /> : list.items.length === 0 ? (
+          <EmptyState title={status === "open" ? t("reports.emptyOpen") : status === "resolved" ? t("reports.emptyResolved") : t("reports.emptyDismissed")} hint={status === "open" ? t("reports.emptyOpenHint") : undefined} />
         ) : (
           <>
             {list.items.map((r) => (
               <Card as="article" key={r.id} className="report">
                 <div className="report-top">
-                  <span className="badges"><Badge tone="ember">{labelize(r.reason)}</Badge><StatusBadge status={r.status} />{r.sameSourceReports > 1 && <Badge tone="danger">{r.sameSourceReports} reports from same source</Badge>}</span>
-                  <time className="muted small" dateTime={r.createdAt} title={formatDateTime(r.createdAt)}>{formatRelative(r.createdAt)}</time>
+                  <span className="badges"><Badge tone="ember">{te("category", r.reason)}</Badge><StatusBadge status={r.status} />{r.sameSourceReports > 1 && <Badge tone="danger">{tn("reports.sameSource", r.sameSourceReports)}</Badge>}</span>
+                  <time className="muted small" dateTime={r.createdAt} title={fmt.dateTime(r.createdAt)}>{fmt.relative(r.createdAt)}</time>
                 </div>
-                <blockquote className="msg-body">{r.message.body}</blockquote>
-                {r.message.filteredCategories.length > 0 && <p className="small muted">Auto-filter flagged: {r.message.filteredCategories.map(labelize).join(", ")}</p>}
-                {r.details && <p className="report-details"><span className="muted small">Reporter's details</span><br />{r.details}</p>}
-                <p className="small muted">Recipient <strong>@{r.recipient.username}</strong> <StatusBadge status={r.recipient.status} />{r.resolution && <> · Resolution: {labelize(r.resolution)}</>}{r.resolvedAt && <> · {formatRelative(r.resolvedAt)}</>}</p>
+                <blockquote className="msg-body" dir="auto">{r.message.body}</blockquote>
+                {r.message.filteredCategories.length > 0 && <p className="small muted">{t("reports.autoFilter", { categories: r.message.filteredCategories.map((c) => te("category", c)).join(", ") })}</p>}
+                {r.details && <p className="report-details" dir="auto"><span className="muted small">{t("reports.details")}</span><br />{r.details}</p>}
+                <p className="small muted">{t("reports.recipient")} <strong><Ltr>@{r.recipient.username}</Ltr></strong> <StatusBadge status={r.recipient.status} />{r.resolution && <> · {t("reports.resolution", { resolution: resolutionLabel(r.resolution) })}</>}{r.resolvedAt && <> · {fmt.relative(r.resolvedAt)}</>}</p>
                 {r.status === "open" && (
                   <div className="row-actions">
-                    {actions.map((a) => { const I = ICON[a]; return <Button key={a} size="sm" variant={a === "dismiss" ? "ghost" : COPY[a].danger ? "danger" : "secondary"} icon={<I size={14} aria-hidden />} onClick={() => setPending({ report: r, action: a })}>{COPY[a].label}</Button>; })}
+                    {actions.map((a) => { const I = ICON[a]; return <Button key={a} size="sm" variant={a === "dismiss" ? "ghost" : DANGER[a] ? "danger" : "secondary"} icon={<I size={14} aria-hidden />} onClick={() => setPending({ report: r, action: a })}>{t(key(a, ""))}</Button>; })}
                   </div>
                 )}
               </Card>
@@ -73,7 +76,11 @@ export function ReportsPage() {
           </>
         )}
       </div>
-      {pending && <ConfirmDialog open title={COPY[pending.action].title} confirmLabel={COPY[pending.action].label} danger={COPY[pending.action].danger} body={<p>{COPY[pending.action].body(pending.report)}</p>} onClose={() => setPending(null)} onConfirm={resolve} />}
+      {pending && (
+        <ConfirmDialog open title={t(key(pending.action, ".title"))} confirmLabel={t(key(pending.action, ""))} danger={DANGER[pending.action]}
+          body={<p>{pending.action === "suspend_user" || pending.action === "ban_user" ? `${t("reports.sourceNote")} ` : ""}{t(key(pending.action, ".body"))}</p>}
+          onClose={() => setPending(null)} onConfirm={resolve} />
+      )}
     </>
   );
 }

@@ -2,42 +2,43 @@ import { RefreshCw } from "lucide-react";
 import type { AdminAbuseDto } from "@unsaid/shared";
 import { client } from "../lib/client";
 import { useAsync } from "../lib/hooks";
-import { formatNumber, formatRelative, labelize } from "../lib/format";
-import { Button, Card, EmptyState, ErrorState, PageHeader, SkeletonRows, StatCard, Table, type Column } from "../ui";
+import { useT } from "../i18n";
+import { Button, Card, EmptyState, ErrorState, Ltr, PageHeader, SkeletonRows, StatCard, Table, type Column } from "../ui";
 
 type Source = AdminAbuseDto["topSources"][number];
-const columns: Column<Source>[] = [
-  { key: "ref", header: "Source (hashed)", render: (s) => <span className="mono" title={s.sourceRef}>{s.sourceRef.length > 16 ? `${s.sourceRef.slice(0, 16)}…` : s.sourceRef}</span> },
-  { key: "m", header: "Messages", className: "num", render: (s) => formatNumber(s.messages) },
-  { key: "rej", header: "Rejected", className: "num", render: (s) => formatNumber(s.rejected) },
-  { key: "rep", header: "Reports", className: "num", render: (s) => formatNumber(s.reports) },
-  { key: "seen", header: "Last seen", render: (s) => formatRelative(s.lastSeenAt) }
-];
 
 export function AbusePage() {
+  const { t, te, fmt } = useT();
   const { data, error, loading, reload } = useAsync(() => client.admin.abuse(), []);
   const max = Math.max(1, ...(data?.rejectedByCategory.map((c) => c.count) ?? [1]));
+  const columns: Column<Source>[] = [
+    { key: "ref", header: t("abuse.col.source"), render: (s) => <Ltr className="mono" title={s.sourceRef}>{s.sourceRef.length > 16 ? `${s.sourceRef.slice(0, 16)}…` : s.sourceRef}</Ltr> },
+    { key: "m", header: t("abuse.col.messages"), className: "num", render: (s) => fmt.number(s.messages) },
+    { key: "rej", header: t("abuse.col.rejected"), className: "num", render: (s) => fmt.number(s.rejected) },
+    { key: "rep", header: t("abuse.col.reports"), className: "num", render: (s) => fmt.number(s.reports) },
+    { key: "seen", header: t("abuse.col.lastSeen"), render: (s) => fmt.relative(s.lastSeenAt) }
+  ];
   return (
     <>
-      <PageHeader title="Abuse detection" subtitle="Anonymous sources are shown as one-way hashes; identities are never revealed." actions={<Button size="sm" icon={<RefreshCw size={14} aria-hidden />} onClick={() => reload()}>Refresh</Button>} />
-      {loading && !data ? <SkeletonRows rows={4} label="Loading abuse data" /> : error && !data ? <ErrorState message={error} onRetry={() => reload()} /> : data && (
+      <PageHeader title={t("abuse.title")} subtitle={t("abuse.subtitle")} actions={<Button size="sm" icon={<RefreshCw size={14} aria-hidden />} onClick={() => reload()}>{t("common.refresh")}</Button>} />
+      {loading && !data ? <SkeletonRows rows={4} label={t("abuse.loading")} /> : error && !data ? <ErrorState message={error} onRetry={() => reload()} /> : data && (
         <div className="stack">
-          <div className="stat-grid two"><StatCard label="Flooding sources (24h)" value={formatNumber(data.floodingLast24h)} hint="sources over the send-rate threshold" tone={data.floodingLast24h > 0 ? "warning" : undefined} /></div>
-          <Card title="Rejected by category">
-            {data.rejectedByCategory.length === 0 ? <p className="muted">Nothing rejected.</p> : (
+          <div className="stat-grid two"><StatCard label={t("abuse.flooding")} value={fmt.number(data.floodingLast24h)} hint={t("abuse.floodingHint")} tone={data.floodingLast24h > 0 ? "warning" : undefined} /></div>
+          <Card title={t("abuse.byCategory")}>
+            {data.rejectedByCategory.length === 0 ? <p className="muted">{t("abuse.nothingRejected")}</p> : (
               <ul className="bars">
                 {data.rejectedByCategory.slice().sort((a, b) => b.count - a.count).map((c) => (
                   <li key={c.category}>
-                    <span className="bar-label">{labelize(c.category)}</span>
-                    <span className="bar-track" role="img" aria-label={`${labelize(c.category)}: ${c.count}`}><span className="bar-fill" style={{ width: `${Math.max(2, (c.count / max) * 100)}%` }} /></span>
-                    <span className="bar-val">{formatNumber(c.count)}</span>
+                    <span className="bar-label">{te("category", c.category)}</span>
+                    <span className="bar-track" role="img" aria-label={`${te("category", c.category)}: ${fmt.number(c.count)}`}><span className="bar-fill" style={{ width: `${Math.max(2, (c.count / max) * 100)}%` }} /></span>
+                    <span className="bar-val">{fmt.number(c.count)}</span>
                   </li>
                 ))}
               </ul>
             )}
           </Card>
-          <Card title="Top anonymous sources">
-            {data.topSources.length === 0 ? <EmptyState title="No suspicious sources" /> : <Table caption="Top anonymous sources" columns={columns} rows={data.topSources} rowKey={(s) => s.sourceRef} />}
+          <Card title={t("abuse.topSources")}>
+            {data.topSources.length === 0 ? <EmptyState title={t("abuse.noSources")} /> : <Table caption={t("abuse.topSources")} columns={columns} rows={data.topSources} rowKey={(s) => s.sourceRef} />}
           </Card>
         </div>
       )}

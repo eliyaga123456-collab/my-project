@@ -1,22 +1,20 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Ban, Search, ShieldCheck, ShieldOff, UserCheck } from "lucide-react";
 import type { AdminUserDto, UserStatus } from "@unsaid/shared";
 import { USER_STATUSES } from "@unsaid/shared";
 import { useAuth } from "../auth";
 import { client, errorMessage } from "../lib/client";
 import { useAsync, useDebounced, usePaged } from "../lib/hooks";
-import { allowedUserActions, cleanNote, formatDate, formatNumber, formatRelative, type UserAction } from "../lib/format";
-import { Badge, Button, ConfirmDialog, EmptyState, ErrorState, LoadMore, Modal, PageHeader, SkeletonRows, StatusBadge, Table, useToast, type Column } from "../ui";
+import { allowedUserActions, cleanNote, type UserAction } from "../lib/format";
+import { useT, type Key } from "../i18n";
+import { Badge, Button, ConfirmDialog, EmptyState, ErrorState, LoadMore, Ltr, Modal, PageHeader, SkeletonRows, StatusBadge, Table, useToast, type Column } from "../ui";
 
-const ACTION_COPY: Record<UserAction, { label: string; title: string; danger: boolean; done: string; body: (u: AdminUserDto) => string }> = {
-  suspend: { label: "Suspend", title: "Suspend user", danger: false, done: "User suspended", body: (u) => `@${u.username} will be unable to sign in or receive messages until unsuspended.` },
-  unsuspend: { label: "Unsuspend", title: "Unsuspend user", danger: false, done: "User unsuspended", body: (u) => `@${u.username} will regain access.` },
-  ban: { label: "Ban", title: "Ban user", danger: true, done: "User banned", body: (u) => `@${u.username} will be permanently banned and their profile removed from public view.` },
-  unban: { label: "Unban", title: "Unban user", danger: false, done: "User unbanned", body: (u) => `@${u.username} will regain access.` }
-};
+const DANGER: Record<UserAction, boolean> = { suspend: false, unsuspend: false, ban: true, unban: false };
+const key = (a: UserAction, part: "" | ".title" | ".done" | ".body") => `users.action.${a}${part}` as Key;
 const ICON: Record<UserAction, typeof Ban> = { suspend: ShieldOff, unsuspend: UserCheck, ban: Ban, unban: UserCheck };
 
 export function UsersPage() {
+  const { t, te, fmt } = useT();
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<"" | UserStatus>("");
   const dq = useDebounced(q.trim(), 300);
@@ -29,36 +27,36 @@ export function UsersPage() {
   };
 
   const columns: Column<AdminUserDto>[] = [
-    { key: "user", header: "User", render: (u) => <span className="cell-main"><strong>@{u.username}</strong><span className="muted small">{u.email}</span></span> },
-    { key: "status", header: "Status", render: (u) => <span className="badges"><StatusBadge status={u.status} />{u.role !== "user" && <Badge tone="info">{u.role}</Badge>}{!u.emailVerified && <Badge>unverified</Badge>}</span> },
-    { key: "msgs", header: "Messages", className: "num", render: (u) => formatNumber(u.messagesReceived) },
-    { key: "rep", header: "Reports filed", className: "num", render: (u) => formatNumber(u.reportsFiled) },
-    { key: "seen", header: "Last seen", render: (u) => formatRelative(u.lastSeenAt) },
-    { key: "joined", header: "Joined", render: (u) => formatDate(u.createdAt) }
+    { key: "user", header: t("users.col.user"), render: (u) => <span className="cell-main"><strong><Ltr>@{u.username}</Ltr></strong><Ltr className="muted small">{u.email}</Ltr></span> },
+    { key: "status", header: t("users.col.status"), render: (u) => <span className="badges"><StatusBadge status={u.status} />{u.role !== "user" && <Badge tone="info">{te("role", u.role)}</Badge>}{!u.emailVerified && <Badge>{t("common.unverified")}</Badge>}</span> },
+    { key: "msgs", header: t("users.col.messages"), className: "num", render: (u) => fmt.number(u.messagesReceived) },
+    { key: "rep", header: t("users.col.reportsFiled"), className: "num", render: (u) => fmt.number(u.reportsFiled) },
+    { key: "seen", header: t("users.col.lastSeen"), render: (u) => fmt.relative(u.lastSeenAt) },
+    { key: "joined", header: t("users.col.joined"), render: (u) => fmt.date(u.createdAt) }
   ];
 
   return (
     <>
-      <PageHeader title="Users" subtitle="Search by username, email or id." />
+      <PageHeader title={t("users.title")} subtitle={t("users.subtitle")} />
       <div className="toolbar">
         <label className="search">
           <Search size={16} aria-hidden />
-          <span className="sr-only">Search users</span>
-          <input className="input" type="search" placeholder="Username, email or id" value={q} onChange={(e) => setQ(e.target.value)} />
+          <span className="sr-only">{t("users.searchLabel")}</span>
+          <input className="input" type="search" placeholder={t("users.searchPlaceholder")} value={q} onChange={(e) => setQ(e.target.value)} />
         </label>
         <label className="select-wrap">
-          <span className="sr-only">Status</span>
+          <span className="sr-only">{t("users.statusLabel")}</span>
           <select className="input" value={status} onChange={(e) => setStatus(e.target.value as "" | UserStatus)}>
-            <option value="">All statuses</option>
-            {USER_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+            <option value="">{t("users.allStatuses")}</option>
+            {USER_STATUSES.map((s) => <option key={s} value={s}>{te("status", s)}</option>)}
           </select>
         </label>
       </div>
-      {list.loading ? <SkeletonRows label="Loading users" /> : list.error ? <ErrorState message={list.error} onRetry={list.reload} /> : list.items.length === 0 ? (
-        <EmptyState title="No users found" hint={dq || status ? "Try a different search or filter." : "Nobody has signed up yet."} />
+      {list.loading ? <SkeletonRows label={t("users.loading")} /> : list.error ? <ErrorState message={list.error} onRetry={list.reload} /> : list.items.length === 0 ? (
+        <EmptyState title={t("users.empty")} hint={dq || status ? t("users.emptyFiltered") : t("users.emptyNone")} />
       ) : (
         <>
-          <Table caption="Users" columns={columns} rows={list.items} rowKey={(u) => u.id} onRowClick={setSelected} rowLabel={(u) => `@${u.username}`} />
+          <Table caption={t("users.caption")} columns={columns} rows={list.items} rowKey={(u) => u.id} onRowClick={setSelected} rowLabel={(u) => `@${u.username}`} />
           <LoadMore hasMore={list.hasMore} loading={list.loadingMore} error={list.moreError} onClick={list.loadMore} shown={list.items.length} />
         </>
       )}
@@ -69,6 +67,7 @@ export function UsersPage() {
 
 function UserDrawer({ user, onClose, onUpdated }: { user: AdminUserDto; onClose: () => void; onUpdated: (u: AdminUserDto) => void }) {
   const { user: me } = useAuth();
+  const { t, te, fmt } = useT();
   const toast = useToast();
   const fresh = useAsync(() => client.admin.user(user.id), [user.id]);
   const u = fresh.data ?? user;
@@ -85,7 +84,7 @@ function UserDrawer({ user, onClose, onUpdated }: { user: AdminUserDto; onClose:
         : await client.admin.unsuspend(u.id, n);
       onUpdated(updated);
       fresh.reload(true);
-      toast.success(ACTION_COPY[action].done);
+      toast.success(t(key(action, ".done")));
       setAction(null);
     } catch (e) {
       toast.error(errorMessage(e));
@@ -93,28 +92,34 @@ function UserDrawer({ user, onClose, onUpdated }: { user: AdminUserDto; onClose:
     }
   };
 
-  const rows: [string, string][] = [
-    ["Display name", u.displayName || "–"], ["Email", u.email], ["Email verified", u.emailVerified ? "Yes" : "No"], ["Role", u.role],
-    ["Messages received", formatNumber(u.messagesReceived)], ["Reports filed", formatNumber(u.reportsFiled)],
-    ["Joined", formatDate(u.createdAt)], ["Last seen", formatRelative(u.lastSeenAt)], ["User id", u.id]
+  const rows: { k: string; label: string; value: ReactNode; ltr?: boolean }[] = [
+    { k: "name", label: t("users.drawer.displayName"), value: u.displayName || "–" },
+    { k: "email", label: t("users.drawer.email"), value: <Ltr>{u.email}</Ltr> },
+    { k: "ver", label: t("users.drawer.emailVerified"), value: u.emailVerified ? t("common.yes") : t("common.no") },
+    { k: "role", label: t("users.drawer.role"), value: te("role", u.role) },
+    { k: "msgs", label: t("users.drawer.messages"), value: fmt.number(u.messagesReceived) },
+    { k: "rep", label: t("users.drawer.reportsFiled"), value: fmt.number(u.reportsFiled) },
+    { k: "joined", label: t("users.drawer.joined"), value: fmt.date(u.createdAt) },
+    { k: "seen", label: t("users.drawer.lastSeen"), value: fmt.relative(u.lastSeenAt) },
+    { k: "id", label: t("users.drawer.id"), value: <Ltr className="mono">{u.id}</Ltr> }
   ];
 
   return (
     <>
-      <Modal open variant="drawer" title={`@${u.username}`} onClose={onClose}
-        footer={actions.length === 0 ? <span className="muted small">No actions available for your role.</span> : <>
-          {actions.map((a) => { const I = ICON[a]; return <Button key={a} variant={ACTION_COPY[a].danger ? "danger" : "secondary"} icon={<I size={16} aria-hidden />} onClick={() => setAction(a)}>{ACTION_COPY[a].label}</Button>; })}
+      <Modal open variant="drawer" title={<Ltr>@{u.username}</Ltr>} onClose={onClose}
+        footer={actions.length === 0 ? <span className="muted small">{t("users.drawer.noActions")}</span> : <>
+          {actions.map((a) => { const I = ICON[a]; return <Button key={a} variant={DANGER[a] ? "danger" : "secondary"} icon={<I size={16} aria-hidden />} onClick={() => setAction(a)}>{t(key(a, ""))}</Button>; })}
         </>}>
-        <div className="drawer-status"><StatusBadge status={u.status} />{fresh.loading && <span className="muted small">Refreshing…</span>}</div>
-        {fresh.error && <p className="text-danger small" role="alert">Couldn't refresh details: {fresh.error}</p>}
+        <div className="drawer-status"><StatusBadge status={u.status} />{fresh.loading && <span className="muted small">{t("users.drawer.refreshing")}</span>}</div>
+        {fresh.error && <p className="text-danger small" role="alert">{t("users.drawer.refreshFailed", { error: fresh.error })}</p>}
         <dl className="kv">
-          {rows.map(([k, v]) => <div key={k}><dt>{k}</dt><dd className={k === "User id" ? "mono" : undefined}>{v}</dd></div>)}
+          {rows.map((x) => <div key={x.k}><dt>{x.label}</dt><dd>{x.value}</dd></div>)}
         </dl>
-        <p className="muted small"><ShieldCheck size={14} aria-hidden style={{ verticalAlign: "-2px" }} /> Every action is recorded in the audit log.</p>
+        <p className="muted small"><ShieldCheck size={14} aria-hidden style={{ verticalAlign: "-2px" }} /> {t("users.drawer.audited")}</p>
       </Modal>
       {action && (
-        <ConfirmDialog open title={ACTION_COPY[action].title} confirmLabel={ACTION_COPY[action].label} danger={ACTION_COPY[action].danger}
-          body={<p>{ACTION_COPY[action].body(u)}</p>} onClose={() => setAction(null)} onConfirm={run} />
+        <ConfirmDialog open title={t(key(action, ".title"))} confirmLabel={t(key(action, ""))} danger={DANGER[action]}
+          body={<p>{t(key(action, ".body"), { username: `@${u.username}` })}</p>} onClose={() => setAction(null)} onConfirm={run} />
       )}
     </>
   );

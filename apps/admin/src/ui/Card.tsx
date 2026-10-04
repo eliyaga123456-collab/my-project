@@ -14,7 +14,7 @@ export function Card({ title, actions, children, className = "", as: Tag = "sect
   );
 }
 
-export function StatCard({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: "danger" | "warning" }) {
+export function StatCard({ label, value, hint, tone }: { label: string; value: ReactNode; hint?: string; tone?: "danger" | "warning" }) {
   return (
     <div className={`stat ${tone ? `stat-${tone}` : ""}`}>
       <div className="stat-label">{label}</div>
