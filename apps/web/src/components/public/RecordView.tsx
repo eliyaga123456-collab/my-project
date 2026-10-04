@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { api } from "@/lib/api";
 import type { SendTarget } from "./SendForm";
 
 /** Counts one profile view from the visitor's browser (SSR can't see the real client). */
@@ -10,7 +9,8 @@ export function RecordView({ target }: { target: SendTarget }) {
   useEffect(() => {
     if (done.current) return;
     done.current = true;
-    api.profile.recordView(target).catch(() => undefined);
+    // Plain fetch keeps the API client (and zod) out of the public-page bundle.
+    fetch("/api/v1/public/view", { method: "POST", credentials: "same-origin", keepalive: true, headers: { "content-type": "application/json", "x-requested-with": "unsaid", "x-client": "web" }, body: JSON.stringify(target) }).catch(() => undefined);
   }, [target]);
   return null;
 }

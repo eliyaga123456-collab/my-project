@@ -14,13 +14,13 @@ const DAY = 86_400_000;
 export class AuthService {
   constructor(private ctx: AppContext) {}
 
-  async register(input: RegisterInput, userAgent: string | null): Promise<{ user: User; token: string }> {
+  async register(input: RegisterInput, userAgent: string | null, locale: "en" | "he" = "en"): Promise<{ user: User; token: string }> {
     const { db } = this.ctx;
     const passwordHash = await hashPassword(input.password);
     let user: User;
     try {
       user = await db.transaction(async (tx) => {
-        const [u] = await tx.insert(users).values({ email: input.email, username: input.username, passwordHash }).returning();
+        const [u] = await tx.insert(users).values({ email: input.email, username: input.username, passwordHash, locale }).returning();
         await tx.insert(profiles).values({ userId: u!.id, displayName: input.displayName?.trim() || input.username });
         await tx.insert(settings).values({
           userId: u!.id,
@@ -98,7 +98,7 @@ export class AuthService {
   async sendVerification(user: User) {
     if (user.emailVerifiedAt) return;
     const token = await this.issueEmailToken(user.id, "verify", DAY);
-    const mail = emails.verify(`${this.ctx.config.WEB_URL}/verify-email?token=${token}`);
+    const mail = emails.verify(`${this.ctx.config.WEB_URL}/verify-email?token=${token}`, user.locale);
     await this.ctx.email.send({ to: user.email, ...mail }).catch(() => undefined);
   }
   private async consumeToken(token: string, kind: "verify" | "reset") {
@@ -115,7 +115,7 @@ export class AuthService {
     const [user] = await this.ctx.db.select().from(users).where(eq(users.email, email)).limit(1);
     if (!user || user.status === "banned") return;
     const token = await this.issueEmailToken(user.id, "reset", 3_600_000);
-    await this.ctx.email.send({ to: user.email, ...emails.reset(`${this.ctx.config.WEB_URL}/reset-password?token=${token}`) }).catch(() => undefined);
+    await this.ctx.email.send({ to: user.email, ...emails.reset(`${this.ctx.config.WEB_URL}/reset-password?token=${token}`, user.locale) }).catch(() => undefined);
   }
   async resetPassword(token: string, password: string) {
     const userId = await this.consumeToken(token, "reset");
@@ -127,7 +127,7 @@ export class AuthService {
     if (!(await verifyPassword(current, user.passwordHash))) throw new AppError("validation_error", "Your current password is incorrect.", { currentPassword: ["Incorrect password"] });
     await this.ctx.db.update(users).set({ passwordHash: await hashPassword(next), updatedAt: new Date() }).where(eq(users.id, user.id));
     await this.revokeAll(user.id, sessionId);
-    await this.ctx.email.send({ to: user.email, ...emails.passwordChanged() }).catch(() => undefined);
+    await this.ctx.email.send({ to: user.email, ...emails.passwordChanged(user.locale) }).catch(() => undefined);
     await this.ctx.notifier.notify({ userId: user.id, type: "safety", title: "Password changed", body: "Your password was changed and other devices were signed out." });
   }
 
@@ -139,7 +139,7 @@ export class AuthService {
       db.select({ n: sql<number>`count(*)::int` }).from(messages).where(and(eq(messages.recipientId, user.id), eq(messages.status, "inbox"), isNull(messages.readAt))),
       this.ctx.notifier.unreadCount(user.id)
     ]);
-    return { user: userDto(user), profile: profileDto(this.ctx, user, p!), settings: settingsDto(s!), unreadMessages: n, unreadNotifications: unread };
+    return { user: userDto(user), profile: profileDto(this.ctx, user, p!), settings: settingsDto(s!, user.locale), unreadMessages: n, unreadNotifications: unread };
   }
 
   async authResult(user: User, token: string | null): Promise<AuthResultDto> {

@@ -1,7 +1,10 @@
 import { Platform } from "react-native";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
+import * as SecureStore from "expo-secure-store";
 import { api } from "./api";
+
+const PUSH_KEY = "unsaid.push";
 
 let registeredToken: string | null = null;
 
@@ -27,6 +30,7 @@ export async function registerForPush(): Promise<string | null> {
     const { data } = await Notifications.getExpoPushTokenAsync(projectId ? { projectId } : undefined);
     await api.notifications.registerPush(data, Platform.OS === "ios" ? "ios" : "android");
     registeredToken = data;
+    try { await SecureStore.setItemAsync(PUSH_KEY, data); } catch { /* keystore unavailable */ }
     return data;
   } catch {
     // Push is unavailable (simulator, Expo Go on Android, no projectId, offline). The app works without it.
@@ -35,8 +39,11 @@ export async function registerForPush(): Promise<string | null> {
 }
 
 export async function unregisterPush(): Promise<void> {
-  const token = registeredToken;
+  let token = registeredToken;
   registeredToken = null;
+  // After an app restart the in-memory copy is gone; fall back to the persisted one so logout still detaches this device.
+  if (!token) { try { token = await SecureStore.getItemAsync(PUSH_KEY); } catch { token = null; } }
+  try { await SecureStore.deleteItemAsync(PUSH_KEY); } catch { /* ignore */ }
   if (!token) return;
   try { await api.notifications.unregisterPush(token); } catch { /* already logged out / offline */ }
 }

@@ -47,6 +47,8 @@ export interface ClientOptions {
   credentials?: RequestCredentials;
   /** Forward extra headers (SSR cookie forwarding, etc.). */
   getHeaders?: () => Record<string, string> | Promise<Record<string, string>>;
+  /** Current UI language; sent as `x-lang` so the API answers errors in that language. */
+  getLang?: () => string | null | undefined;
   onUnauthorized?: () => void;
   fetchImpl?: typeof fetch;
 }
@@ -64,6 +66,8 @@ export function createApiClient(opts: ClientOptions) {
     if (body !== undefined) headers["content-type"] = "application/json";
     const token = await opts.getToken?.();
     if (token) headers.authorization = `Bearer ${token}`;
+    const lang = opts.getLang?.();
+    if (lang) headers["x-lang"] = lang;
     if (opts.getHeaders) Object.assign(headers, await opts.getHeaders());
     let res: Response;
     try {

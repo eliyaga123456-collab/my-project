@@ -1,5 +1,5 @@
 // Extends app.json with environment-driven universal-link config.
-// Set EXPO_PUBLIC_WEB_URL (e.g. https://unsaid.example) to enable https://<host>/u/<username> app links.
+// Set EXPO_PUBLIC_WEB_URL (e.g. https://ear.example.com) to enable https://<host>/u/<username> app links.
 module.exports = ({ config }) => {
   let host = null;
   try {

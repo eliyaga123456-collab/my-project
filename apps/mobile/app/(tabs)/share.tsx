@@ -55,8 +55,8 @@ export default function SharePage() {
   const guard = async (fn: () => Promise<void>) => { setBusy(true); try { await fn(); } catch (e) { toast.show(errorMessage(e), "error"); report(e); } setBusy(false); };
 
   const copy = async (l: LinkDto) => { await Clipboard.setStringAsync(l.url); haptic.success(); toast.show("Link copied", "success"); };
-  const share = (l: LinkDto) => Share.share({ message: `${l.prompt ? `${l.prompt} — ` : "Send me an anonymous message: "}${l.url}`, url: l.url }).catch(() => undefined);
-  const inviteToApp = () => Share.share({ message: `Get EAR — anonymous questions & replies: ${installUrl}`, url: installUrl }).catch(() => undefined);
+  const share = (l: LinkDto) => Share.share({ message: `${l.prompt ? `${l.prompt} — ` : "Send me an anonymous message: "}${l.url}` }).catch(() => undefined);
+  const inviteToApp = () => Share.share({ message: `Get EAR — anonymous questions & replies: ${installUrl}` }).catch(() => undefined);
   const copyInstall = async () => { await Clipboard.setStringAsync(installUrl); haptic.success(); toast.show("Install link copied", "success"); };
   const setPaused = (l: LinkDto, paused: boolean) => guard(async () => {
     const u = l.isPrimary ? await api.links.pause(paused) : await api.links.update(l.id, { paused });
@@ -66,7 +66,7 @@ export default function SharePage() {
     const hours = duration === "none" ? 0 : Number(duration);
     const l = await api.links.create({ label: label.trim(), ...(question.trim() ? { prompt: question.trim() } : {}), closesAt: hours ? new Date(Date.now() + hours * 3_600_000).toISOString() : null });
     links.setData((cur) => [...(cur ?? []), l]); setLabel(""); setQuestion(""); setDuration("none"); setCreating(false); toast.show("Round started — share its link!", "success");
-    void Share.share({ message: `${l.prompt ? `${l.prompt} — ` : "Send me an anonymous message: "}${l.url}`, url: l.url }).catch(() => undefined);
+    void Share.share({ message: `${l.prompt ? `${l.prompt} — ` : "Send me an anonymous message: "}${l.url}` }).catch(() => undefined);
   });
   const remove = () => guard(async () => {
     if (!toDelete) return;

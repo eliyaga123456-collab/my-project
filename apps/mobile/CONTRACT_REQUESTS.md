@@ -18,3 +18,7 @@
    handler for `ear://verify?token=` or `ear://reset?token=`; if the emails should open the app, define those links.
 8. **Session user-agent.** `SessionDto.userAgent` for mobile is the RN/okhttp/CFNetwork UA; consider storing a friendly device label from
    `x-client: mobile` + an optional `x-device-name` header.
+9. **PoW cost on Hermes.** Live difficulty is 16 bits; the JS solver takes ~40-850 ms in Node/V8 (measured). Hermes is typically several times slower, so
+   keep difficulty <= 18 for mobile, or let the API send easier challenges to `x-client: mobile`.
+10. **Admin tools need a verified email** (`email_not_verified` 403 on `/admin/*`). Moderators created by changing the role in the DB must also have
+    `email_verified_at` set; the admin UI showed a generic error in that case.

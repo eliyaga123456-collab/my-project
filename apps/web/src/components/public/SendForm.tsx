@@ -3,15 +3,16 @@
 import { useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { CheckCircle2, Loader2, PauseCircle, ShieldCheck, Sparkles } from "lucide-react";
-import { LIMITS, messageBodySchema, type ChallengeDto } from "@unsaid/shared";
-import { solveChallenge, webSha256 } from "@unsaid/api-client";
-import { api } from "@/lib/api";
-import { classifySendError, isApiError } from "@/lib/errors";
+import type { ChallengeDto } from "@unsaid/shared";
+import { LIMITS } from "@/lib/limits";
 import { Button, ButtonLink, TextareaField } from "@/components/ui";
 
 export type SendTarget = { username: string } | { slug: string };
 
 type Phase = "idle" | "sending" | "verifying" | "sent" | "paused" | "closed" | "missing";
+
+/** zod + the API client are only needed once someone sends; keep them out of the first-load bundle. */
+const loadSender = () => Promise.all([import("@unsaid/shared"), import("@unsaid/api-client"), import("@/lib/api"), import("@/lib/errors")]);
 
 function isChallenge(v: unknown): v is ChallengeDto {
   return !!v && typeof v === "object" && typeof (v as ChallengeDto).prefix === "string" && typeof (v as ChallengeDto).id === "string" && typeof (v as ChallengeDto).difficulty === "number";
@@ -33,6 +34,7 @@ export function SendForm({ target, displayName, initiallyPaused, initiallyClosed
     if (busy) return;
     setError(null);
     setNotice(null);
+    const [{ messageBodySchema }, { solveChallenge, webSha256 }, { api }, { classifySendError, isApiError }] = await loadSender();
     const parsed = messageBodySchema.safeParse(body);
     if (!parsed.success) { setError(parsed.error.issues[0]?.message ?? "Write a little more"); area.current?.focus(); return; }
     const base = { ...target, body: parsed.data };
@@ -115,6 +117,7 @@ export function SendForm({ target, displayName, initiallyPaused, initiallyClosed
         error={error}
         counter={<span className={near ? "font-semibold text-warning" : undefined} aria-live="polite">{len}/{LIMITS.messageMax}</span>}
         enterKeyHint="send"
+        onFocus={() => void loadSender()}
       />
       {notice && <p role="alert" className="rounded-md border border-warning/40 bg-warning/10 px-4 py-3 text-sm">{notice}</p>}
       {phase === "verifying" && (

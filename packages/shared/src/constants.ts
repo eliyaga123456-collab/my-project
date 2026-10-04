@@ -93,3 +93,9 @@ export const ERROR_CODES = [
   "network_error"
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number];
+
+export const LOCALES = ["en", "he"] as const;
+export type Locale = (typeof LOCALES)[number];
+export const DEFAULT_LOCALE: Locale = "en";
+export const RTL_LOCALES: readonly Locale[] = ["he"];
+export const LOCALE_NAMES: Record<Locale, string> = { en: "English", he: "עברית" };

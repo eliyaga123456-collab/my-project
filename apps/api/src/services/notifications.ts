@@ -3,12 +3,13 @@ import type { NotificationType } from "@unsaid/shared";
 import type { Db } from "../db/client";
 import { notifications, pushTokens, settings, users, type NotificationPrefsRow } from "../db/schema";
 import type { EmailTransport } from "./email";
+import { tr, type Lang } from "../i18n";
 import { decodeCursor, encodeCursor } from "../lib/cursor";
 
-const fmt = (t: string, n: number) => t.replace("{n}", String(n)).replace("{s}", n === 1 ? "" : "s");
+const fmt = (t: string, n: number, lang: Lang = "en") => tr(lang, t.replace("{n}", String(n)).replace("{s}", n === 1 ? "" : "s"));
 
 export interface NotifyInput { userId: string; type: NotificationType; title: string; body: string; data?: Record<string, string>; /** collapse into a recent unread notification with the same key */ coalesceKey?: string }
-interface Recipient { id: string; email: string; prefs: NotificationPrefsRow }
+interface Recipient { id: string; email: string; prefs: NotificationPrefsRow; locale: Lang }
 
 /** A delivery channel. New channels (web push, SMS...) only need to implement this. */
 export interface Channel {
@@ -27,12 +28,12 @@ class InAppChannel implements Channel {
       const [existing] = await this.db.select().from(notifications).where(and(eq(notifications.userId, to.id), eq(notifications.type, i.type), isNull(notifications.readAt), gt(notifications.createdAt, since), sql`${notifications.data}->>'coalesceKey' = ${i.coalesceKey}`)).limit(1);
       if (existing) {
         const n = Number(existing.data?.count ?? "1") + 1;
-        await this.db.update(notifications).set({ title: fmt(i.title, n), body: fmt(i.body, n), data: { ...(i.data ?? {}), coalesceKey: i.coalesceKey, count: String(n) }, createdAt: new Date() }).where(eq(notifications.id, existing.id));
+        await this.db.update(notifications).set({ title: fmt(i.title, n, to.locale), body: fmt(i.body, n, to.locale), data: { ...(i.data ?? {}), coalesceKey: i.coalesceKey, count: String(n) }, createdAt: new Date() }).where(eq(notifications.id, existing.id));
         return;
       }
     }
     await this.db.insert(notifications).values({
-      userId: to.id, type: i.type, title: fmt(i.title, 1), body: fmt(i.body, 1),
+      userId: to.id, type: i.type, title: fmt(i.title, 1, to.locale), body: fmt(i.body, 1, to.locale),
       data: { ...(i.data ?? {}), ...(i.coalesceKey ? { coalesceKey: i.coalesceKey, count: "1" } : {}) }
     });
   }
@@ -50,7 +51,7 @@ class PushChannel implements Channel {
     try {
       const res = await fetch("https://exp.host/--/api/v2/push/send", {
         method: "POST", headers: { "content-type": "application/json", accept: "application/json" },
-        body: JSON.stringify(expo.map((t) => ({ to: t.token, title: fmt(i.title, Number(i.data?.count ?? 1)), body: fmt(i.body, Number(i.data?.count ?? 1)), data: i.data ?? {}, sound: "default", channelId: "default" }))),
+        body: JSON.stringify(expo.map((t) => ({ to: t.token, title: fmt(i.title, Number(i.data?.count ?? 1), to.locale), body: fmt(i.body, Number(i.data?.count ?? 1), to.locale), data: i.data ?? {}, sound: "default", channelId: "default" }))),
         signal: AbortSignal.timeout(8000)
       });
       const json = (await res.json().catch(() => null)) as { data?: { status: string; details?: { error?: string } }[] } | null;
@@ -65,7 +66,7 @@ class EmailChannel implements Channel {
   constructor(private transport: EmailTransport) {}
   wants(i: NotifyInput, p: NotificationPrefsRow) { return i.type === "new_message" ? p.emailNewMessage : i.type === "safety" ? p.emailSafety : false; }
   async deliver(i: NotifyInput, to: Recipient) {
-    await this.transport.send({ to: to.email, subject: fmt(i.title, 1), text: `${fmt(i.body, 1)}\n\n— EAR\nManage notification settings in the app.` });
+    await this.transport.send({ to: to.email, subject: fmt(i.title, 1, to.locale), text: `${fmt(i.body, 1, to.locale)}\n\n— EAR\n${to.locale === "he" ? "אפשר לנהל את ההתראות באפליקציה." : "Manage notification settings in the app."}` });
   }
 }
 
@@ -76,7 +77,7 @@ export class NotificationService {
   }
 
   async notify(input: NotifyInput): Promise<void> {
-    const [row] = await this.db.select({ id: users.id, email: users.email, prefs: settings.notifications }).from(users).innerJoin(settings, eq(settings.userId, users.id)).where(eq(users.id, input.userId)).limit(1);
+    const [row] = await this.db.select({ id: users.id, email: users.email, locale: users.locale, prefs: settings.notifications }).from(users).innerJoin(settings, eq(settings.userId, users.id)).where(eq(users.id, input.userId)).limit(1);
     if (!row) return;
     for (const ch of this.channels) {
       if (!ch.wants(input, row.prefs)) continue;

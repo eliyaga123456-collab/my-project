@@ -21,8 +21,8 @@ export const profileDto = (ctx: AppContext, u: Pick<User, "username">, p: Profil
   username: u.username, displayName: p.displayName, bio: p.bio, prompt: p.prompt, avatarUrl: avatarUrl(ctx, p.avatarKey)
 });
 
-export const settingsDto = (s: Settings): SettingsDto => ({
-  enhancedModeration: s.enhancedModeration, acceptingMessages: s.acceptingMessages, showAnswersPublicly: s.showAnswersPublicly, notifications: s.notifications
+export const settingsDto = (s: Settings, locale: "en" | "he" = "en"): SettingsDto => ({
+  enhancedModeration: s.enhancedModeration, acceptingMessages: s.acceptingMessages, showAnswersPublicly: s.showAnswersPublicly, locale, notifications: s.notifications
 });
 
 export const messageDto = (m: Message, linkLabel: string | null): MessageDto => ({

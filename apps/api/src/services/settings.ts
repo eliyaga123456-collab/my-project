@@ -1,7 +1,7 @@
 import { and, count, eq, sql } from "drizzle-orm";
 import { LIMITS, type AnalyticsDto, type SettingsDto, type UpdateSettingsInput } from "@unsaid/shared";
 import type { AppContext } from "../context";
-import { blocks, hiddenWords, linkDailyStats, links, messages, pushTokens, settings } from "../db/schema";
+import { blocks, hiddenWords, linkDailyStats, links, messages, pushTokens, settings, users } from "../db/schema";
 import { E } from "../lib/errors";
 import { settingsDto } from "../mappers";
 import { foldForMatching } from "../moderation/normalize";
@@ -10,7 +10,8 @@ export class SettingsService {
   constructor(private ctx: AppContext) {}
   async get(userId: string): Promise<SettingsDto> {
     const [s] = await this.ctx.db.select().from(settings).where(eq(settings.userId, userId));
-    return settingsDto(s!);
+    const [u] = await this.ctx.db.select({ locale: users.locale }).from(users).where(eq(users.id, userId));
+    return settingsDto(s!, u?.locale);
   }
   async update(userId: string, input: UpdateSettingsInput): Promise<SettingsDto> {
     const [cur] = await this.ctx.db.select().from(settings).where(eq(settings.userId, userId));
@@ -20,7 +21,9 @@ export class SettingsService {
     if (input.showAnswersPublicly !== undefined) set.showAnswersPublicly = input.showAnswersPublicly;
     if (input.notifications) set.notifications = { ...cur!.notifications, ...input.notifications };
     const [s] = await this.ctx.db.update(settings).set(set).where(eq(settings.userId, userId)).returning();
-    return settingsDto(s!);
+    if (input.locale) await this.ctx.db.update(users).set({ locale: input.locale, updatedAt: new Date() }).where(eq(users.id, userId));
+    const [u] = await this.ctx.db.select({ locale: users.locale }).from(users).where(eq(users.id, userId));
+    return settingsDto(s!, u?.locale);
   }
 
   async hiddenWords(userId: string) {

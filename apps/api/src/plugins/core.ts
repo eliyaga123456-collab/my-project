@@ -7,6 +7,7 @@ import type { AppContext } from "../context";
 import { AppError } from "../lib/errors";
 import type { users } from "../db/schema";
 import type { AuthService } from "../services/auth";
+import { langOf, tr } from "../i18n";
 
 export const SESSION_COOKIE = "unsaid_session";
 export const DEVICE_COOKIE = "unsaid_dev";
@@ -31,7 +32,7 @@ export async function registerCore(app: FastifyInstance, ctx: AppContext, authSv
     origin: (origin, cb) => cb(null, !origin || origins.has(origin)),
     credentials: true,
     methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["content-type", "authorization", "x-requested-with", "x-client"],
+    allowedHeaders: ["content-type", "authorization", "x-requested-with", "x-client", "x-lang"],
     maxAge: 600
   });
   await app.register(cookie);
@@ -79,23 +80,29 @@ export async function registerCore(app: FastifyInstance, ctx: AppContext, authSv
 
   app.setErrorHandler((err: FastifyError | AppError | ZodError, req: FastifyRequest, reply: FastifyReply) => {
     const requestId = req.id;
+    const lang = langOf(req);
     if (err instanceof AppError) {
       if (err.retryAfterSeconds) reply.header("retry-after", err.retryAfterSeconds);
-      return reply.status(err.status).send({ error: { code: err.code, message: err.message, details: err.details, retryAfterSeconds: err.retryAfterSeconds, requestId } });
+      return reply.status(err.status).send({ error: { code: err.code, message: tr(lang, err.message), details: translateDetails(lang, err.details), retryAfterSeconds: err.retryAfterSeconds, requestId } });
     }
     if (err instanceof ZodError) {
       const details: Record<string, string[]> = {};
       for (const i of err.issues) (details[i.path.join(".") || "_"] ??= []).push(i.message);
-      return reply.status(400).send({ error: { code: "validation_error", message: Object.values(details)[0]?.[0] ?? "Check the highlighted fields.", details, requestId } });
+      return reply.status(400).send({ error: { code: "validation_error", message: tr(lang, Object.values(details)[0]?.[0] ?? "Check the highlighted fields."), details: Object.fromEntries(Object.entries(details).map(([k, v]) => [k, v.map((m) => tr(lang, m))])), requestId } });
     }
     const fe = err as FastifyError;
-    if (fe.code === "FST_ERR_CTP_BODY_TOO_LARGE" || fe.code === "FST_REQ_FILE_TOO_LARGE") return reply.status(413).send({ error: { code: "payload_too_large", message: "That upload is too large.", requestId } });
-    if (fe.statusCode && fe.statusCode >= 400 && fe.statusCode < 500) return reply.status(fe.statusCode).send({ error: { code: fe.statusCode === 415 ? "unsupported_media" : "validation_error", message: "That request couldn't be understood.", requestId } });
+    if (fe.code === "FST_ERR_CTP_BODY_TOO_LARGE" || fe.code === "FST_REQ_FILE_TOO_LARGE") return reply.status(413).send({ error: { code: "payload_too_large", message: tr(lang, "That upload is too large."), requestId } });
+    if (fe.statusCode && fe.statusCode >= 400 && fe.statusCode < 500) return reply.status(fe.statusCode).send({ error: { code: fe.statusCode === 415 ? "unsupported_media" : "validation_error", message: tr(lang, "That request couldn't be understood."), requestId } });
     req.log.error({ err }, "unhandled error");
-    return reply.status(500).send({ error: { code: "server_error", message: "Something went wrong on our side. Please try again.", requestId } });
+    return reply.status(500).send({ error: { code: "server_error", message: tr(lang, "Something went wrong on our side. Please try again."), requestId } });
   });
 
-  app.setNotFoundHandler((req, reply) => reply.status(404).send({ error: { code: "not_found", message: "We couldn't find that.", requestId: req.id } }));
+  app.setNotFoundHandler((req, reply) => reply.status(404).send({ error: { code: "not_found", message: tr(langOf(req), "We couldn't find that."), requestId: req.id } }));
+}
+
+function translateDetails(lang: ReturnType<typeof langOf>, d: Record<string, unknown> | undefined) {
+  if (!d || lang === "en") return d;
+  return Object.fromEntries(Object.entries(d).map(([k, v]) => [k, Array.isArray(v) ? v.map((x) => (typeof x === "string" ? tr(lang, x) : x)) : v]));
 }
 
 export function requireAuth(req: FastifyRequest) {

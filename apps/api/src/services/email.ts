@@ -28,8 +28,18 @@ export function createEmailTransport(config: Config, db: Db): EmailTransport {
   return config.EMAIL_TRANSPORT === "log" ? new LogTransport() : new OutboxTransport(db);
 }
 
-export const emails = {
+import type { Lang } from "../i18n";
+import { HE_EMAILS } from "../i18n/he";
+
+const EN_EMAILS = {
   verify: (url: string) => ({ subject: "Confirm your EAR email", text: `Welcome to EAR!\n\nConfirm your email to unlock publishing answers:\n${url}\n\nThis link expires in 24 hours. If you didn't sign up, you can ignore this email.` }),
   reset: (url: string) => ({ subject: "Reset your EAR password", text: `Someone (hopefully you) asked to reset your password:\n${url}\n\nThis link expires in 1 hour and works once. If it wasn't you, ignore this email — your password is unchanged.` }),
   passwordChanged: () => ({ subject: "Your EAR password was changed", text: "Your password was just changed and other devices were signed out. If this wasn't you, reset your password immediately." })
+};
+
+/** Localised transactional emails. */
+export const emails = {
+  verify: (url: string, lang: Lang = "en") => (lang === "he" ? HE_EMAILS : EN_EMAILS).verify(url),
+  reset: (url: string, lang: Lang = "en") => (lang === "he" ? HE_EMAILS : EN_EMAILS).reset(url),
+  passwordChanged: (lang: Lang = "en") => (lang === "he" ? HE_EMAILS : EN_EMAILS).passwordChanged()
 };

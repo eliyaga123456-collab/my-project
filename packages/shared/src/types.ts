@@ -1,5 +1,6 @@
 import type {
   ErrorCode,
+  Locale,
   MessageStatus,
   ModerationCategory,
   NotificationType,
@@ -61,6 +62,7 @@ export interface SettingsDto {
   enhancedModeration: boolean;
   acceptingMessages: boolean;
   showAnswersPublicly: boolean;
+  locale: Locale;
   notifications: NotificationPrefs;
 }
 

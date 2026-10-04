@@ -38,7 +38,8 @@ export default function Inbox() {
   const params = useLocalSearchParams<{ round?: string }>();
   const [round, setRound] = useState<string>("all");
   const [rounds, setRounds] = useState<LinkDto[]>([]);
-  useEffect(() => { if (params.round) setRound(params.round); }, [params.round]);
+  // "See responses" on the Share tab deep-links here; consume the param so picking another chip later sticks.
+  useEffect(() => { if (params.round) { setRound(params.round); router.setParams({ round: undefined }); } }, [params.round, router]);
   const [status, setStatus] = useState<MessageStatus>("inbox");
   const [items, setItems] = useState<MessageDto[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
@@ -65,7 +66,12 @@ export default function Inbox() {
   }, [ok, report, round]);
 
   useEffect(() => { void load("initial", status); }, [status, round, load]);
-  useFocusEffect(useCallback(() => { void refreshMe().catch(() => undefined); api.links.list().then((r) => setRounds(r.items.filter((l) => !l.isPrimary)), () => undefined); }, [refreshMe]));
+  useFocusEffect(useCallback(() => { void refreshMe().catch(() => undefined); api.links.list().then((r) => {
+    const list = r.items.filter((l) => !l.isPrimary);
+    setRounds(list);
+    // a deleted round must not leave the inbox stuck on an empty filter
+    setRound((cur) => (cur !== "all" && !list.some((l) => l.id === cur) ? "all" : cur));
+  }, () => undefined); }, [refreshMe]));
 
   const loadMore = async () => {
     if (!cursor || loadingMore || loading) return;

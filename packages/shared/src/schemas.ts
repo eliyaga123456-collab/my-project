@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   LIMITS,
+  LOCALES,
   USERNAME_REGEX,
   RESERVED_USERNAMES,
   REPORT_REASONS,
@@ -38,7 +39,8 @@ export const registerInput = z.object({
   email: emailSchema,
   password: passwordSchema,
   username: usernameSchema,
-  displayName: trimmed(LIMITS.displayNameMax).optional()
+  displayName: trimmed(LIMITS.displayNameMax).optional(),
+  locale: z.enum(LOCALES).optional()
 });
 export type RegisterInput = z.infer<typeof registerInput>;
 
@@ -130,6 +132,7 @@ export const updateSettingsInput = z
     enhancedModeration: z.boolean(),
     acceptingMessages: z.boolean(),
     showAnswersPublicly: z.boolean(),
+    locale: z.enum(LOCALES),
     notifications: notificationPrefsSchema.partial()
   })
   .partial();

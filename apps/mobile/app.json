@@ -8,25 +8,54 @@
     "userInterfaceStyle": "automatic",
     "backgroundColor": "#0b0a14",
     "newArchEnabled": true,
-    "splash": { "backgroundColor": "#0b0a14", "resizeMode": "contain" },
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "backgroundColor": "#0b0a14",
+      "resizeMode": "contain"
+    },
     "ios": {
       "bundleIdentifier": "app.ear.mobile",
       "supportsTablet": false,
-      "infoPlist": { "UIBackgroundModes": ["remote-notification"] }
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
+      }
     },
     "android": {
       "package": "app.ear.mobile",
       "backgroundColor": "#0b0a14",
-      "adaptiveIcon": { "backgroundColor": "#0b0a14" },
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0b0a14"
+      },
       "predictiveBackGestureEnabled": true
     },
     "plugins": [
       "expo-router",
       "expo-secure-store",
       "expo-font",
-      ["expo-notifications", { "color": "#ff7440", "defaultChannel": "default" }],
-      ["expo-image-picker", { "photosPermission": "EAR uses your photos so you can choose a profile picture." }]
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#ff7440",
+          "defaultChannel": "default"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "EAR uses your photos so you can choose a profile picture."
+        }
+      ]
     ],
-    "experiments": { "typedRoutes": false }
+    "experiments": {
+      "typedRoutes": false
+    },
+    "icon": "./assets/icon.png",
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
   }
 }

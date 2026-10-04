@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import type { AnswerDto } from "@unsaid/shared";
-import { api } from "@/lib/api";
-import { errorMessage } from "@/lib/errors";
 import { Button } from "@/components/ui";
 import { AnswerCard } from "./AnswerCard";
 
@@ -18,10 +16,11 @@ export function MoreAnswers({ username, initialCursor }: { username: string; ini
     setBusy(true);
     setError(null);
     try {
+      const [{ api }, { errorMessage }] = await Promise.all([import("@/lib/api"), import("@/lib/errors")]);
       const page = await api.profile.answers(username, cursor);
       setItems((l) => [...l, ...page.items]);
       setCursor(page.nextCursor);
-    } catch (e) { setError(errorMessage(e)); } finally { setBusy(false); }
+    } catch (e) { setError((await import("@/lib/errors")).errorMessage(e)); } finally { setBusy(false); }
   }
 
   return (

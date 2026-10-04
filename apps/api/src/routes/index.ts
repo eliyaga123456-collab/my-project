@@ -8,6 +8,7 @@ import {
   updateProfileInput, updateSettingsInput, updateUsernameInput, usernameSchema, LIMITS
 } from "@unsaid/shared";
 import { randomToken } from "../lib/crypto";
+import { langOf } from "../i18n";
 import { AppError, E } from "../lib/errors";
 import { issueChallenge } from "../lib/pow";
 import { HOUR, MIN } from "../lib/ratelimit";
@@ -47,7 +48,7 @@ export function registerRoutes(app: FastifyInstance, ctx: AppContext, svc: { aut
     api.post("/auth/register", async (req, reply) => {
       await limit(ctx, `register:${req.ip}`, 8, HOUR);
       const input = parse(registerInput, req.body);
-      const { user, token } = await auth.register(input, ua(req));
+      const { user, token } = await auth.register(input, ua(req), input.locale ?? langOf(req));
       setSessionCookie(ctx, reply, token);
       return reply.status(201).send(await auth.authResult(user, isMobile(req) ? token : null));
     });
@@ -151,7 +152,7 @@ export function registerRoutes(app: FastifyInstance, ctx: AppContext, svc: { aut
     api.post("/links", async (req, reply) => reply.status(201).send(await profiles.createLink(requireAuth(req).user, parse(createLinkInput, req.body))));
     api.patch("/links/:id", async (req) => profiles.updateLink(requireAuth(req).user, uuidParam((req.params as { id: string }).id), parse(updateLinkInput, req.body)));
     api.delete("/links/:id", async (req, reply) => { await profiles.deleteLink(requireAuth(req).user, uuidParam((req.params as { id: string }).id)); return reply.status(204).send(); });
-    api.post("/link/pause", async (req) => { const i = parse(pauseLinkInput, req.body); return profiles.pausePrimary(requireAuth(req).user, i.paused, i.until); });
+    api.post("/link/pause", async (req) => { const a = requireAuth(req); const i = parse(pauseLinkInput, req.body); return profiles.pausePrimary(a.user, i.paused, i.until); });
 
     // ---------- messages ----------
     api.get("/public/challenge", async (req, reply) => {
@@ -166,8 +167,9 @@ export function registerRoutes(app: FastifyInstance, ctx: AppContext, svc: { aut
       return reply.status(201).send(out);
     });
     api.get("/messages", async (req) => {
+      const a = requireAuth(req);
       const q = parse(listMessagesQuery, req.query);
-      return messages.list(requireAuth(req).user.id, q.status, q.cursor, q.limit, q.linkId);
+      return messages.list(a.user.id, q.status, q.cursor, q.limit, q.linkId);
     });
     api.get("/messages/:id", async (req) => messages.get(requireAuth(req).user.id, uuidParam((req.params as { id: string }).id)));
     api.patch("/messages/:id", async (req) => messages.update(requireAuth(req).user.id, uuidParam((req.params as { id: string }).id), parse(updateMessageInput, req.body)));
@@ -197,12 +199,13 @@ export function registerRoutes(app: FastifyInstance, ctx: AppContext, svc: { aut
     api.post("/hidden-words", async (req, reply) => reply.status(201).send(await settings.addHiddenWord(requireAuth(req).user.id, parse(hiddenWordInput, req.body).word)));
     api.delete("/hidden-words/:id", async (req, reply) => { await settings.removeHiddenWord(requireAuth(req).user.id, uuidParam((req.params as { id: string }).id)); return reply.status(204).send(); });
     api.get("/notifications", async (req) => {
+      const a = requireAuth(req);
       const q = parse(z.object({ cursor: z.string().max(200).optional(), limit: z.coerce.number().int().min(1).max(LIMITS.pageSizeMax).default(LIMITS.pageSizeDefault) }), req.query);
-      return ctx.notifier.list(requireAuth(req).user.id, q.cursor, q.limit);
+      return ctx.notifier.list(a.user.id, q.cursor, q.limit);
     });
     api.post("/notifications/read", async (req, reply) => { await ctx.notifier.markRead(requireAuth(req).user.id, parse(markNotificationsReadInput, req.body)); return reply.status(204).send(); });
-    api.post("/push-tokens", async (req, reply) => { const i = parse(pushTokenInput, req.body); await settings.registerPush(requireAuth(req).user.id, i.token, i.platform); return reply.status(204).send(); });
-    api.delete("/push-tokens", async (req, reply) => { await settings.unregisterPush(requireAuth(req).user.id, parse(z.object({ token: z.string().min(10).max(300) }), req.body).token); return reply.status(204).send(); });
+    api.post("/push-tokens", async (req, reply) => { const a = requireAuth(req); const i = parse(pushTokenInput, req.body); await settings.registerPush(a.user.id, i.token, i.platform); return reply.status(204).send(); });
+    api.delete("/push-tokens", async (req, reply) => { const a = requireAuth(req); await settings.unregisterPush(a.user.id, parse(z.object({ token: z.string().min(10).max(300) }), req.body).token); return reply.status(204).send(); });
     api.get("/analytics/me", async (req) => settings.analytics(requireAuth(req).user.id, Number((req.query as { days?: string }).days ?? 14)));
 
     // ---------- admin ----------

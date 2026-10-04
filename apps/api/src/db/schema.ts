@@ -12,6 +12,7 @@ export const users = pgTable("users", {
   status: text("status", { enum: ["active", "suspended", "banned"] }).notNull().default("active"),
   emailVerifiedAt: ts("email_verified_at"),
   usernameChangedAt: ts("username_changed_at"),
+  locale: text("locale", { enum: ["en", "he"] }).notNull().default("en"),
   lastSeenAt: ts("last_seen_at"),
   createdAt: ts("created_at").notNull().defaultNow(),
   updatedAt: ts("updated_at").notNull().defaultNow()

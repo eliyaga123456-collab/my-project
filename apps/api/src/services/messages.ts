@@ -87,9 +87,12 @@ export class MessageService {
     // Duplicate detection (normalised body)
     const bodyHash = hmacHex(ctx.config.APP_SECRET, `body:${foldForMatching(input.body)}`);
     const dayAgo = new Date(Date.now() - 24 * HOUR);
-    const [dup] = await ctx.db.select({ same: sql<number>`count(*) filter (where ${messages.sourceHash} = ${src})::int`, all: sql<number>`count(*)::int` })
-      .from(messages).where(and(eq(messages.recipientId, user.id), eq(messages.bodyHash, bodyHash), gt(messages.createdAt, dayAgo)));
-    if ((dup?.same ?? 0) > 0 || (dup?.all ?? 0) >= 3) { await this.event({ outcome: "duplicate", userId: user.id, sourceHash: src }); return { status: "delivered" }; }
+    const isDuplicate = async (db: Pick<typeof ctx.db, "select">) => {
+      const [dup] = await db.select({ same: sql<number>`count(*) filter (where ${messages.sourceHash} = ${src})::int`, all: sql<number>`count(*)::int` })
+        .from(messages).where(and(eq(messages.recipientId, user.id), eq(messages.bodyHash, bodyHash), gt(messages.createdAt, dayAgo)));
+      return (dup?.same ?? 0) > 0 || (dup?.all ?? 0) >= 3;
+    };
+    if (await isDuplicate(ctx.db)) { await this.event({ outcome: "duplicate", userId: user.id, sourceHash: src }); return { status: "delivered" }; }
 
     // Moderation (hidden words + rules)
     const hidden = (await ctx.db.select({ w: hiddenWords.word }).from(hiddenWords).where(eq(hiddenWords.userId, user.id))).map((r) => r.w);
@@ -100,15 +103,22 @@ export class MessageService {
       throw new AppError("moderation_rejected", REJECT_COPY[cat]!, { categories: verdict.categories });
     }
     const status: MessageStatus = verdict.decision === "hold" ? "filtered" : "inbox";
-    const [msg] = await ctx.db.insert(messages).values({
-      recipientId: user.id, linkId: link.id, body: input.body, status, sourceHash: src, deviceHash: dev, bodyHash,
-      filteredCategories: status === "filtered" ? verdict.categories : []
-    }).returning();
-    await this.event({ outcome: verdict.decision, categories: verdict.categories, score: verdict.score, messageId: msg!.id, userId: user.id, sourceHash: src });
+    // Re-check duplicates and insert under an advisory lock keyed by (recipient, body) so parallel identical sends cannot all slip past the check.
+    const msg = await ctx.db.transaction(async (tx) => {
+      await tx.execute(sql`select pg_advisory_xact_lock(hashtextextended(${`${user.id}:${bodyHash}`}, 0))`);
+      if (await isDuplicate(tx)) return null;
+      const [row] = await tx.insert(messages).values({
+        recipientId: user.id, linkId: link.id, body: input.body, status, sourceHash: src, deviceHash: dev, bodyHash,
+        filteredCategories: status === "filtered" ? verdict.categories : []
+      }).returning();
+      return row!;
+    });
+    if (!msg) { await this.event({ outcome: "duplicate", userId: user.id, sourceHash: src }); return { status: "delivered" }; }
+    await this.event({ outcome: verdict.decision, categories: verdict.categories, score: verdict.score, messageId: msg.id, userId: user.id, sourceHash: src });
     await this.profilesSvc.bumpStat(link.id, "messages");
 
     // Notifications (never block the sender's response on them)
-    void this.notifyRecipient(user, status, msg!.id);
+    void this.notifyRecipient(user, status, msg.id);
     return { status: "delivered" };
   }
 
