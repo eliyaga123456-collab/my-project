@@ -3,6 +3,7 @@ import type { LoginInput, MeDto, RegisterInput } from "@unsaid/shared";
 import { ApiError } from "@unsaid/api-client";
 import { api, clearToken, loadToken, saveToken, setUnauthorizedHandler } from "@/lib/api";
 import { registerForPush, unregisterPush } from "@/lib/push";
+import { translate } from "@/i18n/core";
 
 type Status = "loading" | "authed" | "anon";
 interface AuthApi {
@@ -29,7 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   statusRef.current = status;
 
   const applySession = useCallback(async (res: MeDto & { token?: string }) => {
-    if (!res.token) throw new ApiError("server_error", "The server did not return a session token.", 500);
+    if (!res.token) throw new ApiError("server_error", translate("errors.serverNoToken"), 500);
     await saveToken(res.token);
     const { token: _token, ...rest } = res;
     setMe(rest);

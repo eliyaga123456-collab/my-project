@@ -10,7 +10,13 @@ import { BricolageGrotesque_700Bold } from "@expo-google-fonts/bricolage-grotesq
 import { Inter_400Regular } from "@expo-google-fonts/inter/400Regular";
 import { Inter_500Medium } from "@expo-google-fonts/inter/500Medium";
 import { Inter_600SemiBold } from "@expo-google-fonts/inter/600SemiBold";
+import { Heebo_400Regular } from "@expo-google-fonts/heebo/400Regular";
+import { Heebo_500Medium } from "@expo-google-fonts/heebo/500Medium";
+import { Heebo_600SemiBold } from "@expo-google-fonts/heebo/600SemiBold";
+import { Heebo_700Bold } from "@expo-google-fonts/heebo/700Bold";
 import { ThemeProvider, useTheme } from "@/theme";
+import { I18nProvider } from "@/i18n";
+import { LocaleSync } from "@/i18n/LocaleSync";
 import { AuthProvider, useAuth } from "@/providers/AuthProvider";
 import { NetworkProvider } from "@/providers/NetworkProvider";
 import { ToastProvider } from "@/components/Toast";
@@ -51,6 +57,7 @@ function Gate() {
 
   return (
     <>
+      <LocaleSync />
       <StatusBar style={name === "dark" ? "light" : "dark"} />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background }, animation: "fade" }}>
         <Stack.Screen name="message/[id]" options={{ presentation: "modal", animation: "slide_from_bottom" }} />
@@ -60,20 +67,22 @@ function Gate() {
 }
 
 export default function RootLayout() {
-  const [loaded, fontError] = useFonts({ BricolageGrotesque_600SemiBold, BricolageGrotesque_700Bold, Inter_400Regular, Inter_500Medium, Inter_600SemiBold });
+  const [loaded, fontError] = useFonts({ BricolageGrotesque_600SemiBold, BricolageGrotesque_700Bold, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Heebo_400Regular, Heebo_500Medium, Heebo_600SemiBold, Heebo_700Bold });
   // Splash stays up until fonts are ready (no flash of unstyled/white content).
   if (!loaded && !fontError) return null;
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: "#0b0a14" }}>
       <SafeAreaProvider>
         <ThemeProvider>
-          <NetworkProvider>
-            <ToastProvider>
-              <AuthProvider>
-                <Gate />
-              </AuthProvider>
-            </ToastProvider>
-          </NetworkProvider>
+          <I18nProvider>
+            <NetworkProvider>
+              <ToastProvider>
+                <AuthProvider>
+                  <Gate />
+                </AuthProvider>
+              </ToastProvider>
+            </NetworkProvider>
+          </I18nProvider>
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

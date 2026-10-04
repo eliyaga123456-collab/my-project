@@ -35,7 +35,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           exiting={FadeOut.duration(160)}
           pointerEvents="none"
           accessibilityLiveRegion="polite"
-          style={{ position: "absolute", left: 16, right: 16, top: insets.top + 8 }}
+          style={{ position: "absolute", start: 16, end: 16, top: insets.top + 8 }}
         >
           <View style={{ flexDirection: "row", alignItems: "center", gap: 10, padding: 14, borderRadius: radii.md, backgroundColor: colors.surfaceRaised, borderWidth: 1, borderColor: tint }}>
             <Icon name={toast.kind === "error" ? "flag" : "check"} size={18} color={tint} />

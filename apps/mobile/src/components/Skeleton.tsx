@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { View, type DimensionValue } from "react-native";
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { useTheme } from "@/theme";
+import { useT } from "@/i18n";
 
 export function Skeleton({ width = "100%", height = 16, radius = 8 }: { width?: DimensionValue; height?: number; radius?: number }) {
   const { colors } = useTheme();
@@ -16,8 +17,9 @@ export function Skeleton({ width = "100%", height = 16, radius = 8 }: { width?: 
 
 export function MessageSkeleton() {
   const { colors, radii } = useTheme();
+  const { t } = useT();
   return (
-    <View accessibilityLabel="Loading" style={{ backgroundColor: colors.surface, borderRadius: radii.lg, padding: 16, gap: 10, borderWidth: 1, borderColor: colors.border }}>
+    <View accessibilityLabel={t("common.loading")} style={{ backgroundColor: colors.surface, borderRadius: radii.lg, padding: 16, gap: 10, borderWidth: 1, borderColor: colors.border }}>
       <Skeleton width="30%" height={12} />
       <Skeleton height={16} />
       <Skeleton width="80%" height={16} />

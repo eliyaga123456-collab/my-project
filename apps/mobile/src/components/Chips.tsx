@@ -25,6 +25,6 @@ export function Chips<T extends string>({ options, value, onChange, scroll = fal
       </PressableScale>
     );
   });
-  if (scroll) return <ScrollView horizontal showsHorizontalScrollIndicator={false} accessibilityRole="radiogroup" accessibilityLabel={label} contentContainerStyle={{ gap: 8, paddingRight: 20 }}>{items}</ScrollView>;
+  if (scroll) return <ScrollView horizontal showsHorizontalScrollIndicator={false} accessibilityRole="radiogroup" accessibilityLabel={label} contentContainerStyle={{ gap: 8, paddingEnd: 20 }}>{items}</ScrollView>;
   return <View accessibilityRole="radiogroup" accessibilityLabel={label} style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>{items}</View>;
 }

@@ -10,10 +10,12 @@ import { Text } from "@/components/Text";
 import { api } from "@/lib/api";
 import { errorMessage } from "@/lib/errors";
 import { validateEmail } from "@/lib/validation";
+import { useT } from "@/i18n";
 import { useNetwork } from "@/providers/NetworkProvider";
 
 export default function ForgotPassword() {
   const router = useRouter();
+  const { t } = useT();
   const { report } = useNetwork();
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState<string | null>(null);
@@ -32,20 +34,20 @@ export default function ForgotPassword() {
 
   return (
     <Screen>
-      <IconButton icon="chevron" label="Back" onPress={() => router.back()} style={{ transform: [{ scaleX: -1 }], marginLeft: -8 }} />
-      <Text variant="title">Reset your password</Text>
+      <IconButton icon="chevron" dir="back" label={t("common.back")} onPress={() => router.back()} style={{ marginStart: -8 }} />
+      <Text variant="title">{t("auth.forgot.title")}</Text>
       {sent ? (
         <Card accessibilityLiveRegion="polite" style={{ gap: 8 }}>
-          <Text variant="heading">Check your inbox</Text>
-          <Text tone="muted">If an account exists for {email.trim()}, we've sent a link to reset the password. Open it on this device or on the web.</Text>
-          <Button title="Back to sign in" variant="secondary" onPress={() => router.replace("/login")} />
+          <Text variant="heading">{t("auth.forgot.sentTitle")}</Text>
+          <Text tone="muted">{t("auth.forgot.sentBody", { email: email.trim() })}</Text>
+          <Button title={t("auth.forgot.backToLogin")} variant="secondary" onPress={() => router.replace("/login")} />
         </Card>
       ) : (
         <>
-          <Text tone="muted">Enter the email you signed up with and we'll send you a reset link.</Text>
+          <Text tone="muted">{t("auth.forgot.intro")}</Text>
           {error ? <ErrorBanner message={error} /> : null}
-          <Input label="Email" value={email} onChangeText={setEmail} error={emailError} autoCapitalize="none" autoCorrect={false} keyboardType="email-address" textContentType="emailAddress" returnKeyType="send" onSubmitEditing={submit} />
-          <Button title="Send reset link" onPress={submit} loading={busy} />
+          <Input ltr label={t("auth.email")} value={email} onChangeText={setEmail} error={emailError} autoCapitalize="none" autoCorrect={false} keyboardType="email-address" textContentType="emailAddress" returnKeyType="send" onSubmitEditing={submit} />
+          <Button title={t("auth.forgot.submit")} onPress={submit} loading={busy} />
         </>
       )}
     </Screen>

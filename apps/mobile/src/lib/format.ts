@@ -1,31 +1,11 @@
 /** Pure formatting helpers (no React Native imports so they are unit-testable). */
 
-export function timeAgo(iso: string, now: number = Date.now()): string {
-  const t = new Date(iso).getTime();
-  if (Number.isNaN(t)) return "";
-  const s = Math.max(0, Math.floor((now - t) / 1000));
-  if (s < 45) return "just now";
-  const m = Math.round(s / 60);
-  if (m < 60) return `${m}m ago`;
-  const h = Math.round(m / 60);
-  if (h < 24) return `${h}h ago`;
-  const d = Math.round(h / 24);
-  if (d < 7) return `${d}d ago`;
-  const date = new Date(t);
-  const sameYear = date.getFullYear() === new Date(now).getFullYear();
-  return date.toLocaleDateString("en", sameYear ? { month: "short", day: "numeric" } : { month: "short", day: "numeric", year: "numeric" });
-}
-
 export function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return "?";
   const first = parts[0]!;
   const second = parts.length > 1 ? parts[parts.length - 1]! : "";
   return (Array.from(first)[0]! + (second ? Array.from(second)[0]! : "")).toUpperCase();
-}
-
-export function pluralize(n: number, one: string, many = `${one}s`): string {
-  return `${n} ${n === 1 ? one : many}`;
 }
 
 export function countLabel(n: number): string {
@@ -38,13 +18,15 @@ export function remainingChars(text: string, max: number): number {
   return max - Array.from(text).length;
 }
 
-export function describeUserAgent(ua: string | null): string {
-  if (!ua) return "Unknown device";
-  if (/okhttp|android/i.test(ua)) return "Android device";
-  if (/iphone|ipad|ios|cfnetwork/i.test(ua)) return "iOS device";
-  if (/expo/i.test(ua)) return "EAR app";
-  if (/chrome|firefox|safari|edge/i.test(ua)) return "Web browser";
-  return ua.slice(0, 40);
+export type DeviceKind = "unknown" | "android" | "ios" | "app" | "web" | "other";
+/** Classifies a session user agent; the UI translates the kind (and shows `raw` for "other"). */
+export function describeUserAgent(ua: string | null): { kind: DeviceKind; raw: string } {
+  if (!ua) return { kind: "unknown", raw: "" };
+  if (/okhttp|android/i.test(ua)) return { kind: "android", raw: ua };
+  if (/iphone|ipad|ios|cfnetwork/i.test(ua)) return { kind: "ios", raw: ua };
+  if (/expo/i.test(ua)) return { kind: "app", raw: ua };
+  if (/chrome|firefox|safari|edge/i.test(ua)) return { kind: "web", raw: ua };
+  return { kind: "other", raw: ua.slice(0, 40) };
 }
 
 export function publicLink(webUrl: string, username: string): string {

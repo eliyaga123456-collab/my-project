@@ -23,7 +23,7 @@ export function Screen({ children, scroll = true, refreshing, onRefresh, tabs, c
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       {bloom && (
-        <LinearGradient pointerEvents="none" colors={[withAlpha(palette.mist[500], 0.28), "transparent"]} style={{ position: "absolute", top: 0, left: 0, right: 0, height: 280 }} />
+        <LinearGradient pointerEvents="none" colors={[withAlpha(palette.mist[500], 0.28), "transparent"]} style={{ position: "absolute", top: 0, start: 0, end: 0, height: 280 }} />
       )}
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         {scroll ? (

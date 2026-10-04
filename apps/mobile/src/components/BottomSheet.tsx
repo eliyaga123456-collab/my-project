@@ -3,6 +3,7 @@ import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, View } fr
 import Animated, { Easing, runOnJS, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/theme";
+import { useT } from "@/i18n";
 import { Text } from "./Text";
 import { IconButton } from "./IconButton";
 
@@ -11,6 +12,7 @@ interface Props { visible: boolean; onClose: () => void; title?: string; childre
 export function BottomSheet({ visible, onClose, title, children }: Props) {
   const { colors, radii } = useTheme();
   const insets = useSafeAreaInsets();
+  const { t } = useT();
   const reduce = useReducedMotion();
   const [mounted, setMounted] = useState(visible);
   const p = useSharedValue(0);
@@ -31,8 +33,8 @@ export function BottomSheet({ visible, onClose, title, children }: Props) {
   return (
     <Modal visible={mounted} transparent animationType="none" onRequestClose={onClose} statusBarTranslucent>
       <View style={{ flex: 1, justifyContent: "flex-end" }}>
-        <Animated.View style={[{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0, backgroundColor: "rgba(5,4,12,0.62)" }, backdrop]}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Close" style={{ flex: 1 }} onPress={onClose} />
+        <Animated.View style={[{ position: "absolute", top: 0, bottom: 0, start: 0, end: 0, backgroundColor: "rgba(5,4,12,0.62)" }, backdrop]}>
+          <Pressable accessibilityRole="button" accessibilityLabel={t("common.close")} style={{ flex: 1 }} onPress={onClose} />
         </Animated.View>
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined}>
           <Animated.View
@@ -43,7 +45,7 @@ export function BottomSheet({ visible, onClose, title, children }: Props) {
             {title ? (
               <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                 <Text variant="heading" style={{ flex: 1 }}>{title}</Text>
-                <IconButton icon="close" label="Close" onPress={onClose} />
+                <IconButton icon="close" label={t("common.close")} onPress={onClose} />
               </View>
             ) : null}
             <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 12, paddingBottom: 4 }}>{children}</ScrollView>

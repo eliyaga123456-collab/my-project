@@ -1,5 +1,6 @@
 import { View } from "react-native";
 import { useTheme, withAlpha, type Colors } from "@/theme";
+import { useT } from "@/i18n";
 import { Text } from "./Text";
 
 export function Badge({ label, tone = "secondary" }: { label: string; tone?: keyof Pick<Colors, "primary" | "secondary" | "success" | "warning" | "danger" | "muted"> }) {
@@ -13,10 +14,11 @@ export function Badge({ label, tone = "secondary" }: { label: string; tone?: key
 
 export function CountDot({ count }: { count: number }) {
   const { colors } = useTheme();
+  const { formatNumber } = useT();
   if (count <= 0) return null;
   return (
     <View accessibilityElementsHidden style={{ minWidth: 18, height: 18, borderRadius: 9, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 }}>
-      <Text variant="label" style={{ color: colors.primaryText, fontSize: 10, letterSpacing: 0 }}>{count > 99 ? "99+" : count}</Text>
+      <Text variant="label" style={{ color: colors.primaryText, fontSize: 10, letterSpacing: 0 }}>{count > 99 ? `${formatNumber(99)}+` : formatNumber(count)}</Text>
     </View>
   );
 }

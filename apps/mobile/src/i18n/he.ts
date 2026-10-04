@@ -20,7 +20,8 @@ export const he: Dict = {
     gotIt: "הבנתי",
     anonymous: "אנונימי",
     you: "אתם",
-    optional: "לא חובה"
+    optional: "לא חובה",
+    charsLeft: "נשארו {count} תווים"
   },
   brand: {
     name: "EAR",
@@ -405,7 +406,6 @@ export const he: Dict = {
     editMessage: "עריכת ההודעה",
     defaultLabel: "שלחו לי הודעה אנונימית",
     placeholder: "כתבו משהו…",
-    charsLeft: "נשארו {count} תווים",
     anonymousNote: "אף אחד לא יידע שזה אתם, גם לא {name}. תהיו נחמדים.",
     verifying: "מוודאים שאתם בני אדם…",
     send: "שליחה באלמוניות"

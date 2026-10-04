@@ -38,14 +38,14 @@ export function setCurrentLocale(l: Locale): void { current = l; }
 
 export type Dicts = Record<Locale, Record<string, string>>;
 
-/** Replaces {name} placeholders. In RTL, string params are wrapped in bidi isolates so @names/emails keep their own direction. */
+/** Replaces {name} placeholders. In RTL, string params containing Latin text (@names, emails, versions) are wrapped in bidi isolates so @names/emails keep their own direction. */
 export function interpolate(template: string, params: Params | undefined, locale: Locale): string {
   if (!params) return template;
   const rtl = dirOf(locale) === "rtl";
   return template.replace(/\{(\w+)\}/g, (m, name: string) => {
     if (!(name in params)) return m;
     const v = params[name]!;
-    return rtl && typeof v === "string" && v ? `${FSI}${v}${PDI}` : String(v);
+    return rtl && typeof v === "string" && /[A-Za-z@]/.test(v) ? `${FSI}${v}${PDI}` : String(v);
   });
 }
 

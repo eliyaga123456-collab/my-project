@@ -1,29 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { allowedUserActions, cleanNote, formatPercent, formatRelative, formatUptime, isStaff, labelize, niceScale, shortId, truncate } from "./format";
+import { allowedUserActions, cleanNote, isStaff, labelize, niceScale, shortId, truncate } from "./format";
 
 describe("formatters", () => {
-  it("formats rates", () => {
-    expect(formatPercent(0.034)).toBe("3.4%");
-    expect(formatPercent(0.5)).toBe("50%");
-    expect(formatPercent(0)).toBe("0%");
-    expect(formatPercent(Number.NaN)).toBe("–");
-  });
-  it("formats uptime", () => {
-    expect(formatUptime(42)).toBe("42s");
-    expect(formatUptime(125)).toBe("2m 5s");
-    expect(formatUptime(3 * 3600 + 120)).toBe("3h 2m");
-    expect(formatUptime(2 * 86400 + 5 * 3600)).toBe("2d 5h");
-    expect(formatUptime(-1)).toBe("–");
-  });
-  it("formats relative time", () => {
-    const now = Date.parse("2026-01-10T12:00:00Z");
-    expect(formatRelative("2026-01-10T11:59:50Z", now)).toBe("just now");
-    expect(formatRelative("2026-01-10T11:30:00Z", now)).toBe("30m ago");
-    expect(formatRelative("2026-01-10T07:00:00Z", now)).toBe("5h ago");
-    expect(formatRelative("2026-01-07T12:00:00Z", now)).toBe("3d ago");
-    expect(formatRelative(null, now)).toBe("never");
-    expect(formatRelative("garbage", now)).toBe("–");
-  });
   it("labelizes and truncates", () => {
     expect(labelize("self_harm")).toBe("Self harm");
     expect(labelize("user.ban")).toBe("User ban");

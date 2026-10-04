@@ -2,6 +2,7 @@ import { Platform } from "react-native";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
 import * as SecureStore from "expo-secure-store";
+import { translate } from "../i18n/core";
 import { api } from "./api";
 
 const PUSH_KEY = "unsaid.push";
@@ -17,7 +18,7 @@ export async function registerForPush(): Promise<string | null> {
   try {
     if (Platform.OS === "android") {
       await Notifications.setNotificationChannelAsync("default", {
-        name: "Messages",
+        name: translate("settings.notifications.channel"),
         importance: Notifications.AndroidImportance.DEFAULT,
         lightColor: "#ff7440"
       });

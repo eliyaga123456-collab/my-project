@@ -20,7 +20,8 @@ export const en = {
     gotIt: "Got it",
     anonymous: "Anonymous",
     you: "You",
-    optional: "optional"
+    optional: "optional",
+    charsLeft: "{count} characters left"
   },
   brand: {
     name: "EAR",
@@ -405,7 +406,6 @@ export const en = {
     editMessage: "Edit message",
     defaultLabel: "Send me an anonymous message",
     placeholder: "Write something…",
-    charsLeft: "{count} characters left",
     anonymousNote: "Anonymous — {name} can't see who you are. Be kind.",
     verifying: "Verifying you're human…",
     send: "Send anonymously"
