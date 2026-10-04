@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Check, Loader2, X } from "lucide-react";
 import { LIMITS, registerInput, usernameSchema } from "@unsaid/shared";
 import { api } from "@/lib/api";
-import { SITE_URL } from "@/lib/site";
 import { errorMessage, fieldErrors } from "@/lib/errors";
 import { Button, InputField } from "@/components/ui";
 import { FormAlert } from "./AuthCard";
@@ -15,6 +14,8 @@ type Avail = { state: "idle" } | { state: "checking" } | { state: "invalid"; mes
 
 export function SignupForm() {
   const router = useRouter();
+  const [host, setHost] = useState("");
+  useEffect(() => setHost(window.location.host), []);
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -45,7 +46,7 @@ export function SignupForm() {
     switch (avail.state) {
       case "checking": return <span aria-live="polite" className="inline-flex items-center gap-1.5"><Loader2 className="size-3.5 animate-spin" aria-hidden />Checking…</span>;
       case "available": return <span aria-live="polite" className="inline-flex items-center gap-1.5 text-success"><Check className="size-3.5" aria-hidden />@{username.toLowerCase()} is available</span>;
-      default: return `${LIMITS.usernameMin}-${LIMITS.usernameMax} letters, numbers or underscores. This is your link: ${SITE_URL.replace(/^https?:\/\//, "")}/u/${username.toLowerCase() || "you"}`;
+      default: return `${LIMITS.usernameMin}-${LIMITS.usernameMax} letters, numbers or underscores. This is your link: ${host || "ear"}/u/${username.toLowerCase() || "you"}`;
     }
   })();
   const usernameError = avail.state === "invalid" ? avail.message : avail.state === "taken" ? "That username is taken." : errors.username;

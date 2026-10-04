@@ -2,11 +2,12 @@ import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import pg from "pg";
+import { cleanDatabaseUrl } from "./client";
 
 const dir = join(dirname(fileURLToPath(import.meta.url)), "../../migrations");
 
 export async function migrate(databaseUrl: string, log: (m: string) => void = console.log) {
-  const client = new pg.Client({ connectionString: databaseUrl });
+  const client = new pg.Client({ connectionString: cleanDatabaseUrl(databaseUrl) });
   await client.connect();
   try {
     await client.query("CREATE TABLE IF NOT EXISTS _migrations (name text PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT now())");

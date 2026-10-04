@@ -1,0 +1,34 @@
+# Proves the single-container deployment really works: builds the image and drives it through its public port.
+name: Container check
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/elegant-volta-5foywr]
+    paths: [Dockerfile, .dockerignore, deploy/**, apps/api/**, apps/web/**, packages/**, package-lock.json, scripts/container-smoke.sh, .github/workflows/container-check.yml]
+concurrency: { group: container-check, cancel-in-progress: true }
+jobs:
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env: { POSTGRES_PASSWORD: postgres }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t ear .
+      - name: Run container (production mode, ephemeral secret)
+        run: |
+          docker run -d --name ear --network host \
+            -e PORT=3000 -e PUBLIC_URL=http://localhost:3000 -e COOKIE_SECURE=false -e TRUST_PROXY=2 \
+            -e DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres \
+            -e APP_SECRET="$(openssl rand -hex 32)" ear
+      - name: Smoke test through the public port
+        run: bash scripts/container-smoke.sh http://localhost:3000
+      - name: Container logs
+        if: always()
+        run: docker logs ear 2>&1 | tail -80
