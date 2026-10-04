@@ -32,7 +32,7 @@ export function UsersPage() {
     { key: "user", header: "User", render: (u) => <span className="cell-main"><strong>@{u.username}</strong><span className="muted small">{u.email}</span></span> },
     { key: "status", header: "Status", render: (u) => <span className="badges"><StatusBadge status={u.status} />{u.role !== "user" && <Badge tone="info">{u.role}</Badge>}{!u.emailVerified && <Badge>unverified</Badge>}</span> },
     { key: "msgs", header: "Messages", className: "num", render: (u) => formatNumber(u.messagesReceived) },
-    { key: "rep", header: "Reports", className: "num", render: (u) => formatNumber(u.reportsFiled) },
+    { key: "rep", header: "Reports filed", className: "num", render: (u) => formatNumber(u.reportsFiled) },
     { key: "seen", header: "Last seen", render: (u) => formatRelative(u.lastSeenAt) },
     { key: "joined", header: "Joined", render: (u) => formatDate(u.createdAt) }
   ];

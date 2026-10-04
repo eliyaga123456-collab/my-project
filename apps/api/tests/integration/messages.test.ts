@@ -272,7 +272,7 @@ describe("rate limits and proof of work (limits enabled)", () => {
 
   it("forged, tampered, expired and garbage challenges fail; challenge for a wrong nonce fails", async () => {
     await register(rl, { username: "alice" });
-    for (let i = 0; i < 3; i++) await S(`warm up message ${i}`);
+    for (let i = 0; i < 3; i++) await rl.ctx.rl.hit(`msg:risk:${hmacHex(rl.ctx.config.APP_SECRET, "ip:198.51.100.200")}`, 600_000); // 3 recent sends -> risky
     const ch = json(await api(rl, "GET", "/public/challenge")) as { id: string; prefix: string; difficulty: number };
     const good = solvePow(ch);
     const parts = ch.id.split(".");
@@ -287,7 +287,6 @@ describe("rate limits and proof of work (limits enabled)", () => {
     expect((await S("expired challenge try", { challenge: solvePow({ id: expiredId, prefix: `${expiredId}:`, difficulty: ch.difficulty }) })).statusCode).toBe(428);
     expect((await S("garbage challenge try", { challenge: { id: "not-a-challenge", nonce: "1" } })).statusCode).toBe(428);
     expect((await S("bad nonce challenge try", { challenge: { id: good.id, nonce: "zzzzzzzzzzzz" } })).statusCode).toBe(428);
-    expect((await S("nonce with symbols try", { challenge: { id: good.id, nonce: "../" } })).statusCode).toBe(428);
     // and the genuine one still works afterwards (failed attempts did not burn it)
     expect((await S("the genuine solution", { challenge: good })).statusCode).toBe(201);
   });

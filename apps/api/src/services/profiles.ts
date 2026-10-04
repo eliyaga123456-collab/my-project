@@ -127,8 +127,8 @@ export class ProfileService {
   async listLinks(user: User): Promise<LinkDto[]> {
     const rows = await this.ctx.db.select({
       l: links,
-      views: sql<number>`coalesce((select sum(views) from link_daily_stats s where s.link_id = ${links.id}),0)::int`,
-      msgs: sql<number>`(select count(*) from messages m where m.link_id = ${links.id})::int`
+      views: sql<number>`coalesce((select sum(views) from link_daily_stats s where s.link_id = "links"."id"),0)::int`,
+      msgs: sql<number>`(select count(*) from messages m where m.link_id = "links"."id")::int`
     }).from(links).where(eq(links.userId, user.id)).orderBy(desc(links.isPrimary), asc(links.createdAt));
     return rows.map((r) => this.linkDto(r.l, user.username, r.views, r.msgs));
   }
