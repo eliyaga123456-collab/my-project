@@ -41,9 +41,8 @@ export default function Landing() {
               Share one personal link. Receive honest, anonymous messages. Reply on your terms, with filters and controls that put you in charge.
             </p>
             <div className="mt-8 flex flex-col gap-3 xs:flex-row">
-              <ButtonLink href="/signup" size="lg">Create your profile <ChevronRight className="size-4" aria-hidden /></ButtonLink>
-              <ButtonLink href="/login" size="lg" variant="outline">I already have a link</ButtonLink>
-            </div>
+              <ButtonLink href="/install" size="lg">Get the app <ChevronRight className="size-4" aria-hidden /></ButtonLink>
+                </div>
             <p className="mt-4 text-sm text-muted">Free to start. No account needed to send a message.</p>
           </div>
           <InboxPreview />
@@ -88,7 +87,7 @@ export default function Landing() {
           <div className="blob -bottom-16 -right-10 size-64" style={{ background: "#6d62f2" }} />
           <h2 className="relative text-3xl font-extrabold sm:text-5xl">What&apos;s on your mind&rsquo;s other side?</h2>
           <p className="relative mx-auto mt-3 max-w-lg text-muted">Create your link in under a minute. Pause it, filter it or delete it any time.</p>
-          <ButtonLink href="/signup" size="lg" className="relative mt-7">Get your link</ButtonLink>
+          <ButtonLink href="/install" size="lg" className="relative mt-7">Get the app</ButtonLink>
         </div>
       </section>
     </>

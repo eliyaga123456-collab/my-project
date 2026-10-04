@@ -10,14 +10,10 @@ export function newUser(prefix = "e2e") {
   return { username, email: `${username}@example.com`, password: PASSWORD, stamp: s };
 }
 
+/** Accounts exist only in the mobile app; e2e seeds one through the API (cookie lands on the page's context). */
 export async function signup(page: Page, u = newUser()) {
-  await page.goto("/signup");
-  await page.getByLabel("Email").fill(u.email);
-  await page.getByLabel("Username").fill(u.username);
-  await expect(page.getByText(`@${u.username} is available`)).toBeVisible();
-  await page.getByLabel("Password", { exact: true }).fill(u.password);
-  await page.getByRole("button", { name: "Create my profile" }).click();
-  await expect(page).toHaveURL(/\/inbox$/);
+  const r = await page.request.post("/api/v1/auth/register", { headers: { "x-requested-with": "unsaid" }, data: { email: u.email, username: u.username, password: u.password } });
+  expect(r.ok()).toBeTruthy();
   return u;
 }
 

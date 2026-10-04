@@ -8,7 +8,7 @@ test("install page: iOS steps, QR, share buttons", async ({ browser, baseURL }) 
   await page.goto("/install");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByRole("heading", { name: /Install on iPhone/ })).toBeVisible();
-  await expect(page.getByText("Add to Home Screen")).toBeVisible();
+  await expect(page.getByText(/iPhone app is coming soon/)).toBeVisible();
   await expect(page.getByRole("img", { name: /QR code/ })).toBeVisible();
   await expect(page.getByTestId("install-link")).toContainText("/install");
   const share = page.locator("section", { hasText: "Send the install link" });

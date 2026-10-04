@@ -12,7 +12,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
         <Link href="/" aria-label="EAR home"><Logo /></Link>
         <div className="flex items-center gap-1">
           <ThemeToggle />
-          <ButtonLink href="/signup" size="sm" variant="outline">Make your own link</ButtonLink>
+          <ButtonLink href="/install" size="sm" variant="outline">Make your own link</ButtonLink>
         </div>
       </header>
       <main id="main" className="mx-auto w-full max-w-3xl px-4 pb-20 pt-4 sm:px-6">{children}</main>

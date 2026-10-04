@@ -24,7 +24,7 @@ export function VerifyEmail({ token }: { token?: string }) {
         <div className="mx-auto grid size-14 place-items-center rounded-full bg-success/15 text-success"><CheckCircle2 className="size-7" aria-hidden /></div>
         <p className="font-semibold">Email verified</p>
         <p className="text-sm text-muted">You can now publish public answers.</p>
-        <ButtonLink href="/inbox" className="w-full">Go to my inbox</ButtonLink>
+        <ButtonLink href="/install" className="w-full">Open the EAR app</ButtonLink>
       </div>
     );
   }
@@ -33,7 +33,7 @@ export function VerifyEmail({ token }: { token?: string }) {
       <div className="mx-auto grid size-14 place-items-center rounded-full bg-danger/15 text-danger"><XCircle className="size-7" aria-hidden /></div>
       <p className="font-semibold">{state === "missing" ? "This verification link is incomplete" : "This link is invalid or has expired"}</p>
       <p className="text-sm text-muted">Log in and use &ldquo;Resend verification email&rdquo; from the banner at the top of your inbox.</p>
-      <ButtonLink href="/inbox" className="w-full">Go to my inbox</ButtonLink>
+      <ButtonLink href="/install" className="w-full">Open the EAR app</ButtonLink>
     </div>
   );
 }

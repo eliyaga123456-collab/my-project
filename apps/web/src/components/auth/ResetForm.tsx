@@ -23,7 +23,7 @@ export function ResetForm({ token }: { token?: string }) {
       <div role="alert" className="space-y-4 text-center">
         <p className="font-semibold">This reset link is incomplete.</p>
         <p className="text-sm text-muted">Request a new one and use the link from the latest email.</p>
-        <ButtonLink href="/forgot-password">Request a new link</ButtonLink>
+        <ButtonLink href="/install">Open the EAR app</ButtonLink>
       </div>
     );
   }
@@ -52,14 +52,14 @@ export function ResetForm({ token }: { token?: string }) {
         <div className="mx-auto grid size-14 place-items-center rounded-full bg-success/15 text-success"><CheckCircle2 className="size-7" aria-hidden /></div>
         <p className="font-semibold">Password updated</p>
         <p className="text-sm text-muted">You&apos;ve been signed out everywhere. Log in with your new password.</p>
-        <ButtonLink href="/login" className="w-full">Log in</ButtonLink>
+        <ButtonLink href="/install" className="w-full">Open the EAR app</ButtonLink>
       </div>
     );
   }
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-4">
       <FormAlert message={formError} />
-      {formError && <p className="text-center text-sm"><Link href="/forgot-password" className="text-secondary underline">Request a new link</Link></p>}
+      {formError && <p className="text-center text-sm"><Link href="/install" className="text-secondary underline">Request a new link in the app</Link></p>}
       <PasswordField label="New password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} error={errors.password} showRules required />
       <PasswordField label="Confirm new password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} error={errors.confirm} required />
       <Button type="submit" size="lg" className="w-full" loading={busy}>Set new password</Button>

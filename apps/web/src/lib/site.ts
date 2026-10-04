@@ -6,4 +6,6 @@ export const SAFETY_EMAIL = process.env.NEXT_PUBLIC_SAFETY_EMAIL ?? "safety@ear.
 /** Store listings (set once the native apps are published). When empty the web app (PWA) is offered instead. */
 export const IOS_APP_URL = process.env.NEXT_PUBLIC_IOS_APP_URL ?? "";
 export const ANDROID_APP_URL = process.env.NEXT_PUBLIC_ANDROID_APP_URL ?? "";
+/** Direct APK download (GitHub release asset by default). */
+export const APK_URL = process.env.APK_URL ?? process.env.NEXT_PUBLIC_APK_URL ?? "https://github.com/eliyaga123456-collab/my-project/releases/latest/download/EAR.apk";
 export const INSTALL_PATH = "/install";

@@ -5,7 +5,7 @@ import { INSTALL_PATH, SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Get the app",
-  description: "Install EAR on your phone or computer in a few taps.",
+  description: "Get the EAR app for Android and iPhone.",
   openGraph: { title: "Get EAR", description: "Anonymous questions & replies. Install it in a few taps." }
 };
 
@@ -15,7 +15,7 @@ export default async function InstallPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-16">
       <h1 className="text-4xl font-extrabold sm:text-5xl">Get <span className="grad-text">EAR</span> on your phone</h1>
-      <p className="mt-3 text-lg text-muted">Install it like any app: full screen, one tap from your home screen, and notifications when someone writes to you.</p>
+      <p className="mt-3 text-lg text-muted">Create your link in the app, then share it. People who open it can write to you anonymously.</p>
       <div className="mt-8"><InstallPanel qrDataUri={qrDataUri} /></div>
     </div>
   );

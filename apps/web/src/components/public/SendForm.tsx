@@ -68,7 +68,7 @@ export function SendForm({ target, displayName, initiallyPaused, initiallyClosed
         <PauseCircle className="mx-auto size-9 text-muted" aria-hidden />
         <h2 className="mt-3 text-xl font-bold">This round has closed</h2>
         <p className="mt-1 text-muted">{displayName} stopped collecting messages here. Thanks for stopping by!</p>
-        <div className="mt-5"><ButtonLink href="/signup">Start your own round</ButtonLink></div>
+        <div className="mt-5"><ButtonLink href="/install">Start your own round</ButtonLink></div>
       </div>
     );
   }
@@ -97,7 +97,7 @@ export function SendForm({ target, displayName, initiallyPaused, initiallyClosed
         <p className="mx-auto mt-1 max-w-sm text-muted">{displayName} will see your message without any sender details. If it breaks the rules, it may land in their Filtered folder.</p>
         <div className="mt-5 flex flex-col justify-center gap-2 xs:flex-row">
           <Button variant="secondary" onClick={() => { setPhase("idle"); setTimeout(() => area.current?.focus(), 0); }}>Send another</Button>
-          <ButtonLink href="/signup">Get your own link</ButtonLink>
+          <ButtonLink href="/install">Get your own link</ButtonLink>
         </div>
       </div>
     );

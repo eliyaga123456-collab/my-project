@@ -28,6 +28,10 @@ const config: NextConfig = {
       { source: "/media/:path*", destination: `${API_URL}/media/:path*` }
     ];
   },
+  async redirects() {
+    // Accounts live only in the mobile app; the web is anonymous (send a message + install the app).
+    return ["signup", "login", "forgot-password", "inbox", "links", "notifications", "settings", "share", "analytics"].map((p) => ({ source: `/${p}`, destination: "/install", permanent: false }));
+  },
   async headers() {
     return [
       {

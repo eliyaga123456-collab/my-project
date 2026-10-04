@@ -37,7 +37,7 @@ export default async function AnswerPage({ params }: Props) {
         <p className="text-muted">Want to ask {a.author.displayName} something?</p>
         <div className="mt-3 flex flex-col justify-center gap-2 xs:flex-row">
           <ButtonLink href={`/u/${a.author.username}`}>Send an anonymous message</ButtonLink>
-          <ButtonLink href="/signup" variant="outline">Make your own link</ButtonLink>
+          <ButtonLink href="/install" variant="outline">Make your own link</ButtonLink>
         </div>
         <p className="mt-4 text-xs text-muted">Questions are anonymous. <Link href="/safety" className="underline">How we keep it kind</Link>.</p>
       </section>

@@ -19,7 +19,7 @@ export default function About() {
       <h2>A dedication</h2>
       <p>The asterisk in EAR<span aria-hidden="true">*</span> is on purpose: <strong>* For Liron <span aria-hidden="true">&#128155;</span></strong></p>
       <h2>Get started</h2>
-      <p><Link href="/signup">Create your profile</Link> and see what people have been meaning to say.</p>
+      <p><Link href="/install">Get the app</Link> and see what people have been meaning to say.</p>
     </LegalPage>
   );
 }
