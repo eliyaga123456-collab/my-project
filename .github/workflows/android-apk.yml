@@ -37,6 +37,17 @@ jobs:
           echo "EAR_VERSION_CODE=${{ github.run_number }}" >> "$GITHUB_ENV"
           echo "EXPO_PUBLIC_UPDATE_REPO=${{ github.repository }}" >> "$GITHUB_ENV"
           echo "Building against API=$API WEB=$WEB"
+      - name: Firebase config (optional, enables Android push notifications)
+        env:
+          GS: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+        run: |
+          if [ -n "$GS" ]; then
+            echo "$GS" | base64 -d > "$RUNNER_TEMP/google-services.json"
+            echo "EAR_GOOGLE_SERVICES_FILE=$RUNNER_TEMP/google-services.json" >> "$GITHUB_ENV"
+            echo "Firebase config found"
+          else
+            echo "No GOOGLE_SERVICES_JSON_BASE64 secret: building without push notifications"
+          fi
       - run: npm ci
       - name: Generate the native Android project
         working-directory: apps/mobile

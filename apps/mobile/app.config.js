@@ -14,6 +14,8 @@ module.exports = ({ config }) => {
     android: {
       ...config.android,
       versionCode: Number(process.env.EAR_VERSION_CODE) || 1,
+      // Firebase config enables Android push notifications; CI decodes it from the GOOGLE_SERVICES_JSON_BASE64 secret when present.
+      ...(process.env.EAR_GOOGLE_SERVICES_FILE ? { googleServicesFile: process.env.EAR_GOOGLE_SERVICES_FILE } : {}),
       ...(host
         ? {
             intentFilters: [
