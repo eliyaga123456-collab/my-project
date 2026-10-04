@@ -11,27 +11,30 @@ import { ModerationPage } from "./pages/Moderation";
 import { AuditPage } from "./pages/Audit";
 import { AbusePage } from "./pages/Abuse";
 import { HealthPage } from "./pages/Health";
-import { Badge, IconButton, Skeleton } from "./ui";
+import { useT, type Key } from "./i18n";
+import { Badge, IconButton, LanguageSwitcher, Ltr, Skeleton } from "./ui";
 
-const NAV = [
-  { to: "/", label: "Overview", icon: LayoutDashboard, end: true },
-  { to: "/users", label: "Users", icon: Users },
-  { to: "/reports", label: "Reports", icon: Flag },
-  { to: "/moderation", label: "Moderation", icon: ShieldCheck },
-  { to: "/abuse", label: "Abuse", icon: ShieldAlert },
-  { to: "/audit", label: "Audit log", icon: FileClock },
-  { to: "/health", label: "System health", icon: Activity }
+const NAV: { to: string; label: Key; icon: typeof Users; end?: boolean }[] = [
+  { to: "/", label: "nav.overview", icon: LayoutDashboard, end: true },
+  { to: "/users", label: "nav.users", icon: Users },
+  { to: "/reports", label: "nav.reports", icon: Flag },
+  { to: "/moderation", label: "nav.moderation", icon: ShieldCheck },
+  { to: "/abuse", label: "nav.abuse", icon: ShieldAlert },
+  { to: "/audit", label: "nav.audit", icon: FileClock },
+  { to: "/health", label: "nav.health", icon: Activity }
 ];
 
 export function App() {
   const { phase } = useAuth();
-  if (phase === "loading") return <div className="boot" role="status" aria-label="Loading"><Skeleton width={160} height={20} /></div>;
+  const { t } = useT();
+  if (phase === "loading") return <div className="boot" role="status" aria-label={t("common.loading")}><Skeleton width={160} height={20} /></div>;
   if (phase === "anonymous") return <Login />;
   return <Shell />;
 }
 
 function Shell() {
   const { user, logout } = useAuth();
+  const { t, te } = useT();
   const [theme, toggleTheme] = useTheme();
   const [open, setOpen] = useState(false);
   const loc = useLocation();
@@ -45,32 +48,33 @@ function Shell() {
 
   return (
     <div className="shell">
-      <a href="#main" className="skip">Skip to content</a>
+      <a href="#main" className="skip">{t("common.skipToContent")}</a>
       <header className="topbar">
-        <IconButton label={open ? "Close menu" : "Open menu"} onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-controls="sidebar"><Menu size={20} aria-hidden /></IconButton>
-        <span className="brand-mark">EAR <em>admin</em></span>
+        <IconButton label={open ? t("nav.closeMenu") : t("nav.openMenu")} onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-controls="sidebar"><Menu size={20} aria-hidden /></IconButton>
+        <span className="brand-mark" dir="ltr">EAR <em>admin</em></span>
       </header>
       {open && <div className="scrim" onClick={() => setOpen(false)} aria-hidden />}
-      <aside id="sidebar" className={`sidebar ${open ? "open" : ""}`} aria-label="Primary">
+      <aside id="sidebar" className={`sidebar ${open ? "open" : ""}`} aria-label={t("nav.primary")}>
         <div className="sidebar-head">
-          <span className="brand-mark">EAR <em>admin</em></span>
-          <IconButton label="Close menu" className="only-mobile" onClick={() => setOpen(false)}><X size={18} aria-hidden /></IconButton>
+          <span className="brand-mark" dir="ltr">EAR <em>admin</em></span>
+          <IconButton label={t("nav.closeMenu")} className="only-mobile" onClick={() => setOpen(false)}><X size={18} aria-hidden /></IconButton>
         </div>
         <nav>
           {NAV.map((n) => (
             <NavLink key={n.to} to={n.to} end={n.end} className="nav-link">
-              <n.icon size={18} aria-hidden />{n.label}
+              <n.icon size={18} aria-hidden />{t(n.label)}
             </NavLink>
           ))}
         </nav>
         <div className="sidebar-foot">
+          <LanguageSwitcher className="in-foot" />
           <div className="me">
-            <div className="me-name" title={user?.email}>@{user?.username}</div>
-            <Badge tone={user?.role === "admin" ? "ember" : "info"}>{user?.role}</Badge>
+            <div className="me-name" title={user?.email}><Ltr>@{user?.username}</Ltr></div>
+            <Badge tone={user?.role === "admin" ? "ember" : "info"}>{user ? te("role", user.role) : ""}</Badge>
           </div>
           <div className="foot-actions">
-            <IconButton label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"} onClick={toggleTheme}>{theme === "dark" ? <Sun size={18} aria-hidden /> : <Moon size={18} aria-hidden />}</IconButton>
-            <IconButton label="Sign out" onClick={() => void logout()}><LogOut size={18} aria-hidden /></IconButton>
+            <IconButton label={theme === "dark" ? t("nav.themeLight") : t("nav.themeDark")} onClick={toggleTheme}>{theme === "dark" ? <Sun size={18} aria-hidden /> : <Moon size={18} aria-hidden />}</IconButton>
+            <IconButton label={t("nav.signOut")} onClick={() => void logout()}><LogOut className="icon-dir" size={18} aria-hidden /></IconButton>
           </div>
         </div>
       </aside>

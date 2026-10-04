@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { niceScale, shortDay, formatNumber } from "../lib/format";
+import { niceScale } from "../lib/format";
+import { useT } from "../i18n";
 
 export interface Series { key: string; label: string; color: string; values: number[]; }
 
@@ -7,6 +8,8 @@ const W = 720, H = 260, PL = 40, PR = 12, PT = 12, PB = 28;
 
 /** Hand-written responsive SVG line / grouped-bar chart with keyboard-focusable hover points. */
 export function TimeChart({ dates, series, mode }: { dates: string[]; series: Series[]; mode: "line" | "bar" }) {
+  const { t, tn, fmt, dir } = useT();
+  const formatNumber = fmt.number, shortDay = fmt.shortDay;
   const [hidden, setHidden] = useState<Set<string>>(new Set());
   const [hover, setHover] = useState<number | null>(null);
   const visible = series.filter((s) => !hidden.has(s.key));
@@ -24,15 +27,16 @@ export function TimeChart({ dates, series, mode }: { dates: string[]; series: Se
   if (n === 0) return null;
   return (
     <div className="chart">
-      <div className="legend" role="group" aria-label="Series">
+      <div className="legend" role="group" aria-label={t("chart.series")}>
         {series.map((s) => (
           <button key={s.key} type="button" className="legend-item" aria-pressed={!hidden.has(s.key)} onClick={() => toggle(s.key)}>
             <span className="swatch" style={{ background: s.color }} aria-hidden />{s.label}
           </button>
         ))}
       </div>
-      <div className="chart-box" onMouseLeave={() => setHover(null)}>
-        <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Daily ${series.map((s) => s.label.toLowerCase()).join(", ")} over ${n} days`} preserveAspectRatio="xMidYMid meet">
+      {/* the time axis is data: always left-to-right, in both languages */}
+      <div className="chart-box" dir="ltr" onMouseLeave={() => setHover(null)}>
+        <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={tn("chart.aria", n, { series: series.map((s) => s.label).join(", ") })} preserveAspectRatio="xMidYMid meet">
           {scale.ticks.map((t) => (
             <g key={t}>
               <line x1={PL} x2={W - PR} y1={y(t)} y2={y(t)} className="grid" />
@@ -54,13 +58,13 @@ export function TimeChart({ dates, series, mode }: { dates: string[]; series: Se
           {dates.map((d, i) => (
             <rect
               key={`hit${d}`} x={mode === "bar" ? bx(i) : x(i) - (n <= 1 ? iw : iw / (n - 1)) / 2} y={PT} width={mode === "bar" ? slot : n <= 1 ? iw : iw / (n - 1)} height={ih}
-              fill="transparent" tabIndex={0} aria-label={`${shortDay(d)}: ${visible.map((s) => `${s.values[i] ?? 0} ${s.label.toLowerCase()}`).join(", ")}`}
+              fill="transparent" tabIndex={0} aria-label={`${shortDay(d)}: ${visible.map((s) => `${s.label} ${formatNumber(s.values[i] ?? 0)}`).join(", ")}`}
               onMouseEnter={() => setHover(i)} onFocus={() => setHover(i)} onBlur={() => setHover(null)}
             />
           ))}
         </svg>
         {hover !== null && (
-          <div className="tooltip" style={{ left: `${(((mode === "bar" ? bx(hover) + slot / 2 : x(hover)) / W) * 100).toFixed(1)}%` }} role="presentation">
+          <div className="tooltip" style={{ left: `${(((mode === "bar" ? bx(hover) + slot / 2 : x(hover)) / W) * 100).toFixed(1)}%` }} role="presentation" dir={dir}>
             <strong>{shortDay(dates[hover]!)}</strong>
             {visible.map((s) => <div key={s.key}><span className="swatch" style={{ background: s.color }} aria-hidden /> {s.label}: {formatNumber(s.values[hover] ?? 0)}</div>)}
           </div>

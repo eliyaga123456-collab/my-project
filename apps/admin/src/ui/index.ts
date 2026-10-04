@@ -10,3 +10,5 @@ export * from "./Confirm";
 export * from "./LoadMore";
 export * from "./PageHeader";
 export * from "./Chart";
+export { Ltr } from "./Ltr";
+export { LanguageSwitcher } from "./LanguageSwitcher";

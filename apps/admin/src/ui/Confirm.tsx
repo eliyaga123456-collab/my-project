@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { useT } from "../i18n";
 import { Button } from "./Button";
 import { Modal } from "./Modal";
 
@@ -6,6 +7,7 @@ import { Modal } from "./Modal";
 export function ConfirmDialog({ open, title, body, confirmLabel, danger, onClose, onConfirm }: {
   open: boolean; title: string; body: ReactNode; confirmLabel: string; danger?: boolean; onClose: () => void; onConfirm: (note: string) => Promise<void>;
 }) {
+  const { t } = useT();
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const close = () => { if (!busy) { setNote(""); onClose(); } };
@@ -20,13 +22,13 @@ export function ConfirmDialog({ open, title, body, confirmLabel, danger, onClose
       title={title}
       busy={busy}
       footer={<>
-        <Button variant="ghost" onClick={close} disabled={busy}>Cancel</Button>
+        <Button variant="ghost" onClick={close} disabled={busy}>{t("common.cancel")}</Button>
         <Button variant={danger ? "danger" : "primary"} loading={busy} onClick={submit}>{confirmLabel}</Button>
       </>}
     >
       <div className="confirm-body">{body}</div>
       <label className="field">
-        <span className="field-label">Note (optional, saved to the audit log)</span>
+        <span className="field-label">{t("common.noteLabel")}</span>
         <textarea className="input" rows={3} maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} disabled={busy} data-autofocus />
       </label>
     </Modal>

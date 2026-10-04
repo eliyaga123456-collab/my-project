@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useT } from "../i18n";
 
 export interface Column<T> { key: string; header: string; render: (row: T) => ReactNode; className?: string; }
 
@@ -6,6 +7,7 @@ export interface Column<T> { key: string; header: string; render: (row: T) => Re
 export function Table<T>({ columns, rows, rowKey, onRowClick, caption, rowLabel }: {
   columns: Column<T>[]; rows: T[]; rowKey: (r: T) => string; onRowClick?: (r: T) => void; caption: string; rowLabel?: (r: T) => string;
 }) {
+  const { t } = useT();
   return (
     <div className="table-wrap">
       <table className="table">
@@ -23,7 +25,7 @@ export function Table<T>({ columns, rows, rowKey, onRowClick, caption, rowLabel 
               {columns.map((c, i) => (
                 <td key={c.key} data-label={c.header} className={c.className}>
                   {onRowClick && i === 0 ? (
-                    <button type="button" className="row-link" onClick={(e) => { e.stopPropagation(); onRowClick(r); }} aria-label={rowLabel ? `Open ${rowLabel(r)}` : undefined}>{c.render(r)}</button>
+                    <button type="button" className="row-link" onClick={(e) => { e.stopPropagation(); onRowClick(r); }} aria-label={rowLabel ? t("users.open", { name: rowLabel(r) }) : undefined}>{c.render(r)}</button>
                   ) : c.render(r)}
                 </td>
               ))}

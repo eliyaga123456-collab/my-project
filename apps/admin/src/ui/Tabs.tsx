@@ -1,12 +1,15 @@
 import { useId, useRef } from "react";
+import { useT } from "../i18n";
 
 export function Tabs<T extends string>({ tabs, value, onChange, label }: { tabs: { value: T; label: string; count?: number }[]; value: T; onChange: (v: T) => void; label: string }) {
+  const { dir } = useT();
   const id = useId();
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const onKey = (e: React.KeyboardEvent, i: number) => {
     let n = i;
-    if (e.key === "ArrowRight") n = (i + 1) % tabs.length;
-    else if (e.key === "ArrowLeft") n = (i - 1 + tabs.length) % tabs.length;
+    const fwd = dir === "rtl" ? "ArrowLeft" : "ArrowRight", back = dir === "rtl" ? "ArrowRight" : "ArrowLeft";
+    if (e.key === fwd) n = (i + 1) % tabs.length;
+    else if (e.key === back) n = (i - 1 + tabs.length) % tabs.length;
     else if (e.key === "Home") n = 0;
     else if (e.key === "End") n = tabs.length - 1;
     else return;

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useT } from "../i18n";
 
 export type Tone = "neutral" | "success" | "warning" | "danger" | "info" | "ember";
 
@@ -12,5 +13,6 @@ const STATUS_TONE: Record<string, Tone> = {
   banned: "danger", rejected: "danger", reject: "danger", dismissed: "neutral"
 };
 export function StatusBadge({ status }: { status: string }) {
-  return <Badge tone={STATUS_TONE[status] ?? "neutral"}>{status.replace(/_/g, " ")}</Badge>;
+  const { te } = useT();
+  return <Badge tone={STATUS_TONE[status] ?? "neutral"}>{te("status", status)}</Badge>;
 }

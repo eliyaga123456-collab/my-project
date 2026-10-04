@@ -1,14 +1,16 @@
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
+import { useT } from "../i18n";
 import { IconButton } from "./Button";
 
 const FOCUSABLE = 'a[href],button:not([disabled]),textarea:not([disabled]),input:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
 /** Accessible dialog (centered) or drawer (side sheet) with focus trap, Esc to close and focus restore. */
 export function Modal({ open, onClose, title, children, footer, variant = "dialog", busy }: {
-  open: boolean; onClose: () => void; title: string; children: ReactNode; footer?: ReactNode; variant?: "dialog" | "drawer"; busy?: boolean;
+  open: boolean; onClose: () => void; title: ReactNode; children: ReactNode; footer?: ReactNode; variant?: "dialog" | "drawer"; busy?: boolean;
 }) {
+  const { t } = useT();
   const ref = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const closeRef = useRef(onClose);
@@ -47,7 +49,7 @@ export function Modal({ open, onClose, title, children, footer, variant = "dialo
       <div ref={ref} className={`modal modal-${variant}`} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}>
         <header className="modal-head">
           <h2 id={titleId} className="modal-title">{title}</h2>
-          <IconButton label="Close" onClick={onClose} disabled={busy}><X size={18} aria-hidden /></IconButton>
+          <IconButton label={t("common.close")} onClick={onClose} disabled={busy}><X size={18} aria-hidden /></IconButton>
         </header>
         <div className="modal-body">{children}</div>
         {footer && <footer className="modal-foot">{footer}</footer>}
