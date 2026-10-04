@@ -1,0 +1,18 @@
+{
+  "name": "unsaid",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev:api": "npm run dev -w @unsaid/api",
+    "dev:web": "npm run dev -w @unsaid/web",
+    "dev:admin": "npm run dev -w @unsaid/admin",
+    "dev:mobile": "npm run start -w @unsaid/mobile",
+    "db:up": "bash scripts/db-up.sh",
+    "db:migrate": "npm run db:migrate -w @unsaid/api",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present"
+  },
+  "engines": { "node": ">=22" }
+}
