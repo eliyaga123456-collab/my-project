@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Moon, Sun, SunMoon } from "lucide-react";
 import { IconButton } from "@/components/ui";
+import { useT } from "@/i18n/client";
 
 type Mode = "system" | "light" | "dark";
 
@@ -14,6 +15,7 @@ function read(): Mode {
 }
 
 export function ThemeToggle() {
+  const { t } = useT();
   const [mode, setMode] = useState<Mode>("system");
   useEffect(() => setMode(read()), []);
 
@@ -28,7 +30,7 @@ export function ThemeToggle() {
 
   const Icon = mode === "light" ? Sun : mode === "dark" ? Moon : SunMoon;
   return (
-    <IconButton label={`Theme: ${mode}. Switch theme`} onClick={cycle}>
+    <IconButton label={t("common.theme.label", { mode: t(`common.theme.${mode}`) })} onClick={cycle}>
       <Icon className="size-5" aria-hidden />
     </IconButton>
   );

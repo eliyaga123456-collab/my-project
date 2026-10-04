@@ -10,17 +10,20 @@ import { PwaRegister } from "@/components/pwa/PwaRegister";
 import { I18nProvider } from "@/i18n/client";
 import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: { default: "EAR — say what you really think", template: "%s · EAR" },
-  description: "Get your personal link, receive anonymous messages, reply on your terms. Kind by design, safe by default.",
-  applicationName: "EAR",
-  openGraph: { type: "website", siteName: "EAR", title: "EAR — say what you really think", description: "Anonymous questions, answered on your terms." },
-  twitter: { card: "summary_large_image" },
-  icons: { icon: "/icon.svg", apple: "/icons/apple-touch-icon.png" },
-  appleWebApp: { capable: true, title: "EAR", statusBarStyle: "black-translucent" },
-  formatDetection: { telephone: false }
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t, locale } = await getT();
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: { default: t("site.meta.title"), template: t("site.meta.template") },
+    description: t("site.meta.description"),
+    applicationName: "EAR",
+    openGraph: { type: "website", siteName: "EAR", locale: locale === "he" ? "he_IL" : "en_US", title: t("site.meta.title"), description: t("site.meta.ogDescription") },
+    twitter: { card: "summary_large_image" },
+    icons: { icon: "/icon.svg", apple: "/icons/apple-touch-icon.png" },
+    appleWebApp: { capable: true, title: "EAR", statusBarStyle: "black-translucent" },
+    formatDetection: { telephone: false }
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -43,7 +46,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <script>{themeInit}</script>
       </head>
       <body className="min-h-dvh">
-        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-full focus:bg-surface focus:px-4 focus:py-2 focus:shadow-lg">{t("common.nav.skip")}</a>
+        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-[200] focus:rounded-full focus:bg-surface focus:px-4 focus:py-2 focus:shadow-lg">{t("common.nav.skip")}</a>
         <I18nProvider locale={locale}><ToastProvider>{children}</ToastProvider></I18nProvider>
         <PwaRegister />
       </body>

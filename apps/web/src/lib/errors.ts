@@ -1,4 +1,10 @@
 import { ApiError } from "@unsaid/api-client";
+import { dictionaries } from "@/i18n/dictionaries";
+import { createTranslator, type Translator } from "@/i18n/translate";
+
+type Tr = Pick<Translator, "t" | "tp">;
+/** Default translator (English) so callers without a locale, and unit tests, keep working. */
+const EN: Tr = createTranslator("en", dictionaries.en);
 
 export function isApiError(e: unknown): e is ApiError {
   return e instanceof ApiError;
@@ -15,7 +21,7 @@ export function fieldErrors(e: unknown): Record<string, string> {
   return out;
 }
 
-export function errorMessage(e: unknown, fallback = "Something went wrong. Please try again."): string {
+export function errorMessage(e: unknown, fallback: string = EN.t("public.errors.generic")): string {
   if (isApiError(e)) return e.friendly || fallback;
   return fallback;
 }
@@ -27,18 +33,19 @@ export type SendFailure =
   | { kind: "rejected"; message: string }
   | { kind: "error"; message: string };
 
-/** Friendly classification of a failed anonymous send. */
-export function classifySendError(e: unknown): SendFailure {
-  if (!isApiError(e)) return { kind: "error", message: "Something went wrong. Please try again." };
+/** Friendly classification of a failed anonymous send. Pass the active translator to get localized fallbacks. */
+export function classifySendError(e: unknown, tr: Tr = EN): SendFailure {
+  const { t } = tr;
+  if (!isApiError(e)) return { kind: "error", message: t("public.errors.generic") };
   switch (e.code) {
     case "link_paused": return { kind: "paused" };
     case "not_found": return { kind: "not_found" };
     case "rate_limited":
-      return { kind: "rate_limited", message: e.retryAfterSeconds ? `You're sending a lot of messages. Take a breather and try again in about ${formatWait(e.retryAfterSeconds)}.` : "You're sending a lot of messages. Take a breather and try again in a little while." };
+      return { kind: "rate_limited", message: e.retryAfterSeconds ? t("public.errors.rateLimitedWait", { wait: formatWait(e.retryAfterSeconds, tr) }) : t("public.errors.rateLimited") };
     case "moderation_rejected":
-      return { kind: "rejected", message: e.message && e.message !== "Unprocessable Entity" ? e.message : "That one didn't go through. Try rewording it kindly." };
+      return { kind: "rejected", message: e.message && e.message !== "Unprocessable Entity" ? e.message : t("public.errors.rejected") };
     case "account_suspended": return { kind: "paused" };
-    case "validation_error": return { kind: "error", message: firstDetail(e) ?? e.message ?? "Please check your message and try again." };
+    case "validation_error": return { kind: "error", message: firstDetail(e) ?? e.message ?? t("public.errors.check") };
     default: return { kind: "error", message: e.friendly };
   }
 }
@@ -47,8 +54,7 @@ function firstDetail(e: ApiError): string | undefined {
   return Object.values(fieldErrors(e))[0];
 }
 
-export function formatWait(seconds: number): string {
-  if (seconds < 60) return `${Math.max(1, Math.ceil(seconds))} seconds`;
-  const m = Math.ceil(seconds / 60);
-  return m === 1 ? "a minute" : `${m} minutes`;
+export function formatWait(seconds: number, tr: Tr = EN): string {
+  if (seconds < 60) return tr.tp("public.errors.seconds", Math.max(1, Math.ceil(seconds)));
+  return tr.tp("public.errors.minutes", Math.ceil(seconds / 60));
 }

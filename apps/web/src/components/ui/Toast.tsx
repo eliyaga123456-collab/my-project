@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 import { CheckCircle2, Info, X, XCircle } from "lucide-react";
+import { useT } from "@/i18n/client";
 import { cx } from "./cx";
 
 type Kind = "success" | "error" | "info";
@@ -17,6 +18,7 @@ export function useToast(): ToastApi {
 }
 
 export function ToastProvider({ children }: { children: ReactNode }) {
+  const { t } = useT();
   const [items, setItems] = useState<ToastItem[]>([]);
   const seq = useRef(0);
 
@@ -41,22 +43,22 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         aria-atomic="false"
         className="pointer-events-none fixed inset-x-0 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[100] flex flex-col items-center gap-2 px-4 lg:bottom-6 lg:items-end lg:px-6"
       >
-        {items.map((t) => (
+        {items.map((item) => (
           <div
-            key={t.id}
-            role={t.kind === "error" ? "alert" : "status"}
+            key={item.id}
+            role={item.kind === "error" ? "alert" : "status"}
             className={cx(
-              "animate-pop pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-md border bg-surface p-3.5 pr-2 shadow-[var(--shadow)]",
-              t.kind === "success" && "border-success/40",
-              t.kind === "error" && "border-danger/50",
-              t.kind === "info" && "border-line"
+              "animate-pop pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-md border bg-surface p-3.5 pe-2 shadow-[var(--shadow)]",
+              item.kind === "success" && "border-success/40",
+              item.kind === "error" && "border-danger/50",
+              item.kind === "info" && "border-line"
             )}
           >
-            {t.kind === "success" && <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" aria-hidden />}
-            {t.kind === "error" && <XCircle className="mt-0.5 size-5 shrink-0 text-danger" aria-hidden />}
-            {t.kind === "info" && <Info className="mt-0.5 size-5 shrink-0 text-secondary" aria-hidden />}
-            <p className="flex-1 text-sm leading-snug">{t.message}</p>
-            <button type="button" aria-label="Dismiss notification" onClick={() => dismiss(t.id)} className="grid size-8 shrink-0 place-items-center rounded-full text-muted hover:bg-raised hover:text-fg">
+            {item.kind === "success" && <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" aria-hidden />}
+            {item.kind === "error" && <XCircle className="mt-0.5 size-5 shrink-0 text-danger" aria-hidden />}
+            {item.kind === "info" && <Info className="mt-0.5 size-5 shrink-0 text-secondary" aria-hidden />}
+            <p className="flex-1 text-sm leading-snug">{item.message}</p>
+            <button type="button" aria-label={t("common.state.dismiss")} onClick={() => dismiss(item.id)} className="grid size-8 shrink-0 place-items-center rounded-full text-muted hover:bg-raised hover:text-fg">
               <X className="size-4" aria-hidden />
             </button>
           </div>

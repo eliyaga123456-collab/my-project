@@ -1,3 +1,6 @@
+"use client";
+
+import { useT } from "@/i18n/client";
 import { cx } from "./cx";
 
 /** EAR mark: a speech bubble holding an ear outline, with a spark of sound escaping. */
@@ -20,11 +23,12 @@ export function LogoMark({ size = 32, className }: { size?: number; className?: 
 
 /** "EAR*" — the asterisk points to the dedication in the footer / about page. */
 export function Wordmark({ className }: { className?: string }) {
+  const { t } = useT();
   return (
-    <span className={cx("font-display font-extrabold tracking-tight", className)}>
-      EAR<sup className="grad-text ml-0.5 text-[0.62em] font-black" title="For Liron" aria-hidden="true">*</sup>
-      <span className="sr-only"> (dedicated to Liron)</span>
-    </span>
+    <bdi dir="ltr" className={cx("font-display font-extrabold tracking-tight", className)}>
+      EAR<sup className="grad-text ms-0.5 text-[0.62em] font-black" title={t("common.brand.dedicationSr")} aria-hidden="true">*</sup>
+      <span className="sr-only"> ({t("common.brand.dedicationSr")})</span>
+    </bdi>
   );
 }
 

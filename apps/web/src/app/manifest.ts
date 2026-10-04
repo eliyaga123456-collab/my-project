@@ -1,11 +1,15 @@
 import type { MetadataRoute } from "next";
+import { getT } from "@/i18n/server";
 
-export default function manifest(): MetadataRoute.Manifest {
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const { t, locale, dir } = await getT();
   return {
     id: "/",
-    name: "EAR — Eliya's Anonymous Replies",
+    name: t("site.meta.manifestName"),
+    lang: locale,
+    dir,
     short_name: "EAR",
-    description: "Send anonymous messages. Get the app to create your own link.",
+    description: t("site.meta.manifestDescription"),
     start_url: "/",
     scope: "/",
     display: "standalone",

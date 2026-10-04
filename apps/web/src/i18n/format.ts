@@ -16,3 +16,6 @@ export function formatRelative(locale: Locale, d: Date | string, now = Date.now(
   for (const [unit, s] of UNITS) if (Math.abs(sec) >= s) return rtf.format(Math.round(sec / s), unit);
   return rtf.format(0, "second");
 }
+
+/** Isolates user-supplied text (names, handles) only where it matters: inside RTL sentences. Keeps English strings clean. */
+export const isolateIn = (locale: Locale, s: string) => (locale === "he" ? isolate(s) : s);

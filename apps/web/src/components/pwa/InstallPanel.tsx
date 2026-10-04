@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { Apple, Download, MonitorSmartphone, Smartphone } from "lucide-react";
 import { ButtonLink } from "@/components/ui";
 import { ShareActions } from "@/components/public/ShareActions";
+import { useT } from "@/i18n/client";
+import { rich } from "@/lib/rich";
 import { ANDROID_APP_URL, APK_URL, INSTALL_PATH, IOS_APP_URL } from "@/lib/site";
 
 type Platform = "ios" | "android" | "desktop";
@@ -18,6 +20,7 @@ function Step({ n, children }: { n: number; children: React.ReactNode }) {
 }
 
 export function InstallPanel({ qrDataUri, apkUrl = APK_URL }: { qrDataUri: string; apkUrl?: string }) {
+  const { t } = useT();
   const [platform, setPlatform] = useState<Platform | null>(null);
   const [url, setUrl] = useState(INSTALL_PATH);
   useEffect(() => {
@@ -32,28 +35,28 @@ export function InstallPanel({ qrDataUri, apkUrl = APK_URL }: { qrDataUri: strin
       <section aria-labelledby="install-now" className="veil p-5 sm:p-7">
         <div className="relative">
           <h2 id="install-now" className="flex items-center gap-2 text-xl font-bold"><Smartphone className="size-5 text-primary" aria-hidden />
-            {platform === "ios" ? "Install on iPhone" : platform === "android" ? "Install on Android" : "Get the app"}</h2>
-          <p className="mt-2 text-muted">Accounts, your inbox and your links live only in the app. This website is just for sending anonymous messages.</p>
+            {platform === "ios" ? t("site.install.installIos") : platform === "android" ? t("site.install.installAndroid") : t("common.nav.getTheApp")}</h2>
+          <p className="mt-2 text-muted">{t("site.install.accountsNote")}</p>
 
           <div className="mt-4 flex flex-col gap-3 sm:flex-row">
             {platform !== "ios" && (
               <ButtonLink href={androidHref} size="lg" className="w-full sm:w-auto" data-testid="android-download">
-                <Download className="size-4" aria-hidden />{ANDROID_APP_URL ? "Get it on Google Play" : "Download for Android (APK)"}
+                <Download className="size-4" aria-hidden />{ANDROID_APP_URL ? t("site.install.googlePlay") : t("site.install.apk")}
               </ButtonLink>
             )}
             {IOS_APP_URL && platform !== "android" && (
-              <ButtonLink href={IOS_APP_URL} size="lg" variant="outline" className="w-full sm:w-auto"><Apple className="size-4" aria-hidden />Get it on the App Store</ButtonLink>
+              <ButtonLink href={IOS_APP_URL} size="lg" variant="outline" className="w-full sm:w-auto"><Apple className="size-4" aria-hidden />{t("site.install.appStore")}</ButtonLink>
             )}
           </div>
 
           {platform === "android" && !ANDROID_APP_URL && (
             <ol className="mt-5 space-y-3">
-              <Step n={1}>Tap <strong>Download for Android</strong> and open the file.</Step>
-              <Step n={2}>If asked, allow installs from this browser, then tap <strong>Install</strong>.</Step>
+              <Step n={1}>{rich(t("site.install.step1"))}</Step>
+              <Step n={2}>{rich(t("site.install.step2"))}</Step>
             </ol>
           )}
           {platform === "ios" && !IOS_APP_URL && (
-            <p className="mt-4 rounded-md bg-raised px-3 py-2 text-muted">The iPhone app is coming soon. Android is available now.</p>
+            <p className="mt-4 rounded-md bg-raised px-3 py-2 text-muted">{t("site.install.iosSoon")}</p>
           )}
         </div>
       </section>
@@ -61,12 +64,12 @@ export function InstallPanel({ qrDataUri, apkUrl = APK_URL }: { qrDataUri: strin
       <section aria-labelledby="send-link" className="veil p-5 sm:p-7">
         <div className="relative grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={qrDataUri} alt="QR code that opens the EAR install page" width={176} height={176} className="mx-auto size-44 rounded-xl bg-white p-3" />
+          <img src={qrDataUri} alt={t("site.install.qrAlt")} width={176} height={176} className="mx-auto size-44 rounded-xl bg-white p-3" />
           <div>
-            <h2 id="send-link" className="flex items-center gap-2 text-xl font-bold"><MonitorSmartphone className="size-5 text-secondary" aria-hidden />Send the install link</h2>
-            <p className="mt-1 text-muted">Scan with your phone, or share the link in your story, bio or group chat.</p>
-            <p className="mt-3 break-all rounded-md bg-raised px-3 py-2 font-mono text-sm" data-testid="install-link">{url}</p>
-            <div className="mt-4"><ShareActions path={INSTALL_PATH} text="Get EAR — anonymous questions & replies" /></div>
+            <h2 id="send-link" className="flex items-center gap-2 text-xl font-bold"><MonitorSmartphone className="size-5 text-secondary" aria-hidden />{t("site.install.sendTitle")}</h2>
+            <p className="mt-1 text-muted">{t("site.install.sendBody")}</p>
+            <p className="mt-3 break-all rounded-md bg-raised px-3 py-2 font-mono text-sm" data-testid="install-link" dir="ltr">{url}</p>
+            <div className="mt-4"><ShareActions path={INSTALL_PATH} text={t("site.install.shareText")} /></div>
           </div>
         </div>
       </section>

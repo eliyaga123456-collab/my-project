@@ -25,12 +25,12 @@ export function InputField({ label, hint, error, trailing, hideLabel, className,
       <div className="relative">
         <input
           id={fid}
-          className={cx(control, "h-12", trailing ? "pr-12" : "")}
+          className={cx(control, "h-12", trailing ? "pe-12" : "")}
           aria-invalid={error ? true : undefined}
           aria-describedby={cx(hint && `${fid}-hint`, error && `${fid}-err`) || undefined}
           {...rest}
         />
-        {trailing && <div className="absolute inset-y-0 right-3 flex items-center">{trailing}</div>}
+        {trailing && <div className="absolute inset-y-0 end-3 flex items-center">{trailing}</div>}
       </div>
       {hint && <p id={`${fid}-hint`} className="mt-1.5 text-[0.82rem] text-muted">{hint}</p>}
       {error && <p id={`${fid}-err`} role="alert" className="mt-1.5 text-[0.82rem] font-medium text-danger">{error}</p>}

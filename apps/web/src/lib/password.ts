@@ -1,12 +1,13 @@
 import { LIMITS } from "@unsaid/shared";
 
-export interface PasswordRule { id: string; label: string; ok: boolean }
+/** Labels are localized by the caller from `id` (auth.password.rule*). */
+export interface PasswordRule { id: "len" | "max" | "mix"; ok: boolean }
 
 export function passwordRules(pw: string): PasswordRule[] {
   return [
-    { id: "len", label: `At least ${LIMITS.passwordMin} characters`, ok: pw.length >= LIMITS.passwordMin },
-    { id: "max", label: `At most ${LIMITS.passwordMax} characters`, ok: pw.length <= LIMITS.passwordMax },
-    { id: "mix", label: "Mix of letters and numbers or symbols (recommended)", ok: /[a-zA-Z]/.test(pw) && /[^a-zA-Z]/.test(pw) }
+    { id: "len", ok: pw.length >= LIMITS.passwordMin },
+    { id: "max", ok: pw.length <= LIMITS.passwordMax },
+    { id: "mix", ok: /\p{L}/u.test(pw) && /[^\p{L}]/u.test(pw) }
   ];
 }
 

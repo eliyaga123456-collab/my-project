@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
+import { useT } from "@/i18n/client";
 import { Button } from "./Button";
 
 const FOCUSABLE = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -18,6 +19,7 @@ interface ModalProps {
 
 /** Accessible dialog: focus trap, ESC, backdrop click, scroll lock, focus restore. Bottom sheet on phones. */
 export function Modal({ open, onClose, title, description, children, footer }: ModalProps) {
+  const { t } = useT();
   const panel = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const descId = useId();
@@ -71,7 +73,7 @@ export function Modal({ open, onClose, title, description, children, footer }: M
             <h2 id={titleId} className="text-xl font-bold">{title}</h2>
             {description && <p id={descId} className="mt-1 text-sm text-muted">{description}</p>}
           </div>
-          <button type="button" onClick={onClose} aria-label="Close dialog" className="-mr-2 -mt-1 grid size-10 shrink-0 place-items-center rounded-full text-muted hover:bg-raised hover:text-fg">
+          <button type="button" onClick={onClose} aria-label={t("common.state.closeDialog")} className="-me-2 -mt-1 grid size-10 shrink-0 place-items-center rounded-full text-muted hover:bg-raised hover:text-fg">
             <X className="size-5" aria-hidden />
           </button>
         </div>
@@ -89,6 +91,7 @@ export function ConfirmDialog({
   open: boolean; onClose: () => void; onConfirm: () => void; title: string; description?: string;
   confirmLabel: string; danger?: boolean; loading?: boolean; children?: ReactNode;
 }) {
+  const { t } = useT();
   return (
     <Modal
       open={open}
@@ -97,7 +100,7 @@ export function ConfirmDialog({
       description={description}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button variant="ghost" onClick={onClose}>{t("common.state.cancel")}</Button>
           <Button variant={danger ? "danger" : "primary"} loading={loading} onClick={onConfirm} data-autofocus>{confirmLabel}</Button>
         </>
       }

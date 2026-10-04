@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Check, Copy, Download, Share2 } from "lucide-react";
 import { Button, useToast } from "@/components/ui";
+import { useT } from "@/i18n/client";
 
 export function shareLinks(url: string, text: string) {
   const u = encodeURIComponent(url);
@@ -18,6 +19,7 @@ export function shareLinks(url: string, text: string) {
 
 /** Copy link, native Web Share, share-card download and platform links. `path` is the site-relative page. */
 export function ShareActions({ path, text, cardPath, compact }: { path: string; text: string; cardPath?: string; compact?: boolean }) {
+  const { t } = useT();
   const toast = useToast();
   const [copied, setCopied] = useState(false);
   const [canNative, setCanNative] = useState(false);
@@ -32,10 +34,10 @@ export function ShareActions({ path, text, cardPath, compact }: { path: string; 
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
-      toast.success("Link copied");
+      toast.success(t("public.share.linkCopied"));
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Couldn't copy. Select the link and copy it manually.");
+      toast.error(t("public.share.copyFailed"));
     }
   }
   async function native() {
@@ -45,19 +47,19 @@ export function ShareActions({ path, text, cardPath, compact }: { path: string; 
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
-        <Button onClick={copy} variant="secondary" leading={copied ? <Check className="size-4 text-success" aria-hidden /> : <Copy className="size-4" aria-hidden />}>{copied ? "Copied" : "Copy link"}</Button>
-        {canNative && <Button onClick={native} leading={<Share2 className="size-4" aria-hidden />}>Share…</Button>}
+        <Button onClick={copy} variant="secondary" leading={copied ? <Check className="size-4 text-success" aria-hidden /> : <Copy className="size-4" aria-hidden />}>{copied ? t("common.state.copied") : t("common.state.copy")}</Button>
+        {canNative && <Button onClick={native} leading={<Share2 className="size-4" aria-hidden />}>{t("public.share.share")}</Button>}
         {cardPath && (
           <a href={cardPath} download="unsaid-answer.png" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line px-5 text-[0.95rem] font-semibold transition hover:bg-raised">
-            <Download className="size-4" aria-hidden /> Download card
+            <Download className="size-4" aria-hidden /> {t("public.share.download")}
           </a>
         )}
       </div>
       {!compact && (
-        <ul className="flex flex-wrap gap-2" aria-label="Share to">
+        <ul className="flex flex-wrap gap-2" aria-label={t("public.share.shareTo")}>
           {shareLinks(url, text).map((l) => (
             <li key={l.id}>
-              <a href={l.href} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-9 items-center rounded-full bg-raised px-3.5 text-sm font-medium text-muted transition hover:text-fg">{l.label}<span className="sr-only"> (opens in a new tab)</span></a>
+              <a href={l.href} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-9 items-center rounded-full bg-raised px-3.5 text-sm font-medium text-muted transition hover:text-fg">{l.id === "email" ? t("public.share.email") : l.label}<span className="sr-only">{t("public.share.newTab")}</span></a>
             </li>
           ))}
         </ul>

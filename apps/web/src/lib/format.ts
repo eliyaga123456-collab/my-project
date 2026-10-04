@@ -1,3 +1,5 @@
+import type { Translator } from "@/i18n/translate";
+
 /** Pure presentation helpers (unit tested). */
 
 const MIN = 60_000;
@@ -13,6 +15,18 @@ export function timeAgo(iso: string, now: number = Date.now()): string {
   if (diff < DAY) return `${Math.floor(diff / HOUR)}h ago`;
   if (diff < 7 * DAY) return `${Math.floor(diff / DAY)}d ago`;
   return new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric", year: diff > 300 * DAY ? "numeric" : undefined });
+}
+
+/** Localized variant of `timeAgo` (dictionary-driven; Hebrew gets proper plural forms). */
+export function timeAgoT(iso: string, tr: Pick<Translator, "t" | "tp" | "locale">, now: number = Date.now()): string {
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return "";
+  const diff = Math.max(0, now - t);
+  if (diff < MIN) return tr.t("common.time.justNow");
+  if (diff < HOUR) return tr.tp("common.time.minutesAgo", Math.floor(diff / MIN));
+  if (diff < DAY) return tr.tp("common.time.hoursAgo", Math.floor(diff / HOUR));
+  if (diff < 7 * DAY) return tr.tp("common.time.daysAgo", Math.floor(diff / DAY));
+  return new Date(t).toLocaleDateString(tr.locale === "he" ? "he-IL" : "en-US", { month: "short", day: "numeric", year: diff > 300 * DAY ? "numeric" : undefined });
 }
 
 export function initials(name: string): string {

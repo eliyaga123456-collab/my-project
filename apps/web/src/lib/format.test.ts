@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { compactNumber, hueFor, initials, mediaSrc, pluralize, safeNext, shortUserAgent, timeAgo } from "./format";
+import { dictionaries } from "@/i18n/dictionaries";
+import { createTranslator } from "@/i18n/translate";
+import { compactNumber, hueFor, initials, mediaSrc, pluralize, safeNext, shortUserAgent, timeAgo, timeAgoT } from "./format";
 
 const NOW = Date.parse("2026-10-04T12:00:00Z");
 
@@ -13,6 +15,17 @@ describe("timeAgo", () => {
   it("handles future and invalid input", () => {
     expect(timeAgo("2026-10-05T12:00:00Z", NOW)).toBe("just now");
     expect(timeAgo("nope", NOW)).toBe("");
+  });
+});
+
+describe("timeAgoT", () => {
+  it("matches the English short form and localizes Hebrew plurals", () => {
+    const en = createTranslator("en", dictionaries.en);
+    const he = createTranslator("he", dictionaries.he);
+    expect(timeAgoT("2026-10-04T07:00:00Z", en, NOW)).toBe("5h ago");
+    expect(timeAgoT("2026-10-04T07:00:00Z", he, NOW)).toBe("לפני 5 שעות");
+    expect(timeAgoT("2026-10-04T10:00:00Z", he, NOW)).toBe("לפני שעתיים");
+    expect(timeAgoT("2026-10-04T11:59:50Z", he, NOW)).toBe("הרגע");
   });
 });
 
