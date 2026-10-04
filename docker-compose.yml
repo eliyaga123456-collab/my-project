@@ -1,0 +1,35 @@
+# Local prod-like run:  APP_SECRET=$(openssl rand -hex 32) docker compose up --build
+# Web http://localhost:3000, API http://localhost:4000. Not for public hosting (see docs/DEPLOYMENT.md).
+services:
+  db:
+    image: postgres:16-alpine
+    environment: { POSTGRES_USER: postgres, POSTGRES_PASSWORD: postgres, POSTGRES_DB: unsaid }
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U postgres"], interval: 5s, timeout: 3s, retries: 10 }
+    ports: ["5432:5432"]
+  api:
+    build: { context: ., dockerfile: apps/api/Dockerfile }
+    depends_on: { db: { condition: service_healthy } }
+    environment:
+      NODE_ENV: production
+      AUTO_MIGRATE: "true"
+      DATABASE_URL: postgres://postgres:postgres@db:5432/unsaid
+      APP_SECRET: ${APP_SECRET:?set APP_SECRET (openssl rand -hex 32)}
+      WEB_URL: http://localhost:3000
+      API_URL: http://localhost:4000
+      WEB_ORIGINS: http://localhost:3000
+      ADMIN_ORIGINS: http://localhost:3100
+      TRUST_PROXY: "true"
+      COOKIE_SECURE: "false"   # plain http on localhost
+      EMAIL_TRANSPORT: outbox
+      MEDIA_DIR: /data/media
+    volumes: [media:/data/media]
+    ports: ["4000:4000"]
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args: { API_URL: "http://api:4000", NEXT_PUBLIC_SITE_URL: "http://localhost:3000" }
+    depends_on: [api]
+    ports: ["3000:3000"]
+volumes: { pgdata: {}, media: {} }

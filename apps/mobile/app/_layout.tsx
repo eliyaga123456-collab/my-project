@@ -1,0 +1,81 @@
+import { useEffect } from "react";
+import { StatusBar } from "expo-status-bar";
+import { SplashScreen, Stack, useRouter, useSegments } from "expo-router";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { useFonts } from "expo-font";
+import * as Notifications from "expo-notifications";
+import { BricolageGrotesque_600SemiBold } from "@expo-google-fonts/bricolage-grotesque/600SemiBold";
+import { BricolageGrotesque_700Bold } from "@expo-google-fonts/bricolage-grotesque/700Bold";
+import { Inter_400Regular } from "@expo-google-fonts/inter/400Regular";
+import { Inter_500Medium } from "@expo-google-fonts/inter/500Medium";
+import { Inter_600SemiBold } from "@expo-google-fonts/inter/600SemiBold";
+import { ThemeProvider, useTheme } from "@/theme";
+import { AuthProvider, useAuth } from "@/providers/AuthProvider";
+import { NetworkProvider } from "@/providers/NetworkProvider";
+import { ToastProvider } from "@/components/Toast";
+import { routeForNotificationData } from "@/lib/push";
+
+void SplashScreen.preventAutoHideAsync();
+
+function Gate() {
+  const { status } = useAuth();
+  const { colors, name } = useTheme();
+  const segments = useSegments();
+  const router = useRouter();
+
+  // Auth-guarded routing. Public viewer screens (u/, l/) are open to everyone.
+  useEffect(() => {
+    if (status === "loading") return;
+    const top = segments[0] as string | undefined;
+    const inAuth = top === "(auth)";
+    const isPublic = top === "u" || top === "l";
+    if (status === "anon" && !inAuth && !isPublic) router.replace("/welcome");
+    else if (status === "authed" && (inAuth || top === undefined)) router.replace("/inbox");
+  }, [status, segments, router]);
+
+  // Push taps open the message.
+  useEffect(() => {
+    if (status !== "authed") return;
+    const open = (data: Record<string, unknown> | null | undefined) => {
+      const href = routeForNotificationData(data);
+      if (href) router.push(href as never);
+    };
+    const last = Notifications.getLastNotificationResponse();
+    if (last) open(last.notification.request.content.data);
+    const sub = Notifications.addNotificationResponseReceivedListener((r) => open(r.notification.request.content.data));
+    return () => sub.remove();
+  }, [status, router]);
+
+  useEffect(() => { if (status !== "loading") void SplashScreen.hideAsync(); }, [status]);
+
+  return (
+    <>
+      <StatusBar style={name === "dark" ? "light" : "dark"} />
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background }, animation: "fade" }}>
+        <Stack.Screen name="message/[id]" options={{ presentation: "modal", animation: "slide_from_bottom" }} />
+      </Stack>
+    </>
+  );
+}
+
+export default function RootLayout() {
+  const [loaded, fontError] = useFonts({ BricolageGrotesque_600SemiBold, BricolageGrotesque_700Bold, Inter_400Regular, Inter_500Medium, Inter_600SemiBold });
+  // Splash stays up until fonts are ready (no flash of unstyled/white content).
+  if (!loaded && !fontError) return null;
+  return (
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: "#0b0a14" }}>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <NetworkProvider>
+            <ToastProvider>
+              <AuthProvider>
+                <Gate />
+              </AuthProvider>
+            </ToastProvider>
+          </NetworkProvider>
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
+  );
+}

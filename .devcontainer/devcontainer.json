@@ -1,0 +1,17 @@
+{
+  "name": "EAR",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "forwardPorts": [3000, 3100, 4000],
+  "portsAttributes": {
+    "3000": { "label": "EAR web", "onAutoForward": "openBrowser" },
+    "3100": { "label": "EAR admin", "onAutoForward": "silent" },
+    "4000": { "label": "EAR API", "onAutoForward": "silent" }
+  },
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "postStartCommand": "bash .devcontainer/start.sh",
+  "customizations": {
+    "vscode": { "settings": { "terminal.integrated.defaultProfile.linux": "bash" } }
+  }
+}
