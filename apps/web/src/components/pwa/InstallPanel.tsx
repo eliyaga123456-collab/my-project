@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Apple, Check, Download, MonitorSmartphone, PlusSquare, Share, Smartphone } from "lucide-react";
-import { ButtonLink } from "@/components/ui";
+import { ButtonLink, cx } from "@/components/ui";
 import { ShareActions } from "@/components/public/ShareActions";
 import { useT } from "@/i18n/client";
 import { rich } from "@/lib/rich";
@@ -28,60 +28,58 @@ export function InstallPanel({ qrDataUri, apkUrl = APK_URL }: { qrDataUri: strin
   const androidHref = ANDROID_APP_URL || apkUrl;
   return (
     <div className="space-y-6">
-      <section aria-labelledby="install-now" className="veil p-5 sm:p-7">
-        <div className="relative">
-          <h2 id="install-now" className="flex items-center gap-2 text-xl font-bold"><Smartphone className="size-5 text-primary" aria-hidden />
-            {platform === "ios" ? t("site.install.installIos") : platform === "android" ? t("site.install.installAndroid") : t("common.nav.getTheApp")}</h2>
-          <p className="mt-2 text-muted">{platform === "ios" ? t("site.install.iosLead") : t("site.install.accountsNote")}</p>
-
-          {platform === "ios" && (
-            <div className="mt-5" data-testid="ios-pwa">
-              {installed ? (
-                <div role="status" className="rounded-lg border border-success/40 bg-success/10 p-4 text-center">
-                  <Check className="mx-auto size-7 text-success" aria-hidden />
-                  <p className="mt-2 font-bold">{t("site.install.installedTitle")}</p>
-                  <ButtonLink href="/inbox" className="mt-3">{t("site.install.openInbox")}</ButtonLink>
-                </div>
-              ) : (
-                <>
-                  <p className="text-muted">{rich(t("site.install.iosIntro"))}</p>
-                  <ol className="mt-4 space-y-3">
-                    <Step n={1}><Share className="me-1.5 inline size-4 align-text-bottom" aria-hidden />{rich(t("site.install.iosStep1"))}</Step>
-                    <Step n={2}><PlusSquare className="me-1.5 inline size-4 align-text-bottom" aria-hidden />{rich(t("site.install.iosStep2"))}</Step>
-                    <Step n={3}>{rich(t("site.install.iosStep3"))}</Step>
-                  </ol>
-                  <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                    <ButtonLink href="/signup" size="lg" className="w-full sm:w-auto" data-testid="ios-open-web">{t("site.install.iosOpenWeb")}</ButtonLink>
-                    <ButtonLink href="/login" size="lg" variant="outline" className="w-full sm:w-auto" data-testid="ios-login">{t("site.install.iosHaveAccount")}</ButtonLink>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-            {platform !== "ios" && (
+      <div className="grid gap-4 md:grid-cols-2">
+        <section aria-labelledby="install-android" className={cx("veil p-5 sm:p-7", platform === "android" && "ring-2 ring-primary max-md:order-first")}>
+          <div className="relative">
+            <h2 id="install-android" className="flex flex-wrap items-center gap-2 text-xl font-bold"><Smartphone className="size-5 text-primary" aria-hidden />{t("site.install.installAndroid")}
+              {platform === "android" && <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-semibold text-primary">{t("site.install.yourDevice")}</span>}</h2>
+            <p className="mt-2 text-muted">{t("site.install.androidLead")}</p>
+            <div className="mt-4">
               <ButtonLink href={androidHref} size="lg" className="w-full sm:w-auto" data-testid="android-download">
                 <Download className="size-4" aria-hidden />{ANDROID_APP_URL ? t("site.install.googlePlay") : t("site.install.apk")}
               </ButtonLink>
-            )}
-            {IOS_APP_URL && platform !== "android" && (
-              <ButtonLink href={IOS_APP_URL} size="lg" variant="outline" className="w-full sm:w-auto"><Apple className="size-4" aria-hidden />{t("site.install.appStore")}</ButtonLink>
+            </div>
+            {!ANDROID_APP_URL && (
+              <ol className="mt-5 space-y-3">
+                <Step n={1}>{rich(t("site.install.step1"))}</Step>
+                <Step n={2}>{rich(t("site.install.step2"))}</Step>
+              </ol>
             )}
           </div>
+        </section>
 
-          {platform === "android" && !ANDROID_APP_URL && (
-            <ol className="mt-5 space-y-3">
-              <Step n={1}>{rich(t("site.install.step1"))}</Step>
-              <Step n={2}>{rich(t("site.install.step2"))}</Step>
-            </ol>
-          )}
-          {platform === "ios" && !IOS_APP_URL && (
-            <p className="mt-4 rounded-md bg-raised px-3 py-2 text-muted">{t("site.install.iosSoon")}</p>
-          )}
-          {platform !== "ios" && <p className="mt-4 text-sm text-muted" data-testid="web-app-note">{t("site.install.webAppNote")}</p>}
-        </div>
-      </section>
+        <section aria-labelledby="install-ios" className={cx("veil p-5 sm:p-7", platform === "ios" && "ring-2 ring-primary max-md:order-first")} data-testid="ios-pwa">
+          <div className="relative">
+            <h2 id="install-ios" className="flex flex-wrap items-center gap-2 text-xl font-bold"><Apple className="size-5 text-primary" aria-hidden />{t("site.install.installIos")}
+              {platform === "ios" && <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-semibold text-primary">{t("site.install.yourDevice")}</span>}</h2>
+            <p className="mt-2 text-muted">{t("site.install.iosLead")}</p>
+            {IOS_APP_URL && (
+              <div className="mt-4"><ButtonLink href={IOS_APP_URL} size="lg" variant="outline" className="w-full sm:w-auto"><Apple className="size-4" aria-hidden />{t("site.install.appStore")}</ButtonLink></div>
+            )}
+            {installed && platform === "ios" ? (
+              <div role="status" className="mt-4 rounded-lg border border-success/40 bg-success/10 p-4 text-center">
+                <Check className="mx-auto size-7 text-success" aria-hidden />
+                <p className="mt-2 font-bold">{t("site.install.installedTitle")}</p>
+                <ButtonLink href="/inbox" className="mt-3">{t("site.install.openInbox")}</ButtonLink>
+              </div>
+            ) : (
+              <>
+                <p className="mt-4 text-muted">{rich(t("site.install.iosIntro"))}</p>
+                <ol className="mt-3 space-y-3">
+                  <Step n={1}><Share className="me-1.5 inline size-4 align-text-bottom" aria-hidden />{rich(t("site.install.iosStep1"))}</Step>
+                  <Step n={2}><PlusSquare className="me-1.5 inline size-4 align-text-bottom" aria-hidden />{rich(t("site.install.iosStep2"))}</Step>
+                  <Step n={3}>{rich(t("site.install.iosStep3"))}</Step>
+                </ol>
+                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                  <ButtonLink href="/signup" size="lg" className="w-full sm:w-auto" data-testid="ios-open-web">{t("site.install.iosOpenWeb")}</ButtonLink>
+                  <ButtonLink href="/login" size="lg" variant="outline" className="w-full sm:w-auto" data-testid="ios-login">{t("site.install.iosHaveAccount")}</ButtonLink>
+                </div>
+              </>
+            )}
+          </div>
+        </section>
+      </div>
+      <p className="text-sm text-muted" data-testid="web-app-note">{t("site.install.webAppNote")}</p>
 
       <section aria-labelledby="send-link" className="veil p-5 sm:p-7">
         <div className="relative grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center">

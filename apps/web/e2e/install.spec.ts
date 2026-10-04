@@ -11,7 +11,7 @@ test("install page: iOS steps, QR, share buttons", async ({ browser, baseURL }) 
   await expect(page.getByText("Add to Home Screen")).toBeVisible();
   await expect(page.getByRole("link", { name: "Open the web app" })).toHaveAttribute("href", "/signup");
   await expect(page.getByRole("link", { name: "I already have an account" })).toHaveAttribute("href", "/login");
-  await expect(page.getByTestId("android-download")).toHaveCount(0);
+  await expect(page.getByTestId("android-download")).toBeVisible();
   await expect(page.getByRole("img", { name: /QR code/ })).toBeVisible();
   await expect(page.getByTestId("install-link")).toContainText("/install");
   const share = page.locator("section", { hasText: "Send the install link" });
@@ -20,10 +20,11 @@ test("install page: iOS steps, QR, share buttons", async ({ browser, baseURL }) 
   await ctx.close();
 });
 
-test("install page: Android/desktop keep APK + QR and no web-app buttons", async ({ page }) => {
+test("install page shows BOTH Android and iPhone options on every device", async ({ page }) => {
   await page.goto("/install");
   await expect(page.getByTestId("android-download")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Open the web app" })).toHaveCount(0);
+  await expect(page.getByTestId("ios-pwa")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open the web app" })).toHaveAttribute("href", "/signup");
   await expect(page.getByTestId("web-app-note")).toBeVisible();
   await expect(page.getByRole("img", { name: /QR code/ })).toBeVisible();
 });
