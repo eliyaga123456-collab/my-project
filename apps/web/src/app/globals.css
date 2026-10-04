@@ -134,6 +134,10 @@
 @keyframes sheet { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
 @keyframes drift { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(20px, -24px, 0); } }
 @keyframes float-y { 0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); } 50% { transform: translateY(-8px) rotate(var(--r, 0deg)); } }
+@keyframes ear-wave { 0%, 100% { opacity: var(--wo, 0.9); } 40% { opacity: 0.1; transform: translateX(-2px); } }
+.ear-wave { transform-box: fill-box; }
+.ear-mark-live .ear-wave-1, .ear-logo:hover .ear-wave-1, .ear-logo:focus-visible .ear-wave-1 { --wo: 0.95; animation: ear-wave 1.5s ease-in-out 0.25s infinite; }
+.ear-mark-live .ear-wave-2, .ear-logo:hover .ear-wave-2, .ear-logo:focus-visible .ear-wave-2 { --wo: 0.6; animation: ear-wave 1.5s ease-in-out infinite; }
 @keyframes glow-pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
 .animate-ink-in { animation: ink-in 0.24s var(--ease) both; }
@@ -151,5 +155,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .animate-drift, .animate-float { animation: none; }
+  .animate-drift, .animate-float, .ear-wave { animation: none !important; }
 }
