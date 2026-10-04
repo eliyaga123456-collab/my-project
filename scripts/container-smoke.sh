@@ -5,7 +5,7 @@ BASE="${1:?base url}"
 H=(-H "x-requested-with: unsaid" -H "content-type: application/json")
 for i in $(seq 1 90); do curl -fsS "$BASE/health" >/dev/null 2>&1 && break; sleep 2; [ "$i" = 90 ] && { echo "web never became healthy"; exit 1; }; done
 echo "web healthy"
-for i in $(seq 1 60); do curl -fsS "$BASE/api/v1/profiles/nobody-here" -o /dev/null -w "%{http_code}" 2>/dev/null | grep -q 404 && break; sleep 2; [ "$i" = 60 ] && { echo "API not reachable through the website"; exit 1; }; done
+for i in $(seq 1 60); do curl -sS "$BASE/api/v1/profiles/nobody_here" -o /dev/null -w "%{http_code}" 2>/dev/null | grep -q 404 && break; sleep 2; [ "$i" = 60 ] && { echo "API not reachable through the website"; exit 1; }; done
 echo "api reachable through web proxy (404 for unknown profile)"
 for p in / /install /manifest.webmanifest /sw.js /offline /privacy; do
   code=$(curl -s -o /dev/null -w "%{http_code}" "$BASE$p"); [ "$code" = 200 ] || { echo "GET $p -> $code"; exit 1; }
