@@ -1,0 +1,27 @@
+{
+  "name": "ear-desktop",
+  "productName": "EAR",
+  "version": "0.1.0",
+  "description": "EAR — Eliya's Anonymous Replies (desktop app)",
+  "author": "EAR",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --publish never"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "app.ear.desktop",
+    "productName": "EAR",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["main.js", "offline.html", "build/icon.png"],
+    "win": { "target": [{ "target": "nsis", "arch": ["x64"] }], "icon": "build/icon.png", "artifactName": "EAR-Windows-Setup.${ext}" },
+    "nsis": { "oneClick": true, "perMachine": false, "deleteAppDataOnUninstall": false },
+    "mac": { "target": [{ "target": "dmg", "arch": ["x64", "arm64"] }], "icon": "build/icon.png", "category": "public.app-category.social-networking", "artifactName": "EAR-macOS-${arch}.${ext}" },
+    "linux": { "target": [{ "target": "AppImage", "arch": ["x64"] }], "icon": "build/icon.png", "category": "Network", "artifactName": "EAR-Linux.${ext}" }
+  }
+}

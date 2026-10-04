@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Apple, Check, Download, MonitorSmartphone, PlusSquare, Share, Smartphone } from "lucide-react";
+import { Apple, Check, Download, Monitor, MonitorSmartphone, PlusSquare, Share, Smartphone } from "lucide-react";
 import { ButtonLink, cx } from "@/components/ui";
 import { ShareActions } from "@/components/public/ShareActions";
 import { useT } from "@/i18n/client";
 import { rich } from "@/lib/rich";
-import { ANDROID_APP_URL, APK_URL, INSTALL_PATH, IOS_APP_URL } from "@/lib/site";
+import { ANDROID_APP_URL, APK_URL, DESKTOP_URLS, INSTALL_PATH, IOS_APP_URL } from "@/lib/site";
 import { usePwaInstall } from "./usePwaInstall";
 
 function Step({ n, children }: { n: number; children: React.ReactNode }) {
@@ -76,6 +76,21 @@ export function InstallPanel({ qrDataUri, apkUrl = APK_URL }: { qrDataUri: strin
                 </div>
               </>
             )}
+          </div>
+        </section>
+
+        <section aria-labelledby="install-desktop" className={cx("veil p-5 sm:p-7 md:col-span-2", platform === "desktop" && "ring-2 ring-primary")} data-testid="desktop-downloads">
+          <div className="relative">
+            <h2 id="install-desktop" className="flex flex-wrap items-center gap-2 text-xl font-bold"><Monitor className="size-5 text-primary" aria-hidden />{t("site.install.installDesktop")}
+              {platform === "desktop" && <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-semibold text-primary">{t("site.install.yourDevice")}</span>}</h2>
+            <p className="mt-2 text-muted">{t("site.install.desktopLead")}</p>
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <ButtonLink href={DESKTOP_URLS.windows} size="lg" className="w-full sm:w-auto" data-testid="desktop-windows"><Download className="size-4" aria-hidden />{t("site.install.desktopWindows")}</ButtonLink>
+              <ButtonLink href={DESKTOP_URLS.macArm} size="lg" variant="outline" className="w-full sm:w-auto"><Apple className="size-4" aria-hidden />{t("site.install.desktopMacArm")}</ButtonLink>
+              <ButtonLink href={DESKTOP_URLS.macIntel} size="lg" variant="outline" className="w-full sm:w-auto"><Apple className="size-4" aria-hidden />{t("site.install.desktopMacIntel")}</ButtonLink>
+              <ButtonLink href={DESKTOP_URLS.linux} size="lg" variant="outline" className="w-full sm:w-auto"><Download className="size-4" aria-hidden />{t("site.install.desktopLinux")}</ButtonLink>
+            </div>
+            <p className="mt-3 text-sm text-muted">{t("site.install.desktopNote")}</p>
           </div>
         </section>
       </div>

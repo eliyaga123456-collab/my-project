@@ -9,3 +9,11 @@ export const ANDROID_APP_URL = process.env.NEXT_PUBLIC_ANDROID_APP_URL ?? "";
 /** Direct APK download (GitHub release asset by default). */
 export const APK_URL = process.env.APK_URL ?? process.env.NEXT_PUBLIC_APK_URL ?? "https://github.com/eliyaga123456-collab/my-project/releases/latest/download/EAR.apk";
 export const INSTALL_PATH = "/install";
+/** Desktop apps are published to the stable GitHub release tagged `desktop` by .github/workflows/desktop.yml. */
+const DESKTOP_BASE = process.env.NEXT_PUBLIC_DESKTOP_BASE ?? "https://github.com/eliyaga123456-collab/my-project/releases/download/desktop";
+export const DESKTOP_URLS = {
+  windows: `${DESKTOP_BASE}/EAR-Windows-Setup.exe`,
+  macArm: `${DESKTOP_BASE}/EAR-macOS-arm64.dmg`,
+  macIntel: `${DESKTOP_BASE}/EAR-macOS-x64.dmg`,
+  linux: `${DESKTOP_BASE}/EAR-Linux.AppImage`
+} as const;

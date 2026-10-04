@@ -1,0 +1,53 @@
+# Builds the EAR desktop app (Windows installer, macOS dmg, Linux AppImage) on GitHub's runners and publishes them to the
+# release tagged `desktop` (stable download URLs). Not code-signed: Windows SmartScreen / macOS Gatekeeper will warn once.
+name: Desktop apps
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/elegant-volta-5foywr]
+    paths: ["desktop/**", ".github/workflows/desktop.yml"]
+permissions:
+  contents: write
+concurrency: { group: desktop-apps, cancel-in-progress: true }
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Install
+        working-directory: desktop
+        run: npm install --no-audit --no-fund
+      - name: Build
+        working-directory: desktop
+        run: npx electron-builder --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: EAR-desktop-${{ matrix.os }}
+          path: |
+            desktop/dist/*.exe
+            desktop/dist/*.dmg
+            desktop/dist/*.AppImage
+          if-no-files-found: error
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: files, merge-multiple: true }
+      - name: Publish release "desktop"
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          ls -la files
+          gh release delete desktop --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag || true
+          gh release create desktop files/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest=false \
+            --title "EAR desktop apps" \
+            --notes "Windows: EAR-Windows-Setup.exe · macOS: EAR-macOS-arm64.dmg (Apple Silicon) / EAR-macOS-x64.dmg (Intel) · Linux: EAR-Linux.AppImage. Not code-signed, so your system may warn the first time."
