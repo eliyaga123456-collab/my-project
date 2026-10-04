@@ -21,11 +21,21 @@ import { AuthProvider, useAuth } from "@/providers/AuthProvider";
 import { NetworkProvider } from "@/providers/NetworkProvider";
 import { ToastProvider } from "@/components/Toast";
 import { routeForNotificationData } from "@/lib/push";
+import { CrashScreen } from "@/components/AppErrorBoundary";
+import { BootScreen } from "@/components/BootScreen";
+import { installGlobalErrorHandler } from "@/lib/globalErrors";
 
-void SplashScreen.preventAutoHideAsync();
+installGlobalErrorHandler();
+
+/** expo-router renders this when any screen below the root layout throws while rendering. */
+export function ErrorBoundary({ error, retry }: { error: Error; retry: () => Promise<void> }) {
+  return <CrashScreen error={error} retry={retry} />;
+}
+
+SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 function Gate() {
-  const { status } = useAuth();
+  const { status, bootFailed, retryBoot } = useAuth();
   const { colors, name } = useTheme();
   const segments = useSegments();
   const router = useRouter();
@@ -45,15 +55,19 @@ function Gate() {
     if (status !== "authed") return;
     const open = (data: Record<string, unknown> | null | undefined) => {
       const href = routeForNotificationData(data);
-      if (href) router.push(href as never);
+      if (href) { try { router.push(href as never); } catch { /* navigator not ready */ } }
     };
-    const last = Notifications.getLastNotificationResponse();
-    if (last) open(last.notification.request.content.data);
-    const sub = Notifications.addNotificationResponseReceivedListener((r) => open(r.notification.request.content.data));
-    return () => sub.remove();
+    let sub: { remove: () => void } | null = null;
+    try {
+      const last = Notifications.getLastNotificationResponse();
+      if (last) open(last.notification.request.content.data);
+      sub = Notifications.addNotificationResponseReceivedListener((r) => open(r?.notification?.request?.content?.data));
+    } catch { /* notifications unavailable */ }
+    return () => { try { sub?.remove(); } catch { /* ignore */ } };
   }, [status, router]);
 
-  useEffect(() => { if (status !== "loading") void SplashScreen.hideAsync(); }, [status]);
+  // The boot screen (below) covers the "restoring session" wait, so the splash can go as soon as the app shell is mounted.
+  useEffect(() => { SplashScreen.hideAsync().catch(() => undefined); }, []);
 
   return (
     <>
@@ -62,6 +76,7 @@ function Gate() {
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background }, animation: "fade" }}>
         <Stack.Screen name="message/[id]" options={{ presentation: "modal", animation: "slide_from_bottom" }} />
       </Stack>
+      {status === "loading" ? <BootScreen failed={bootFailed} onRetry={retryBoot} /> : null}
     </>
   );
 }

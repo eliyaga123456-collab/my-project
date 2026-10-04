@@ -12,7 +12,7 @@ export function LocaleSync() {
   const { status, me, patchMe } = useAuth();
   const { locale, explicit, setLocale } = useT();
   const pushed = useRef<string | null>(null);
-  const serverLocale = me?.settings.locale;
+  const serverLocale = me?.settings?.locale;
 
   useEffect(() => {
     if (status !== "authed" || !serverLocale || !isLocale(serverLocale) || serverLocale === locale) { if (serverLocale === locale) pushed.current = null; return; }

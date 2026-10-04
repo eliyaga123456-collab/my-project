@@ -3,6 +3,7 @@ import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ApiError } from "@unsaid/api-client";
 import { API_URL } from "@/lib/env";
+import { fetchWithTimeout } from "@/lib/api";
 import { Button } from "@/components/Button";
 import { Icon } from "@/components/Icon";
 import { Text } from "@/components/Text";
@@ -27,11 +28,12 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
   const recheck = async () => {
     setChecking(true);
     try {
-      const r = await fetch(`${API_URL}/health`);
+      const r = await fetchWithTimeout(`${API_URL}/health`, undefined, 20_000);
       if (r.ok) setOffline(false);
     } catch { /* still offline */ }
     setChecking(false);
   };
+  const onRetry = () => { void recheck(); };
 
   return (
     <NetworkContext.Provider value={api}>
@@ -40,7 +42,7 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
         <View accessibilityRole="alert" style={{ position: "absolute", left: 0, right: 0, bottom: 0, paddingBottom: insets.bottom + 8, paddingTop: 10, paddingHorizontal: 16, backgroundColor: colors.surfaceRaised, borderTopWidth: 1, borderColor: colors.danger, flexDirection: "row", alignItems: "center", gap: 10 }}>
           <Icon name="wifi-off" size={20} tone="danger" />
           <Text variant="caption" style={{ flex: 1 }}>{t("network.offline")}</Text>
-          <Button title={t("common.retry")} small variant="ghost" loading={checking} onPress={recheck} />
+          <Button title={t("common.retry")} small variant="ghost" loading={checking} onPress={onRetry} />
         </View>
       ) : null}
     </NetworkContext.Provider>

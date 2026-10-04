@@ -1,3 +1,4 @@
+export { ErrorBoundary } from "@/components/RouteErrorBoundary";
 import { View } from "react-native";
 import { Tabs } from "expo-router/js-tabs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

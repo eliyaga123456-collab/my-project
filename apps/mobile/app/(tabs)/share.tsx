@@ -19,7 +19,7 @@ import { Text } from "@/components/Text";
 import { useToast } from "@/components/Toast";
 import { api } from "@/lib/api";
 import { errorMessage } from "@/lib/errors";
-import { stripIsolates, useT } from "@/i18n";
+import { useT } from "@/i18n";
 import { haptic } from "@/lib/haptics";
 import { useRequest } from "@/lib/hooks";
 import { useNetwork } from "@/providers/NetworkProvider";
@@ -28,6 +28,8 @@ import { useFocusEffect } from "expo-router";
 import { useCallback } from "react";
 import { Chips } from "@/components/Chips";
 import { WEB_URL } from "@/lib/env";
+import { installUrl as buildInstallUrl, inviteMessage, linkShareMessage, linkUrl, safely } from "@/lib/share";
+import { useAuth } from "@/providers/AuthProvider";
 import { useRouter } from "expo-router";
 
 export default function SharePage() {
@@ -35,6 +37,7 @@ export default function SharePage() {
   const { t, formatDate } = useT();
   const toast = useToast();
   const { report } = useNetwork();
+  const { me } = useAuth();
   const links = useRequest(() => api.links.list().then((r) => r.items));
   const [creating, setCreating] = useState(false);
   const router = useRouter();
@@ -49,18 +52,22 @@ export default function SharePage() {
 
   const items = links.data ?? [];
   const primary = items.find((l) => l.isPrimary);
-  const extras = items.filter((l) => !l.isPrimary).sort((a, b) => Number(a.closed) - Number(b.closed) || b.createdAt.localeCompare(a.createdAt));
-  const installUrl = `${WEB_URL}/install`;
+  const extras = items.filter((l) => !l.isPrimary).sort((a, b) => Number(a.closed) - Number(b.closed) || String(b.createdAt).localeCompare(String(a.createdAt)));
+  const installUrl = buildInstallUrl(WEB_URL);
+  const urlOf = (l: LinkDto) => linkUrl(WEB_URL, l, me?.profile.username);
+  const fail = (e: unknown) => { toast.show(errorMessage(e), "error"); };
 
   const replaceLink = (l: LinkDto) => links.setData((cur) => (cur ?? []).map((x) => (x.id === l.id ? l : x)));
   const guard = async (fn: () => Promise<void>) => { setBusy(true); try { await fn(); } catch (e) { toast.show(errorMessage(e), "error"); report(e); } setBusy(false); };
 
-  const copy = async (l: LinkDto) => { await Clipboard.setStringAsync(l.url); haptic.success(); toast.show(t("share.linkCopied"), "success"); };
-  // Messages handed to the system share sheet are written in the user's language, without bidi isolate marks.
-  const shareText = (l: LinkDto) => stripIsolates(l.prompt ? t("share.shareMessagePrompt", { prompt: l.prompt, url: l.url }) : t("share.shareMessageDefault", { url: l.url }));
-  const share = (l: LinkDto) => Share.share({ message: shareText(l) }).catch(() => undefined);
-  const inviteToApp = () => Share.share({ message: stripIsolates(t("share.inviteMessage", { url: installUrl })) }).catch(() => undefined);
-  const copyInstall = async () => { await Clipboard.setStringAsync(installUrl); haptic.success(); toast.show(t("share.installCopied"), "success"); };
+  const copyText = (text: string, doneKey: "share.linkCopied" | "share.installCopied") =>
+    safely(() => Clipboard.setStringAsync(text), () => toast.show(t("errors.generic"), "error")).then((ok) => { if (ok) { haptic.success(); toast.show(t(doneKey), "success"); } });
+  const copy = (l: LinkDto) => copyText(urlOf(l), "share.linkCopied");
+  const sendShare = (message: string) => safely(() => Share.share({ message }), fail);
+  const shareText = (l: LinkDto) => linkShareMessage(l.prompt, urlOf(l));
+  const share = (l: LinkDto) => sendShare(shareText(l));
+  const inviteToApp = () => sendShare(inviteMessage("share.inviteMessage", installUrl));
+  const copyInstall = () => copyText(installUrl, "share.installCopied");
   const setPaused = (l: LinkDto, paused: boolean) => guard(async () => {
     const u = l.isPrimary ? await api.links.pause(paused) : await api.links.update(l.id, { paused });
     replaceLink(u); toast.show(paused ? t("share.linkPaused") : t("share.linkLive"), "success");
@@ -69,7 +76,7 @@ export default function SharePage() {
     const hours = duration === "none" ? 0 : Number(duration);
     const l = await api.links.create({ label: label.trim(), ...(question.trim() ? { prompt: question.trim() } : {}), closesAt: hours ? new Date(Date.now() + hours * 3_600_000).toISOString() : null });
     links.setData((cur) => [...(cur ?? []), l]); setLabel(""); setQuestion(""); setDuration("none"); setCreating(false); toast.show(t("share.roundStarted"), "success");
-    void Share.share({ message: shareText(l) }).catch(() => undefined);
+    void sendShare(shareText(l));
   });
   const remove = () => guard(async () => {
     if (!toDelete) return;
@@ -77,15 +84,15 @@ export default function SharePage() {
     links.setData((cur) => (cur ?? []).filter((x) => x.id !== toDelete.id)); setToDelete(null); toast.show(t("share.linkDeleted"), "success");
   });
 
-  const LinkCard = ({ l }: { l: LinkDto }) => (
-    <Card style={{ gap: 12 }}>
+  const renderLink = (l: LinkDto) => (
+    <Card key={l.id} style={{ gap: 12 }}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
         <Icon name="link" size={18} tone="secondary" />
         <Text variant="bodyStrong" style={{ flex: 1 }} numberOfLines={1}>{l.isPrimary ? t("share.myLink") : l.label}</Text>
         {l.closed ? <Badge label={t("share.closed")} /> : l.paused ? <Badge label={t("share.paused")} tone="warning" /> : <Badge label={t("share.live")} tone="success" />}
       </View>
       {l.prompt ? <Text>{"\u201C"}{l.prompt}{"\u201D"}</Text> : null}
-      <Text selectable tone="primary" numberOfLines={1} style={{ fontFamily: fontFamily.bodyMedium, textAlign: "left", writingDirection: "ltr" }}>{l.url}</Text>
+      <Text selectable tone="primary" numberOfLines={1} style={{ fontFamily: fontFamily.bodyMedium, textAlign: "left", writingDirection: "ltr" }}>{urlOf(l)}</Text>
       {l.closesAt ? <Text variant="caption" tone="muted">{t(l.closed ? "share.closedAt" : "share.closesAt", { date: formatDate(l.closesAt, { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) })}</Text> : null}
       <Text variant="caption" tone="muted">{t("share.stats", { views: t("share.views", { count: l.views }), messages: t("share.messages", { count: l.messages }) })}</Text>
       <View style={{ flexDirection: "row", gap: 8 }}>
@@ -110,9 +117,9 @@ export default function SharePage() {
         <>
           <Button title={t("share.startRound")} onPress={() => setCreating(true)} disabled={items.length >= LIMITS.linksPerUser} icon={<Icon name="plus" size={18} color="#fff" />} />
           <Text variant="heading" style={{ marginTop: 8 }}>{t("share.yourRounds")}</Text>
-          {extras.length === 0 ? <Text tone="muted">{t("share.noRounds")}</Text> : extras.map((l) => <LinkCard key={l.id} l={l} />)}
+          {extras.length === 0 ? <Text tone="muted">{t("share.noRounds")}</Text> : extras.map(renderLink)}
           <Text variant="heading" style={{ marginTop: 8 }}>{t("share.alwaysOn")}</Text>
-          {primary ? <LinkCard l={primary} /> : <EmptyState icon="link" title={t("share.noLinkTitle")} body={t("share.noLinkBody")} />}
+          {primary ? renderLink(primary) : <EmptyState icon="link" title={t("share.noLinkTitle")} body={t("share.noLinkBody")} />}
           <Card style={{ gap: 10, marginTop: 8 }}>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}><Icon name="send" size={18} tone="secondary" /><Text variant="bodyStrong">{t("share.downloadTitle")}</Text></View>
             <Text tone="muted">{t("share.downloadBody")}</Text>

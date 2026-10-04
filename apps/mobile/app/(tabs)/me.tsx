@@ -22,7 +22,8 @@ import { useAuth } from "@/providers/AuthProvider";
 import { useNetwork } from "@/providers/NetworkProvider";
 import { Badge } from "@/components/Badge";
 import { LanguagePicker } from "@/components/LanguagePicker";
-import { isolate, stripIsolates, useT } from "@/i18n";
+import { isolate, useT } from "@/i18n";
+import { installUrl, inviteMessage, safely } from "@/lib/share";
 
 export default function Me() {
   const router = useRouter();
@@ -53,7 +54,7 @@ export default function Me() {
     await logout();
   });
 
-  const openEdit = () => { setDisplayName(p.displayName); setBio(p.bio); setPrompt(p.prompt); setEditing(true); };
+  const openEdit = () => { setDisplayName(p.displayName ?? ""); setBio(p.bio ?? ""); setPrompt(p.prompt ?? ""); setEditing(true); };
   const saveProfile = () => guard(async () => {
     const next = await api.profile.update({ displayName: displayName.trim(), bio: bio.trim(), prompt: prompt.trim() });
     patchMe((m) => ({ ...m, profile: next })); setEditing(false); toast.show(t("me.profileSaved"), "success");
@@ -117,7 +118,7 @@ export default function Me() {
         <NavRow icon="bell" label={t("me.notifications")} onPress={() => router.push("/settings/notifications")} />
         <NavRow icon="lock" label={t("me.sessions")} onPress={() => router.push("/settings/sessions")} />
         <NavRow icon="lock" label={t("me.changePassword")} onPress={() => router.push("/settings/password")} />
-        <NavRow icon="send" label={t("me.invite")} onPress={() => { void Share.share({ message: stripIsolates(t("me.inviteMessage", { url: `${WEB_URL}/install` })) }).catch(() => undefined); }} />
+        <NavRow icon="send" label={t("me.invite")} onPress={() => { void safely(() => Share.share({ message: inviteMessage("me.inviteMessage", installUrl(WEB_URL)) }), (e) => toast.show(errorMessage(e), "error")); }} />
       </Card>
       <Card style={{ gap: 10 }}>
         <Text variant="bodyStrong">{locale === "he" ? `${isolate("שפה")} / ${isolate("Language")}` : `${isolate("Language")} / ${isolate("שפה")}`}</Text>

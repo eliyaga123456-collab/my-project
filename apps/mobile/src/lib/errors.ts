@@ -20,3 +20,6 @@ export function errorMessage(e: unknown): string {
   return e instanceof Error && e.message ? e.message : translate("errors.generic");
 }
 export const isNetworkError = (e: unknown) => e instanceof ApiError && e.code === "network_error";
+
+/** Errors that say nothing about the session itself (offline, cold-starting server, 5xx, rate limit): the saved token must be kept. */
+export const isTransient = (e: unknown): boolean => !(e instanceof ApiError) || e.code === "network_error" || e.status === 0 || e.status >= 500 || e.status === 429;

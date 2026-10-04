@@ -29,7 +29,7 @@ export default function NotificationSettings() {
   const [error, setError] = useState<string | null>(null);
   const [busyKey, setBusyKey] = useState<string | null>(null);
   if (!me) return null;
-  const prefs = me.settings.notifications;
+  const prefs: Partial<NotificationPrefs> = me.settings?.notifications ?? {};
 
   const set = async (key: keyof NotificationPrefs, value: boolean) => {
     setBusyKey(key); setError(null);
@@ -46,7 +46,7 @@ export default function NotificationSettings() {
       <SubHeader title={t("settings.notifications.title")} />
       {error ? <ErrorBanner message={error} /> : null}
       <Card>
-        {ROWS.map((r) => <SwitchRow key={r.key} label={t(r.label)} description={r.description ? t(r.description) : undefined} value={prefs[r.key]} disabled={busyKey === r.key} onChange={(v) => set(r.key, v)} />)}
+        {ROWS.map((r) => <SwitchRow key={r.key} label={t(r.label)} description={r.description ? t(r.description) : undefined} value={!!prefs[r.key]} disabled={busyKey === r.key} onChange={(v) => set(r.key, v)} />)}
       </Card>
       <Text variant="caption" tone="muted">{t("settings.notifications.footnote")}</Text>
     </Screen>

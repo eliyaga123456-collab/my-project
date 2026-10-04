@@ -40,8 +40,12 @@ const rulesCache = new Map<string, Intl.PluralRules>();
 /** Plural category for `n` ("one" | "two" | "many" | "other" ... as defined by CLDR for that language). */
 export function pluralCategory(locale: Locale, n: number): Intl.LDMLPluralRule {
   let r = rulesCache.get(locale);
-  if (!r) { r = new Intl.PluralRules(locale); rulesCache.set(locale, r); }
-  return r.select(n);
+  try {
+    if (!r) { r = new Intl.PluralRules(locale); rulesCache.set(locale, r); }
+    return r.select(n);
+  } catch {
+    return n === 1 ? "one" : "other"; // Intl.PluralRules unavailable on this engine build
+  }
 }
 
 /** Picks the right form of a plural group, falling back to `other`. */

@@ -1,3 +1,4 @@
+export { ErrorBoundary } from "@/components/RouteErrorBoundary";
 import { Stack } from "expo-router";
 import { useTheme } from "@/theme";
 import { useT } from "@/i18n";

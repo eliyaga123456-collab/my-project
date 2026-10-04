@@ -9,9 +9,11 @@ const PUSH_KEY = "unsaid.push";
 
 let registeredToken: string | null = null;
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({ shouldShowBanner: true, shouldShowList: true, shouldPlaySound: false, shouldSetBadge: false })
-});
+try {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({ shouldShowBanner: true, shouldShowList: true, shouldPlaySound: false, shouldSetBadge: false })
+  });
+} catch { /* notifications unavailable on this device build: the app works without them */ }
 
 /** Asks permission, fetches the Expo push token and registers it with the API. Returns the token or null. */
 export async function registerForPush(): Promise<string | null> {
@@ -51,6 +53,6 @@ export async function unregisterPush(): Promise<void> {
 
 /** Route to open for a notification payload. */
 export function routeForNotificationData(data: Record<string, unknown> | null | undefined): string | null {
-  const id = data && typeof data.messageId === "string" ? data.messageId : null;
+  const id = data && typeof data.messageId === "string" && /^[A-Za-z0-9_-]{1,64}$/.test(data.messageId) ? data.messageId : null;
   return id ? `/message/${id}` : "/inbox";
 }

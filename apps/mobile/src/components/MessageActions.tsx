@@ -6,6 +6,7 @@ import { captureRef } from "react-native-view-shot";
 import { LIMITS, REPORT_REASONS, type MessageDto, type ReportReason } from "@unsaid/shared";
 import { api } from "@/lib/api";
 import { WEB_URL } from "@/lib/env";
+import { answerUrl as buildAnswerUrl } from "@/lib/share";
 import { errorMessage } from "@/lib/errors";
 import { haptic } from "@/lib/haptics";
 import { useAuth } from "@/providers/AuthProvider";
@@ -95,7 +96,7 @@ export function useMessageActions({ onUpdated, onRemoved }: Options) {
     close(); toast.show(t("actions.reported"), "success");
   });
 
-  const answerUrl = msg?.reply?.answerId ? `${WEB_URL}/a/${msg.reply.answerId}` : null;
+  const answerUrl = msg?.reply?.answerId ? buildAnswerUrl(WEB_URL, msg.reply.answerId) : null;
   const shareImage = () => run(async () => {
     if (!cardRef.current) return;
     const uri = await captureRef(cardRef, { format: "png", quality: 1, result: "tmpfile", width: SHARE_CARD_SIZE.width * 3, height: SHARE_CARD_SIZE.height * 3 });
