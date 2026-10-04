@@ -8,7 +8,7 @@ export function decodeCursor(c?: string): Cursor | null {
   if (!c) return null;
   try {
     const v = JSON.parse(Buffer.from(c, "base64url").toString("utf8")) as Cursor;
-    if (typeof v.t !== "string" || typeof v.id !== "string" || Number.isNaN(Date.parse(v.t)) || !/^[0-9a-f-]{36}$/i.test(v.id)) throw new Error();
+    if (typeof v.t !== "string" || typeof v.id !== "string" || Number.isNaN(Date.parse(v.t)) || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v.id)) throw new Error();
     return v;
   } catch {
     throw E.validation("Invalid cursor");

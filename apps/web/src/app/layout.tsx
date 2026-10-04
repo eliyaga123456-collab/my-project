@@ -2,10 +2,13 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import "@fontsource-variable/bricolage-grotesque";
 import "@fontsource-variable/inter";
+import "@fontsource-variable/heebo";
 import "./globals.css";
 import { ToastProvider } from "@/components/ui";
 import { SITE_URL } from "@/lib/site";
 import { PwaRegister } from "@/components/pwa/PwaRegister";
+import { I18nProvider } from "@/i18n/client";
+import { getT } from "@/i18n/server";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -32,15 +35,16 @@ export const viewport: Viewport = {
 // Constant string, no user input: applies a saved theme override before first paint.
 const themeInit = `try{var t=localStorage.getItem('unsaid-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}`;
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const { locale, dir, t } = await getT();
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} dir={dir} suppressHydrationWarning>
       <head>
         <script>{themeInit}</script>
       </head>
       <body className="min-h-dvh">
-        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-full focus:bg-surface focus:px-4 focus:py-2 focus:shadow-lg">Skip to content</a>
-        <ToastProvider>{children}</ToastProvider>
+        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-full focus:bg-surface focus:px-4 focus:py-2 focus:shadow-lg">{t("common.nav.skip")}</a>
+        <I18nProvider locale={locale}><ToastProvider>{children}</ToastProvider></I18nProvider>
         <PwaRegister />
       </body>
     </html>

@@ -7,6 +7,7 @@ export const api = createApiClient({
   baseUrl: "",
   clientKind: "web",
   credentials: "same-origin",
+  getLang: () => (typeof document === "undefined" ? undefined : document.documentElement.lang || undefined),
   onUnauthorized: () => {
     if (typeof window === "undefined") return;
     const p = window.location.pathname;

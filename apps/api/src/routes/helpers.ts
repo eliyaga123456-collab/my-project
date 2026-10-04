@@ -25,4 +25,4 @@ export const deviceId = (req: FastifyRequest): string | null => {
   return v && /^[A-Za-z0-9_-]{16,64}$/.test(v) ? v : null;
 };
 export const isMobile = (req: FastifyRequest) => req.headers["x-client"] === "mobile";
-export const uuidParam = (v: unknown) => { if (typeof v !== "string" || !/^[0-9a-f-]{36}$/i.test(v)) throw E.notFound(); return v; };
+export const uuidParam = (v: unknown) => { if (typeof v !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v)) throw E.notFound(); return v; };

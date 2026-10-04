@@ -15,7 +15,7 @@ export interface StorageProvider {
   publicUrl(key: string): string;
 }
 
-const KEY_RE = /^avatars\/[0-9a-f-]{36}\.webp$/;
+const KEY_RE = /^avatars\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.webp$/;
 export const isValidKey = (k: string) => KEY_RE.test(k);
 
 class LocalStorage implements StorageProvider {

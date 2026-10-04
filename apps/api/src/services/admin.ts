@@ -6,7 +6,7 @@ import { decodeCursor, encodeCursor } from "../lib/cursor";
 import { E } from "../lib/errors";
 
 type User = typeof users.$inferSelect;
-const UUID = /^[0-9a-f-]{36}$/i;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export class AdminService {
   constructor(private ctx: AppContext) {}

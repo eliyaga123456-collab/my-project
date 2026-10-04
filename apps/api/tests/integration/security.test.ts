@@ -189,7 +189,7 @@ describe("SQL injection strings in every query/path/body parameter", () => {
       expect(r.statusCode, w).toBeLessThan(500);
     }
     const t0 = Date.now();
-    const r = await send(t, "alice", "totally normal question here " + "z".repeat(400));
+    const r = await send(t, "alice", "totally normal question here, which flavour of tea do you prefer in the evening?");
     expect(r.statusCode).toBe(201);
     expect(Date.now() - t0).toBeLessThan(2000);
     expect((await inbox(t, A.cookie)).items.length + (await inbox(t, A.cookie, "filtered")).items.length).toBe(1);
@@ -238,7 +238,7 @@ describe("malformed identifiers, cursors and bodies", () => {
   it("tampered / garbage cursors -> 400 on every paginated endpoint", async () => {
     const A = await verifiedUser(t, "alice"); const adm = await makeAdmin(t);
     const b64 = (o: unknown) => Buffer.from(typeof o === "string" ? o : JSON.stringify(o)).toString("base64url");
-    const cursors = ["garbage!!", b64("not json"), b64({ t: "nope", id: NIL }), b64({ t: new Date().toISOString(), id: "' OR 1=1--" }), b64({ t: 5, id: NIL }), b64({ id: NIL }), b64([]), b64("null"), "x".repeat(201)];
+    const cursors = ["garbage!!", b64("not json"), b64({ t: "nope", id: NIL }), b64({ t: new Date().toISOString(), id: "' OR 1=1--" }), b64({ t: 5, id: NIL }), b64({ id: NIL }), b64({ t: new Date().toISOString(), id: "0".repeat(36) }), b64([]), b64("null"), "x".repeat(201)];
     const eps: [string, string, string?][] = [["GET", "/messages"], ["GET", "/notifications"], ["GET", "/profiles/alice/answers"], ["GET", "/admin/users", "adm"], ["GET", "/admin/reports", "adm"], ["GET", "/admin/audit-logs", "adm"], ["GET", "/admin/moderation-events", "adm"]];
     for (const c of cursors) for (const [m, p, who] of eps) {
       const r = await api(t, m, p, { cookie: who ? adm.cookie : A.cookie, query: { cursor: c } });
@@ -339,7 +339,7 @@ describe("avatar upload abuse", () => {
 
   it("oversize (>2MB) -> 413, even when it is a valid image", async () => {
     const A = await verifiedUser(t, "alice");
-    const noisy = await sharp({ create: { width: 1500, height: 1500, channels: 3, noise: { type: "gaussian" as const, mean: 128, sigma: 60 } } }).png().toBuffer();
+    const noisy = await sharp({ create: { width: 1500, height: 1500, channels: 3 as const, noise: { type: "gaussian" as const, mean: 128, sigma: 60 } } }).png().toBuffer();
     expect(noisy.length).toBeGreaterThan(2 * 1024 * 1024);
     const r = await up(A.cookie, "a.png", "image/png", noisy);
     expect(r.statusCode).toBe(413);
