@@ -11,7 +11,8 @@ COPY packages/api-client/package.json packages/api-client/
 COPY packages/tokens/package.json packages/tokens/
 # Only the website, the API and the shared packages belong in this image (no mobile/admin toolchains).
 # Dropping the other workspaces keeps the lockfile's versions but lets npm hoist shared deps (react, next) to the root.
-RUN node -e "const fs=require('fs');const p=require('./package.json');p.workspaces=['apps/api','apps/web','packages/*'];fs.writeFileSync('package.json',JSON.stringify(p,null,2))" \
+# react/react-dom are added at the root so they hoist next to Next.js (otherwise `next build` cannot find them).
+RUN node -e "const fs=require('fs');const p=require('./package.json');p.workspaces=['apps/api','apps/web','packages/*'];p.dependencies={...(p.dependencies||{}),react:'19.2.3','react-dom':'19.2.3'};fs.writeFileSync('package.json',JSON.stringify(p,null,2))" \
  && npm install --no-audit --no-fund
 COPY tsconfig.base.json ./
 COPY packages packages
