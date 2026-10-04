@@ -24,7 +24,7 @@ jobs:
       - name: Run container (production mode, ephemeral secret)
         run: |
           docker run -d --name ear --network host \
-            -e PORT=3000 -e PUBLIC_URL=http://localhost:3000 -e COOKIE_SECURE=false -e TRUST_PROXY=2 \
+            -e PORT=3000 -e PUBLIC_URL=http://localhost:3000 -e COOKIE_SECURE=false -e TRUST_PROXY=loopback,linklocal,uniquelocal \
             -e DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres \
             -e APP_SECRET="$(openssl rand -hex 32)" ear
       - name: Smoke test through the public port

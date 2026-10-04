@@ -13,8 +13,8 @@ const schema = z.object({
   ADMIN_ORIGINS: list("http://localhost:3100"),
   WEB_URL: z.string().default("http://localhost:3000"),
   API_URL: z.string().default("http://localhost:4000"),
-  /** Honour X-Forwarded-For. Default OFF: only enable behind a trusted reverse proxy, otherwise clients can spoof their address and bypass rate limits. */
-  TRUST_PROXY: z.string().default("false").transform((v): boolean | number => (/^\d+$/.test(v) ? Number(v) : v === "true" || v === "1")),
+  /** Honour X-Forwarded-For. Default OFF. `true` trusts every hop (only behind ONE trusted proxy). A list such as `loopback,linklocal,uniquelocal` trusts only private/loopback proxies and is spoof-safe behind several hops. */
+  TRUST_PROXY: z.string().default("false").transform((v): boolean | string => (v === "true" || v === "1" ? true : v === "false" || v === "0" || v === "" ? false : v)),
   /** Secret for HMAC of IPs/devices/bodies/PoW. 32+ chars. MUST be set in production. */
   APP_SECRET: z.string().min(32).default("dev-only-secret-change-me-0123456789abcdef"),
   COOKIE_SECURE: bool.optional(),
