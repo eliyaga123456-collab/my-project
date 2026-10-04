@@ -11,7 +11,7 @@ import { SkeletonList } from "@/components/Skeleton";
 import { PressableScale } from "@/components/Pressable";
 import { Text } from "@/components/Text";
 import { api } from "@/lib/api";
-import { timeAgo } from "@/lib/format";
+import { useT } from "@/i18n";
 import { useRequest } from "@/lib/hooks";
 import { useAuth } from "@/providers/AuthProvider";
 import { useNetwork } from "@/providers/NetworkProvider";
@@ -20,6 +20,7 @@ import { errorMessage } from "@/lib/errors";
 
 export default function Activity() {
   const router = useRouter();
+  const { t, formatRelative } = useT();
   const toast = useToast();
   const { report } = useNetwork();
   const { patchMe, refreshMe } = useAuth();
@@ -64,25 +65,25 @@ export default function Activity() {
   return (
     <Screen tabs refreshing={q.refreshing} onRefresh={q.refresh}>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-        <Text variant="title">Activity</Text>
-        {unread > 0 ? <Button title="Mark all read" small variant="ghost" onPress={() => markRead("all")} /> : null}
+        <Text variant="title" style={{ flex: 1 }}>{t("activity.title")}</Text>
+        {unread > 0 ? <Button title={t("activity.markAllRead")} small variant="ghost" onPress={() => markRead("all")} /> : null}
       </View>
       {q.loading ? <SkeletonList count={4} /> : q.error && !q.data ? <ErrorState message={q.error} onRetry={q.reload} /> : items.length === 0 ? (
-        <EmptyState icon="bell" title="All quiet" body="New messages and safety updates will show up here." />
+        <EmptyState icon="bell" title={t("activity.emptyTitle")} body={t("activity.emptyBody")} />
       ) : (
         <>
           {items.map((n) => (
-            <PressableScale key={n.id} depth={1} accessibilityRole="button" accessibilityLabel={`${n.readAt ? "" : "Unread. "}${n.title}. ${n.body}. ${timeAgo(n.createdAt)}`} accessibilityHint={n.data?.messageId ? "Opens the message" : "Marks as read"} onPress={() => open(n)}>
+            <PressableScale key={n.id} depth={1} accessibilityRole="button" accessibilityLabel={`${n.readAt ? "" : t("activity.unreadPrefix")}${n.title}. ${n.body}. ${formatRelative(n.createdAt)}`} accessibilityHint={n.data?.messageId ? t("activity.opensMessage") : t("activity.marksRead")} onPress={() => open(n)}>
               <Card glow={!n.readAt} style={{ gap: 4 }}>
                 <View style={{ flexDirection: "row", gap: 8 }}>
                   <Text variant="bodyStrong" style={{ flex: 1 }}>{n.title}</Text>
-                  <Text variant="caption" tone="muted">{timeAgo(n.createdAt)}</Text>
+                  <Text variant="caption" tone="muted">{formatRelative(n.createdAt)}</Text>
                 </View>
                 <Text tone="muted">{n.body}</Text>
               </Card>
             </PressableScale>
           ))}
-          {cursor ? <Button title="Load more" variant="secondary" small onPress={loadMore} /> : null}
+          {cursor ? <Button title={t("activity.loadMore")} variant="secondary" small onPress={loadMore} /> : null}
         </>
       )}
     </Screen>

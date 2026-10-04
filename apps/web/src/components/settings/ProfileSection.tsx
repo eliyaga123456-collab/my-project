@@ -61,7 +61,7 @@ export function ProfileSection() {
       <div className="mb-5 flex items-center gap-4">
         <Avatar name={me.profile.displayName} src={me.profile.avatarUrl} size={72} />
         <div className="flex flex-wrap gap-2">
-          <input ref={file} id="avatar-file" type="file" accept={TYPES.join(",")} className="sr-only" onChange={(e) => upload(e.target.files?.[0])} />
+          <input ref={file} id="avatar-file" aria-label="Upload profile photo" tabIndex={-1} type="file" accept={TYPES.join(",")} className="sr-only" onChange={(e) => upload(e.target.files?.[0])} />
           <Button size="sm" variant="secondary" loading={avatarBusy} onClick={() => file.current?.click()} leading={<Upload className="size-4" aria-hidden />}>Upload photo</Button>
           {me.profile.avatarUrl && <Button size="sm" variant="ghost" disabled={avatarBusy} onClick={removeAvatar} leading={<Trash2 className="size-4" aria-hidden />}>Remove</Button>}
           <p className="w-full text-xs text-muted">JPEG, PNG or WebP up to 2 MB.</p>

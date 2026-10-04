@@ -14,28 +14,30 @@ import { errorMessage, isNetworkError } from "@/lib/errors";
 import { useAuth } from "@/providers/AuthProvider";
 import { useNetwork } from "@/providers/NetworkProvider";
 import { useTheme } from "@/theme";
+import { isolate, useT, type Key } from "@/i18n";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Chips } from "@/components/Chips";
 import type { LinkDto } from "@unsaid/shared";
 
-const SEGMENTS: SegmentOption<MessageStatus>[] = [
-  { value: "inbox", label: "Inbox" },
-  { value: "filtered", label: "Filtered" },
-  { value: "archived", label: "Archived" }
-];
-const EMPTY: Record<MessageStatus, { title: string; body: string }> = {
-  inbox: { title: "Nothing here yet", body: "Share your link and the first anonymous message will land here." },
-  filtered: { title: "Nothing filtered", body: "Messages our safety filter holds back show up here so you can look when you're ready." },
-  archived: { title: "Nothing archived", body: "Archived messages are kept here, out of sight." }
+const EMPTY: Record<MessageStatus, { title: Key; body: Key }> = {
+  inbox: { title: "inbox.empty.inboxTitle", body: "inbox.empty.inboxBody" },
+  filtered: { title: "inbox.empty.filteredTitle", body: "inbox.empty.filteredBody" },
+  archived: { title: "inbox.empty.archivedTitle", body: "inbox.empty.archivedBody" }
 };
 
 export default function Inbox() {
   const { colors } = useTheme();
+  const { t } = useT();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { me, refreshMe } = useAuth();
   const { report, ok } = useNetwork();
   const params = useLocalSearchParams<{ round?: string }>();
+  const segments: SegmentOption<MessageStatus>[] = [
+    { value: "inbox", label: t("inbox.segments.inbox") },
+    { value: "filtered", label: t("inbox.segments.filtered") },
+    { value: "archived", label: t("inbox.segments.archived") }
+  ];
   const [round, setRound] = useState<string>("all");
   const [rounds, setRounds] = useState<LinkDto[]>([]);
   // "See responses" on the Share tab deep-links here; consume the param so picking another chip later sticks.
@@ -93,10 +95,10 @@ export default function Inbox() {
 
   const header = (
     <View style={{ gap: 14, marginBottom: 16 }}>
-      <Text variant="title">Inbox</Text>
-      <Text tone="muted">{me ? `@${me.profile.username}` : ""}</Text>
-      {rounds.length > 0 ? <Chips scroll label="Filter by round" value={round} onChange={setRound} options={[{ value: "all", label: "All messages" }, ...rounds.map((r) => ({ value: r.id, label: r.label }))]} /> : null}
-      <Tabs options={SEGMENTS} value={status} onChange={setStatus} />
+      <Text variant="title">{t("inbox.title")}</Text>
+      <Text tone="muted">{me ? isolate(`@${me.profile.username}`) : ""}</Text>
+      {rounds.length > 0 ? <Chips scroll label={t("inbox.filterLabel")} value={round} onChange={setRound} options={[{ value: "all", label: t("inbox.allMessages") }, ...rounds.map((r) => ({ value: r.id, label: r.label }))]} /> : null}
+      <Tabs options={segments} value={status} onChange={setStatus} />
       {error && items.length > 0 ? <ErrorBanner message={error} onRetry={() => load("refresh", status)} /> : null}
     </View>
   );
@@ -115,7 +117,7 @@ export default function Inbox() {
         ListEmptyComponent={
           loading ? <SkeletonList /> :
           error ? <ErrorState message={error} offline={offline} onRetry={() => load("initial", status)} /> :
-          <EmptyState icon="inbox" title={EMPTY[status].title} body={EMPTY[status].body} actionLabel={status === "inbox" ? "Share my link" : undefined} onAction={() => router.push("/share")} />
+          <EmptyState icon="inbox" title={t(EMPTY[status].title)} body={t(EMPTY[status].body)} actionLabel={status === "inbox" ? t("inbox.empty.shareMyLink") : undefined} onAction={() => router.push("/share")} />
         }
         ListFooterComponent={loadingMore ? <ActivityIndicator style={{ marginVertical: 20 }} color={colors.primary} /> : null}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load("refresh", status)} tintColor={colors.primary} colors={[colors.primary]} />}

@@ -141,10 +141,10 @@ export function InboxView({ shareUrlPath }: { shareUrlPath: string }) {
       <div className="mb-6">
         {rounds.length > 0 && (
           <div className="mb-4" role="group" aria-label="Filter by round">
-            <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+            <div className="-mx-1 flex snap-x gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:thin]">
               {[{ id: "", label: "All messages" }, { id: "__main", label: "" }, ...rounds.map((r) => ({ id: r.id, label: r.label }))].filter((r) => r.id !== "__main").map((r) => (
                 <button key={r.id || "all"} type="button" aria-pressed={round === r.id} onClick={() => pickRound(r.id)}
-                  className={"min-h-11 shrink-0 rounded-full border px-4 text-sm font-semibold transition " + (round === r.id ? "border-transparent bg-primary text-on-primary" : "border-line text-muted hover:bg-raised")}>
+                  className={"min-h-11 shrink-0 snap-start rounded-full border px-4 text-sm font-semibold transition " + (round === r.id ? "border-transparent bg-primary text-on-primary" : "border-line text-muted hover:bg-raised")}>
                   {r.label}
                 </button>
               ))}

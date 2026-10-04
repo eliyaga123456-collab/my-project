@@ -101,7 +101,7 @@ export const en = {
     share: "Share",
     activity: "Activity",
     me: "Me",
-    unreadLabel: "{label}, {count} unread"
+    unreadLabel: { one: "{label}, {count} unread", other: "{label}, {count} unread" }
   },
   inbox: {
     title: "Inbox",

@@ -101,7 +101,7 @@ export const he: Dict = {
     share: "שיתוף",
     activity: "פעילות",
     me: "אני",
-    unreadLabel: "{label}, {count} שלא נקראו"
+    unreadLabel: { one: "{label}, פריט אחד שלא נקרא", two: "{label}, שני פריטים שלא נקראו", other: "{label}, {count} פריטים שלא נקראו" }
   },
   inbox: {
     title: "תיבת הודעות",
