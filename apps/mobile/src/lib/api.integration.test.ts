@@ -13,15 +13,18 @@ let ipN = 0;
 // The dev API trusts X-Forwarded-For, so every call gets a unique source to stay clear of the per-IP rate limits.
 const forwarded = () => ({ "x-forwarded-for": `10.88.${Math.floor(Math.random() * 250)}.${(++ipN % 250) + 1}` });
 
-function makeClient(getToken?: () => string | null, onUnauthorized?: () => void) {
-  return createApiClient({ baseUrl: API_URL!, clientKind: "mobile", credentials: "omit", getToken, getHeaders: async () => forwarded(), onUnauthorized });
+function makeClient(getToken?: () => string | null, onUnauthorized?: () => void, lang?: string) {
+  return createApiClient({ baseUrl: API_URL!, clientKind: "mobile", credentials: "omit", getToken, getLang: lang ? () => lang : undefined, getHeaders: async () => forwarded(), onUnauthorized });
 }
+const HEBREW = /[\u0590-\u05FF]/;
 
 describe.skipIf(!API_URL)("mobile client against the live API", () => {
   let token: string | null = null;
   let unauthorizedCalls = 0;
   const api = makeClient(() => token, () => { unauthorizedCalls++; });
   const anon = makeClient();
+  const heApi = makeClient(() => token, undefined, "he");
+  const heAnon = makeClient(undefined, undefined, "he");
   const username = `mob_${run}`.slice(0, 24);
   const password = "mobile-it-password-123";
 
@@ -114,8 +117,24 @@ describe.skipIf(!API_URL)("mobile client against the live API", () => {
     expect(JSON.stringify(m)).toContain("Thanks, great question!");
   });
 
+  it("x-lang: he returns Hebrew error messages from the real API (en stays English)", async () => {
+    // wrong credentials
+    const enErr = await anon.auth.login({ email: `nobody_${run}@example.com`, password: "wrong-password-1" }).catch((e: unknown) => e);
+    const heErr = await heAnon.auth.login({ email: `nobody_${run}@example.com`, password: "wrong-password-1" }).catch((e: unknown) => e);
+    expect(enErr).toBeInstanceOf(ApiError);
+    expect(heErr).toBeInstanceOf(ApiError);
+    expect((enErr as ApiError).message).not.toMatch(HEBREW);
+    expect((heErr as ApiError).code).toBe((enErr as ApiError).code);
+    expect((heErr as ApiError).message).toMatch(HEBREW);
+    expect((heErr as ApiError).message).toBe("האימייל או הסיסמה שגויים.");
+    // a gated action as the signed-in user
+    await expect(heApi.messages.reply(messageId, "תודה!", true)).rejects.toMatchObject({ status: 403, code: "email_not_verified", message: "אמתו את האימייל כדי לפרסם תשובות." });
+  });
+
   it("pauses and deletes the round", async () => {
     expect((await api.links.update(roundId, { paused: true })).paused).toBe(true);
+    // a paused round answers a sender in Hebrew too
+    await expect(heAnon.messages.send({ slug: roundSlug, body: "הודעה לבדיקה בלבד" })).rejects.toMatchObject({ code: "link_paused", message: expect.stringMatching(HEBREW) });
     await api.links.remove(roundId);
     expect((await api.links.list()).items.some((x) => x.id === roundId)).toBe(false);
   });

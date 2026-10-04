@@ -32,7 +32,9 @@ export function localeFromDevice(code: string | null | undefined): Locale {
 }
 
 type PluralNode = { other: string } & Partial<Record<Intl.LDMLPluralRule, string>>;
-const isPlural = (n: unknown): n is PluralNode => typeof n === "object" && n !== null && typeof (n as PluralNode).other === "string";
+const PLURAL_KEYS = new Set(["zero", "one", "two", "few", "many", "other"]);
+export const isPlural = (n: unknown): n is PluralNode =>
+  typeof n === "object" && n !== null && typeof (n as PluralNode).other === "string" && Object.keys(n).every((k) => PLURAL_KEYS.has(k));
 
 const rulesCache = new Map<string, Intl.PluralRules>();
 /** Plural category for `n` ("one" | "two" | "many" | "other" ... as defined by CLDR for that language). */

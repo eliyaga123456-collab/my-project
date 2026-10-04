@@ -23,6 +23,9 @@ export const he: Dict = {
   "common.notifications": "התראות",
   "common.dismissNotification": "סגירת ההתראה",
   "common.unverified": "ללא אימות",
+  "error.network": "אין חיבור לשרת. בדקו את החיבור ונסו שוב.",
+  "error.rateLimited": "יותר לאט, בבקשה. נסו שוב בעוד {seconds} שניות.",
+  "error.rateLimitedGeneric": "יותר מדי ניסיונות. המתינו רגע ונסו שוב.",
   "common.noteLabel": "הערה (אופציונלי, נשמרת ביומן הביקורת)",
 
   "lang.label": "שפה",

@@ -20,6 +20,9 @@ export const en = {
   "common.notifications": "Notifications",
   "common.dismissNotification": "Dismiss notification",
   "common.unverified": "unverified",
+  "error.network": "Can't reach the server. Check your connection and try again.",
+  "error.rateLimited": "Slow down a little — try again in {seconds}s.",
+  "error.rateLimitedGeneric": "Too many attempts. Please wait a moment.",
   "common.noteLabel": "Note (optional, saved to the audit log)",
 
   "lang.label": "Language",

@@ -22,3 +22,10 @@
    keep difficulty <= 18 for mobile, or let the API send easier challenges to `x-client: mobile`.
 10. **Admin tools need a verified email** (`email_not_verified` 403 on `/admin/*`). Moderators created by changing the role in the DB must also have
     `email_verified_at` set; the admin UI showed a generic error in that case.
+11. **Localised client-side strings in the packages.** `ApiError.friendly` (api-client) and the zod messages in `@unsaid/shared` (username/password/message
+    length, "Write a little more", ...) are English-only. Mobile re-implements them with its own Hebrew/English dictionaries (`src/lib/errors.ts`, `src/lib/validation.ts`),
+    matching zod issue *codes*. Please either expose message *codes*/params instead of English text, or accept a locale in `friendly`.
+12. **Brand copy in `@unsaid/tokens`.** `brand.tagline`, `brand.dedication`, `brand.dedicationSr` and `brand.fullName` are English only; mobile keeps Hebrew copy in
+    `src/i18n/he.ts` (`brand.*`). A `{ en, he }` shape in tokens would give web and mobile one source of truth.
+13. **Machine-readable reasons for `link_paused`.** Mobile no longer pattern-matches the (now localised) message to tell a *closed* round from a *paused* link; it re-reads
+    the public profile's `linkState`. A `details.reason: "closed" | "paused"` on the 423 would avoid the extra request.

@@ -242,7 +242,7 @@ test("hebrew: login switcher, RTL, headings, overflow, dialogs, screenshots", as
   const sb = await page.locator("#sidebar").boundingBox();
   expect(sb!.x + sb!.width).toBeGreaterThan(390 - 2); // slides in from the right
   await page.screenshot({ path: `${shotDir}/he-sidebar-390.png` });
-  await page.getByRole("button", { name: "סגירת התפריט" }).first().click();
+  await page.getByRole("button", { name: "סגירת התפריט" }).last().click();
   await page.goto("/");
   await page.waitForLoadState("networkidle");
   await page.screenshot({ path: `${shotDir}/he-overview-390.png`, fullPage: true });

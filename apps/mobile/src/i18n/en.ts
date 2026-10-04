@@ -452,19 +452,21 @@ export const en = {
 } as const;
 
 type PluralCategory = "zero" | "one" | "two" | "few" | "many";
+/** A plural group has an `other` string and no keys besides CLDR plural categories (so a group that merely has an "other" entry, like report reasons, is not mistaken for one). */
+type IsPlural<T> = T extends { other: string } ? ([Exclude<keyof T, PluralCategory | "other">] extends [never] ? true : false) : false;
 export interface PluralForms { zero?: string; one?: string; two?: string; few?: string; many?: string; other: string }
 
 /** Maps the `as const` English literal type to the shape every other language must provide. */
 export type Shape<T> = T extends string
   ? string
-  : T extends { other: string }
+  : IsPlural<T> extends true
     ? PluralForms & { [K in keyof T & PluralCategory]: string }
     : { [K in keyof T]: Shape<T[K]> };
 
 export type Dict = Shape<typeof en>;
 
 type Paths<T, P extends string = ""> = {
-  [K in keyof T & string]: T[K] extends string ? `${P}${K}` : T[K] extends { other: string } ? `${P}${K}` : Paths<T[K], `${P}${K}.`>;
+  [K in keyof T & string]: T[K] extends string ? `${P}${K}` : IsPlural<T[K]> extends true ? `${P}${K}` : Paths<T[K], `${P}${K}.`>;
 }[keyof T & string];
 
 /** Every translatable key (leaf strings and plural group bases) as a union of dotted paths. */

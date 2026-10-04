@@ -13,8 +13,8 @@ const schema = z.object({
   ADMIN_ORIGINS: list("http://localhost:3100"),
   WEB_URL: z.string().default("http://localhost:3000"),
   API_URL: z.string().default("http://localhost:4000"),
-  /** Honour X-Forwarded-For (set true behind a reverse proxy / Next.js rewrite). */
-  TRUST_PROXY: bool.default(true),
+  /** Honour X-Forwarded-For. Default OFF: only enable behind a trusted reverse proxy, otherwise clients can spoof their address and bypass rate limits. */
+  TRUST_PROXY: bool.default(false),
   /** Secret for HMAC of IPs/devices/bodies/PoW. 32+ chars. MUST be set in production. */
   APP_SECRET: z.string().min(32).default("dev-only-secret-change-me-0123456789abcdef"),
   COOKIE_SECURE: bool.optional(),
