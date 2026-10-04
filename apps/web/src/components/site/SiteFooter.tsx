@@ -11,7 +11,8 @@ export async function SiteFooter() {
     { href: "/privacy", label: t("site.nav.privacy") },
     { href: "/terms", label: t("site.nav.terms") },
     { href: "/safety", label: t("site.nav.safety") },
-    { href: "/contact", label: t("site.nav.contact") }
+    { href: "/contact", label: t("site.nav.contact") },
+    { href: "/delete-account", label: t("site.deleteAccount.title") }
   ];
   return (
     <footer className="relative z-10 mt-24 border-t border-line">

@@ -204,5 +204,22 @@ export const site = {
     body: "That page doesn't exist, or the link has changed.",
     back: "Back home"
   },
+  deleteAccount: {
+    title: "Delete your account",
+    metaDescription: "How to permanently delete your EAR account and data.",
+    intro: "You can delete your EAR account and everything attached to it at any time.",
+    stepsH: "In the app",
+    step1: "Open EAR and go to the Me tab.",
+    step2: "Scroll to the bottom and tap Delete my account.",
+    step3: "Enter your password and confirm. This cannot be undone.",
+    removedH: "What is deleted",
+    removed1: "Your profile, username, photo and links.",
+    removed2: "Every message you received and every reply you wrote.",
+    removed3: "Your sessions and push notification tokens.",
+    keptH: "What can remain",
+    keptP: "Abuse-prevention hashes are not linked to your account and are removed within 30 days. Reports about abuse may be kept as long as needed to keep people safe.",
+    noAccessH: "Can't open the app?",
+    noAccessP: "Write to <mail>{email}</mail> from the email address on the account and we will delete it for you."
+  },
   error: { body: "We hit an unexpected problem. It's on us, not you." }
 };
