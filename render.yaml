@@ -1,4 +1,4 @@
-# Render Blueprint: ONE free web service runs the website + API together (see /Dockerfile).
+# Render Blueprint (repo root so Render finds it automatically): ONE free web service runs the website + API together (see /Dockerfile).
 # New > Blueprint > pick this repo. You only need to paste DATABASE_URL (Neon). Everything else is set here.
 services:
   - type: web
@@ -17,5 +17,5 @@ services:
       - { key: COOKIE_SECURE, value: "true" }
       - { key: APP_SECRET, generateValue: true }
       - { key: DATABASE_URL, sync: false }    # Neon connection string
-      - { key: EMAIL_TRANSPORT, value: log }  # no real emails until you add SMTP (see docs/DEPLOY_FREE.md)
+      - { key: EMAIL_TRANSPORT, value: log }  # no real emails until you add SMTP (see docs/DEPLOY_FREE.he.md)
       - { key: EXPO_PUSH_ENABLED, value: "false" }
