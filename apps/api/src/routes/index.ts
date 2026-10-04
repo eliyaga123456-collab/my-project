@@ -2,7 +2,7 @@ import multipart from "@fastify/multipart";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import {
-  adminReportsQuery, adminResolveReportInput, adminUserActionInput, adminUsersQuery, changePasswordInput, createLinkInput, emailSchema,
+  adminReportsQuery, adminResolveReportInput, adminUserActionInput, adminUsersQuery, changePasswordInput, deleteAccountInput, createLinkInput, emailSchema,
   forgotPasswordInput, hiddenWordInput, listMessagesQuery, loginInput, markNotificationsReadInput, pauseLinkInput, pushTokenInput,
   registerInput, replyInput, reportInput, resetPasswordInput, sendMessageInput, tokenInput, updateLinkInput, updateMessageInput,
   updateProfileInput, updateSettingsInput, updateUsernameInput, usernameSchema, LIMITS
@@ -100,6 +100,14 @@ export function registerRoutes(app: FastifyInstance, ctx: AppContext, svc: { aut
       await limit(ctx, `chpw:${a.user.id}`, 10, HOUR);
       const i = parse(changePasswordInput, req.body);
       await auth.changePassword(a.user, a.sessionId, i.currentPassword, i.newPassword);
+      return reply.status(204).send();
+    });
+    api.delete("/auth/account", async (req, reply) => {
+      const a = requireAuth(req);
+      await limit(ctx, `delacct:${a.user.id}`, 5, HOUR);
+      const i = parse(deleteAccountInput, req.body);
+      await auth.deleteAccount(a.user, i.password);
+      clearSessionCookie(ctx, reply);
       return reply.status(204).send();
     });
     api.get("/auth/sessions", async (req) => { const a = requireAuth(req); return { items: await auth.listSessions(a.user.id, a.sessionId) }; });

@@ -50,6 +50,7 @@ export type LoginInput = z.infer<typeof loginInput>;
 export const tokenInput = z.object({ token: z.string().min(16).max(256) });
 export const forgotPasswordInput = z.object({ email: emailSchema });
 export const resetPasswordInput = z.object({ token: z.string().min(16).max(256), password: passwordSchema });
+export const deleteAccountInput = z.object({ password: z.string().min(1).max(LIMITS.passwordMax), confirm: z.literal("DELETE").optional() });
 export const changePasswordInput = z.object({ currentPassword: z.string().min(1).max(LIMITS.passwordMax), newPassword: passwordSchema });
 
 // ---------- Profile ----------

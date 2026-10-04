@@ -2,7 +2,7 @@ import { and, eq, gt, isNull, ne, sql } from "drizzle-orm";
 import { generateSlug } from "./slug";
 import type { AuthResultDto, MeDto, RegisterInput, SessionDto } from "@unsaid/shared";
 import type { AppContext } from "../context";
-import { emailTokens, links, messages, profiles, sessions, settings, users } from "../db/schema";
+import { auditLogs, emailTokens, links, messages, profiles, sessions, settings, users } from "../db/schema";
 import { DUMMY_HASH, hashPassword, randomToken, sha256Hex, verifyPassword } from "../lib/crypto";
 import { E, AppError, pgError } from "../lib/errors";
 import { profileDto, settingsDto, userDto } from "../mappers";
@@ -129,6 +129,20 @@ export class AuthService {
     await this.revokeAll(user.id, sessionId);
     await this.ctx.email.send({ to: user.email, ...emails.passwordChanged(user.locale) }).catch(() => undefined);
     await this.ctx.notifier.notify({ userId: user.id, type: "safety", title: "Password changed", body: "Your password was changed and other devices were signed out." });
+  }
+
+  /** Permanent deletion: the account and everything that cascades from it (messages, links, blocks, sessions, notifications...). */
+  async deleteAccount(user: User, password: string) {
+    if (!(await verifyPassword(password, user.passwordHash))) throw new AppError("validation_error", "Your current password is incorrect.", { password: ["Incorrect password"] });
+    if (user.role === "admin") throw E.forbidden("Admin accounts can't be deleted here. Ask another admin to change your role first.");
+    const { db } = this.ctx;
+    const [p] = await db.select({ k: profiles.avatarKey }).from(profiles).where(eq(profiles.userId, user.id));
+    await db.transaction(async (tx) => {
+      await tx.insert(auditLogs).values({ actorId: null, action: "account.delete", targetType: "user", targetId: user.id, meta: { role: user.role } });
+      await tx.delete(users).where(eq(users.id, user.id)); // FK cascades remove all owned data; reports keep their evidence snapshot
+    });
+    if (p?.k) await this.ctx.storage.delete(p.k).catch(() => undefined);
+    await this.ctx.email.send({ to: user.email, ...emails.accountDeleted(user.locale) }).catch(() => undefined);
   }
 
   async me(user: User): Promise<MeDto> {

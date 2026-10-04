@@ -49,6 +49,7 @@ export const HE_EXACT: Record<string, string> = {
   "That request body isn't valid JSON.": "גוף הבקשה אינו JSON תקין.",
   "That request contains unsupported characters.": "הבקשה מכילה תווים שאינם נתמכים.",
   "Your current password is incorrect.": "הסיסמה הנוכחית שגויה.",
+  "Admin accounts can't be deleted here. Ask another admin to change your role first.": "אי אפשר למחוק כאן חשבון מנהל. בקשו ממנהל אחר לשנות את התפקיד שלכם קודם.",
   "Something went wrong on our side. Please try again.": "משהו השתבש אצלנו. נסו שוב.",
   "That request couldn't be understood.": "לא הצלחנו להבין את הבקשה.",
   "That upload is too large.": "הקובץ גדול מדי.",
@@ -100,5 +101,6 @@ export const HE_PATTERNS: [RegExp, (m: RegExpMatchArray) => string][] = [
 export const HE_EMAILS = {
   verify: (url: string) => ({ subject: "אמתו את האימייל ב-EAR", text: `ברוכים הבאים ל-EAR!\n\nאמתו את האימייל כדי לפתוח פרסום תשובות:\n${url}\n\nהקישור תקף ל-24 שעות. אם לא נרשמתם, אפשר להתעלם מההודעה.` }),
   reset: (url: string) => ({ subject: "איפוס סיסמה ב-EAR", text: `מישהו (כנראה אתם) ביקש לאפס את הסיסמה:\n${url}\n\nהקישור תקף לשעה ופועל פעם אחת. אם לא ביקשתם, התעלמו מההודעה. הסיסמה שלכם לא השתנתה.` }),
-  passwordChanged: () => ({ subject: "הסיסמה שלך ב-EAR שונתה", text: "הסיסמה שונתה והמכשירים האחרים נותקו. אם לא ביצעתם את השינוי, אפסו את הסיסמה מיד." })
+  passwordChanged: () => ({ subject: "הסיסמה שלך ב-EAR שונתה", text: "הסיסמה שונתה והמכשירים האחרים נותקו. אם לא ביצעתם את השינוי, אפסו את הסיסמה מיד." }),
+  accountDeleted: () => ({ subject: "חשבון ה-EAR שלך נמחק", text: "חשבון ה-EAR שלך וכל המידע שבו נמחקו לצמיתות. אם לא ביצעתם את המחיקה, פנו לתמיכה מיד." })
 };

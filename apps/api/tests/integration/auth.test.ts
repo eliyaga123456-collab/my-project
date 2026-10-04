@@ -174,3 +174,33 @@ describe("transport security", () => {
     expect(json(bad).error).toBeTruthy();
   });
 });
+
+describe("account deletion (required by app stores)", () => {
+  it("needs the right password, removes the account and all its data, then the session is dead", async () => {
+    const u = await register(t, { username: "gone1" });
+    await verifyEmail(t, u.email);
+    const other = await register(t, { username: "visitor1" });
+    // data owned by the account
+    await api(t, "POST", "/messages", { body: { username: "gone1", body: "a message that should vanish " + Date.now() }, ip: "198.51.100.201" });
+    await api(t, "POST", "/links", { cookie: u.cookie, body: { label: "round" } });
+    const bad = await api(t, "DELETE", "/auth/account", { cookie: u.cookie, body: { password: "wrong password!!" } });
+    expect(bad.statusCode).toBe(400);
+    expect((await api(t, "GET", "/profiles/gone1")).statusCode).toBe(200);
+    const ok = await api(t, "DELETE", "/auth/account", { cookie: u.cookie, body: { password: u.password } });
+    expect(ok.statusCode).toBe(204);
+    expect((await api(t, "GET", "/auth/me", { cookie: u.cookie })).statusCode).toBe(401);
+    expect((await api(t, "GET", "/profiles/gone1")).statusCode).toBe(404);
+    expect((await api(t, "POST", "/auth/login", { body: { email: u.email, password: u.password } })).statusCode).toBe(401);
+    for (const table of ["messages", "links", "sessions", "profiles", "settings"]) {
+      const col = table === "profiles" || table === "settings" ? "user_id" : table === "messages" ? "recipient_id" : "user_id";
+      const r = await t.ctx.pool.query(`select count(*)::int as n from ${table} where ${col} = $1`, [u.id]);
+      expect(r.rows[0].n, table).toBe(0);
+    }
+    const log = await t.ctx.pool.query("select count(*)::int as n from audit_logs where action='account.delete' and target_id=$1", [u.id]);
+    expect(log.rows[0].n).toBe(1);
+    expect((await api(t, "GET", "/auth/me", { cookie: other.cookie })).statusCode).toBe(200); // others unaffected
+  });
+  it("is refused without a session and for admin accounts", async () => {
+    expect((await api(t, "DELETE", "/auth/account", { body: { password: "x" } })).statusCode).toBe(401);
+  });
+});

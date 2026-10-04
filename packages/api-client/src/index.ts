@@ -108,6 +108,8 @@ export function createApiClient(opts: ClientOptions) {
       forgotPassword: (email: string) => post<void>("/auth/forgot-password", { email }),
       resetPassword: (token: string, password: string) => post<void>("/auth/reset-password", { token, password }),
       changePassword: (i: ChangePasswordInput) => post<void>("/auth/change-password", i),
+      /** Permanently deletes the account and all its data (required by Google Play / App Store). */
+      deleteAccount: (password: string) => request<void>("DELETE", "/auth/account", { password }),
       sessions: () => get<{ items: SessionDto[] }>("/auth/sessions"),
       revokeSession: (id: string) => del<void>(`/auth/sessions/${id}`),
       usernameAvailable: (username: string) => get<{ available: boolean }>("/auth/username-available", { username })
