@@ -30,7 +30,7 @@ export default async function Landing() {
   return (
     <>
       <section className="grain relative isolate">
-        <div className="blob animate-drift -top-24 left-1/2 -z-10 size-[26rem] -translate-x-1/2" style={{ background: "linear-gradient(135deg,#ff7440,#b24cff)" }} />
+        <div className="blob animate-drift -top-24 left-1/2 -z-10 size-[26rem] -translate-x-1/2" style={{ background: "linear-gradient(135deg,var(--grad-1),var(--grad-2))" }} />
         <div className="mx-auto grid max-w-6xl items-center gap-14 px-4 pb-16 pt-10 sm:px-6 sm:pt-16 lg:grid-cols-[1.1fr_1fr] lg:gap-10 lg:pt-20">
           <div className="stagger">
             <p className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/60 px-3.5 py-1.5 text-xs font-semibold text-muted backdrop-blur">
@@ -90,7 +90,7 @@ export default async function Landing() {
       <section className="mx-auto mt-20 max-w-6xl px-4 sm:mt-28 sm:px-6">
         <div className="grain relative overflow-hidden rounded-xl border border-line bg-surface p-8 text-center sm:p-14">
           <div className="blob -left-10 -top-10 size-60" style={{ background: "#ff7440" }} />
-          <div className="blob -bottom-16 -right-10 size-64" style={{ background: "#6d62f2" }} />
+          <div className="blob -bottom-16 -right-10 size-64" style={{ background: "var(--grad-3)" }} />
           <h2 className="relative text-3xl font-extrabold sm:text-5xl">{t("site.landing.ctaTitle")}</h2>
           <p className="relative mx-auto mt-3 max-w-lg text-muted">{t("site.landing.ctaBody")}</p>
           <ButtonLink href="/install" size="lg" className="relative mt-7">{t("common.nav.getTheApp")}</ButtonLink>

@@ -4,7 +4,8 @@
   --radius-sm: 8px; --radius-md: 14px; --radius-lg: 22px; --radius-xl: 32px;
   --ember-400: #ff7440; --ember-500: #f95b27; --ember-600: #d9421a;
   --mist-400: #8a80ff; --mist-600: #5648d4;
-  --grad-brand: linear-gradient(135deg, #ff7440 0%, #b24cff 55%, #6d62f2 100%);
+  --grad-1: #ff7440; --grad-2: #b24cff; --grad-3: #6d62f2;
+  --grad-brand: linear-gradient(135deg, var(--grad-1) 0%, var(--grad-2) 55%, var(--grad-3) 100%);
   --ease: cubic-bezier(.2,.8,.2,1);
 }
 :root, :root[data-theme="dark"] {
@@ -15,16 +16,18 @@
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
-    --bg: #faf8f5; --surface: #ffffff; --surface-raised: #f2eee8; --border: rgba(17,16,30,.1);
-    --text: #11101e; --muted: #625f82; --primary: #d9421a; --primary-text: #fff;
-    --secondary: #5648d4; --success: #12805a; --warning: #9a6200; --danger: #c42540;
-    --shadow: 0 20px 50px -24px rgba(17,16,30,.25); color-scheme: light;
+    --bg: #fffafd; --surface: #ffffff; --surface-raised: #fdeaf3; --border: rgba(120,20,70,.13);
+    --text: #1c1020; --muted: #6a5470; --primary: #d9421a; --primary-text: #fff;
+    --secondary: #c0267a; --success: #12805a; --warning: #9a6200; --danger: #c42540;
+    --grad-1: #ff7440; --grad-2: #ff4f9a; --grad-3: #e02bd0;
+    --shadow: 0 20px 50px -24px rgba(150,30,90,.28); color-scheme: light;
   }
 }
 :root[data-theme="light"] {
-  --bg: #faf8f5; --surface: #ffffff; --surface-raised: #f2eee8; --border: rgba(17,16,30,.1);
-  --text: #11101e; --muted: #625f82; --primary: #d9421a; --primary-text: #fff;
-  --secondary: #5648d4; --success: #12805a; --warning: #9a6200; --danger: #c42540;
-  --shadow: 0 20px 50px -24px rgba(17,16,30,.25); color-scheme: light;
+  --bg: #fffafd; --surface: #ffffff; --surface-raised: #fdeaf3; --border: rgba(120,20,70,.13);
+  --text: #1c1020; --muted: #6a5470; --primary: #d9421a; --primary-text: #fff;
+  --secondary: #c0267a; --success: #12805a; --warning: #9a6200; --danger: #c42540;
+  --grad-1: #ff7440; --grad-2: #ff4f9a; --grad-3: #e02bd0;
+  --shadow: 0 20px 50px -24px rgba(150,30,90,.28); color-scheme: light;
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }

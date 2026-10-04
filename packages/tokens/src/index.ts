@@ -29,15 +29,15 @@ export const themes = {
     danger: palette.rose[400]
   },
   light: {
-    background: palette.bone[50],
+    background: "#fffafd",
     surface: "#ffffff",
-    surfaceRaised: palette.bone[100],
-    border: "rgba(17,16,30,0.1)",
-    text: palette.ink[900],
-    muted: "#625f82",
+    surfaceRaised: "#fdeaf3",
+    border: "rgba(120,20,70,0.13)",
+    text: "#1c1020",
+    muted: "#6a5470",
     primary: palette.ember[600],
     primaryText: "#ffffff",
-    secondary: palette.mist[600],
+    secondary: "#c0267a",
     success: "#12805a",
     warning: "#9a6200",
     danger: "#c42540"
@@ -53,6 +53,8 @@ export const brand = {
   tagline: "Say what you really think.",
   /** Shown next to the wordmark as "EAR*" with this footnote. */
   dedication: "* For Liron 💛",
-  dedicationSr: "Dedicated to Liron", gradient: ["#ff7440", "#b24cff", "#6d62f2"] as const
+  dedicationSr: "Dedicated to Liron", gradient: ["#ff7440", "#b24cff", "#6d62f2"] as const,
+  /** Light theme: the violet stops turn pink. */
+  gradientLight: ["#ff7440", "#ff4f9a", "#e02bd0"] as const
 };
 export type ThemeName = keyof typeof themes;

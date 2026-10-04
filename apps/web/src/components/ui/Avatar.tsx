@@ -1,13 +1,16 @@
 import { hueFor, initials, mediaSrc } from "@/lib/format";
 import { cx } from "./cx";
 
+// Brand-colored fallbacks (ember -> pink -> violet) instead of arbitrary hues.
+const FALLBACKS = [["#ff7440", "#ff4f9a"], ["#ff4f9a", "#b24cff"], ["#b24cff", "#6d62f2"], ["#ff8a4c", "#e0446f"], ["#ff5d73", "#d9421a"]] as const;
+
 export function Avatar({ name, src, size = 48, className }: { name: string; src?: string | null; size?: number; className?: string }) {
   const url = mediaSrc(src);
-  const hue = hueFor(name);
+  const [from, to] = FALLBACKS[hueFor(name) % FALLBACKS.length] ?? FALLBACKS[0];
   return (
     <span
       className={cx("relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full font-display font-bold text-white ring-2 ring-line", className)}
-      style={{ width: size, height: size, fontSize: size * 0.38, background: url ? undefined : `linear-gradient(135deg, hsl(${hue} 70% 45%), hsl(${(hue + 60) % 360} 70% 38%))` }}
+      style={{ width: size, height: size, fontSize: size * 0.38, background: url ? undefined : `linear-gradient(135deg, ${from}, ${to})` }}
     >
       {url ? (
         // eslint-disable-next-line @next/next/no-img-element

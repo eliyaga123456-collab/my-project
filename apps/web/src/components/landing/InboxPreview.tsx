@@ -14,7 +14,7 @@ export async function InboxPreview() {
   return (
     <div aria-hidden className="relative mx-auto w-full max-w-md">
       <div className="blob animate-drift -left-10 top-10 size-56" style={{ background: "#ff7440" }} />
-      <div className="blob animate-drift -right-8 bottom-0 size-64" style={{ background: "#6d62f2", animationDelay: "-6s" }} />
+      <div className="blob animate-drift -right-8 bottom-0 size-64" style={{ background: "var(--grad-3)", animationDelay: "-6s" }} />
       <div className="veil relative p-4 sm:p-5">
         <div className="mb-4 flex items-center gap-3">
           <Avatar name="Mara Vale" size={40} />

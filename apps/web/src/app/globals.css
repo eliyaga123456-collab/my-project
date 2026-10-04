@@ -138,6 +138,11 @@
 .ear-wave { transform-box: fill-box; }
 .ear-mark-live .ear-wave-1, .ear-logo:hover .ear-wave-1, .ear-logo:focus-visible .ear-wave-1 { --wo: 0.95; animation: ear-wave 1.5s ease-in-out 0.25s infinite; }
 .ear-mark-live .ear-wave-2, .ear-logo:hover .ear-wave-2, .ear-logo:focus-visible .ear-wave-2 { --wo: 0.6; animation: ear-wave 1.5s ease-in-out infinite; }
+@keyframes halo-ring { 0% { transform: scale(1); opacity: 0.55; } 100% { transform: scale(1.9); opacity: 0; } }
+.halo::before, .halo::after { content: ""; position: absolute; inset: 0; border-radius: 999px; border: 2px solid var(--grad-2); pointer-events: none; animation: halo-ring 3.2s var(--ease) infinite; }
+.halo::after { animation-delay: 1.6s; border-color: var(--grad-1); }
+.send-card { transition: box-shadow 0.25s var(--ease), transform 0.25s var(--ease); }
+.send-card:focus-within { box-shadow: 0 0 0 1px color-mix(in srgb, var(--grad-2) 55%, transparent), 0 28px 70px -26px color-mix(in srgb, var(--grad-2) 60%, transparent); }
 @keyframes glow-pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
 .animate-ink-in { animation: ink-in 0.24s var(--ease) both; }
@@ -155,5 +160,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .animate-drift, .animate-float, .ear-wave { animation: none !important; }
+  .animate-drift, .animate-float, .ear-wave, .halo::before, .halo::after { animation: none !important; }
 }

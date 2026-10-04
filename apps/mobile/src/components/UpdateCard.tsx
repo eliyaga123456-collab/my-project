@@ -4,7 +4,8 @@ import { Button } from "./Button";
 import { Card } from "./Card";
 import { Text } from "./Text";
 import { useT } from "@/i18n";
-import { checkForUpdate, downloadAndInstall, updaterEnabled, type UpdateInfo } from "@/lib/update";
+import { checkForUpdate, downloadAndInstall, installedBuild, updaterEnabled, type UpdateInfo } from "@/lib/update";
+import { useToast } from "./Toast";
 
 /** Shows "Update available" on the Me tab for the sideloaded Android build. Renders nothing when there is no update (or on Play/iOS builds). */
 export function UpdateCard() {
@@ -12,6 +13,8 @@ export function UpdateCard() {
   const [info, setInfo] = useState<UpdateInfo | null>(null);
   const [progress, setProgress] = useState<number | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const [checking, setChecking] = useState(false);
+  const toast = useToast();
 
   const refresh = useCallback(() => { void checkForUpdate().then((u) => setInfo(u)); }, []);
   useEffect(() => {
@@ -21,7 +24,23 @@ export function UpdateCard() {
     return () => sub.remove();
   }, [refresh]);
 
-  if (!info?.available) return null;
+  if (!updaterEnabled()) return null;
+  if (!info?.available) {
+    const check = async () => {
+      setChecking(true);
+      const u = await checkForUpdate(true);
+      setInfo(u);
+      setChecking(false);
+      if (!u) toast.show(t("me.updateCheckFailed"), "error");
+      else if (!u.available) toast.show(t("me.upToDate"), "success");
+    };
+    return (
+      <Card style={{ gap: 8 }}>
+        <Text variant="bodyStrong">{t("me.versionLine", { build: String(installedBuild()) })}</Text>
+        <Button title={t("me.checkUpdates")} variant="ghost" small onPress={() => void check()} loading={checking} />
+      </Card>
+    );
+  }
   const busy = progress !== null;
   const update = async () => {
     setNote(null); setProgress(0);

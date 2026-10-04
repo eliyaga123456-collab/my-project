@@ -14,13 +14,13 @@ export const fontFamily = {
   get bodySemi() { return hebrewFonts ? "Heebo_600SemiBold" : "Inter_600SemiBold"; }
 };
 
-interface ThemeValue { name: ThemeName; colors: Colors; radii: typeof radii; space: typeof space; brand: typeof brand; palette: typeof palette }
+interface ThemeValue { name: ThemeName; colors: Colors; radii: typeof radii; space: typeof space; brand: Omit<typeof brand, "gradient"> & { gradient: readonly [string, string, string] }; palette: typeof palette }
 const ThemeContext = createContext<ThemeValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const scheme = useColorScheme();
   const name: ThemeName = scheme === "light" ? "light" : "dark"; // dark by default
-  const value = useMemo<ThemeValue>(() => ({ name, colors: themes[name], radii, space, brand, palette }), [name]);
+  const value = useMemo<ThemeValue>(() => ({ name, colors: themes[name], radii, space, brand: name === "light" ? { ...brand, gradient: brand.gradientLight } : brand, palette }), [name]);
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 

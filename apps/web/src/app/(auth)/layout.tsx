@@ -10,7 +10,7 @@ export default async function AuthLayout({ children }: { children: ReactNode }) 
   return (
     <div className="grain relative isolate min-h-dvh overflow-x-clip">
       <div className="blob animate-drift -left-24 -top-24 -z-10 size-96" style={{ background: "#ff7440" }} />
-      <div className="blob animate-drift -bottom-24 -right-24 -z-10 size-[26rem]" style={{ background: "#6d62f2", animationDelay: "-5s" }} />
+      <div className="blob animate-drift -bottom-24 -right-24 -z-10 size-[26rem]" style={{ background: "var(--grad-3)", animationDelay: "-5s" }} />
       <header className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link href="/" aria-label={t("common.nav.home")}><Logo /></Link>
         <div className="flex items-center gap-1">

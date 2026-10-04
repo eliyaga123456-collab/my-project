@@ -11,9 +11,9 @@ export function LogoMark({ size = 32, className, animated = false }: { size?: nu
     <svg width={size} height={size} viewBox="-10 -3 76 76" fill="none" aria-hidden="true" className={cx("ear-mark", animated && "ear-mark-live", className)}>
       <defs>
         <linearGradient id={`ear-${id}`} x1="14" y1="6" x2="62" y2="68" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#ff7440" />
-          <stop offset=".55" stopColor="#b24cff" />
-          <stop offset="1" stopColor="#6d62f2" />
+          <stop style={{ stopColor: "var(--grad-1, #ff7440)" }} />
+          <stop offset=".55" style={{ stopColor: "var(--grad-2, #b24cff)" }} />
+          <stop offset="1" style={{ stopColor: "var(--grad-3, #6d62f2)" }} />
         </linearGradient>
       </defs>
       <g stroke={`url(#ear-${id})`} strokeLinecap="round" strokeLinejoin="round">
