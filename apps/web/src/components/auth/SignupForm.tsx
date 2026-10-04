@@ -1,0 +1,103 @@
+"use client";
+
+import { useEffect, useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { Check, Loader2, X } from "lucide-react";
+import { LIMITS, registerInput, usernameSchema } from "@unsaid/shared";
+import { api } from "@/lib/api";
+import { SITE_URL } from "@/lib/site";
+import { errorMessage, fieldErrors } from "@/lib/errors";
+import { Button, InputField } from "@/components/ui";
+import { FormAlert } from "./AuthCard";
+import { PasswordField } from "./PasswordField";
+
+type Avail = { state: "idle" } | { state: "checking" } | { state: "invalid"; message: string } | { state: "available" } | { state: "taken" } | { state: "unknown" };
+
+export function SignupForm() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [formError, setFormError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [avail, setAvail] = useState<Avail>({ state: "idle" });
+
+  useEffect(() => {
+    if (!username) { setAvail({ state: "idle" }); return; }
+    const parsed = usernameSchema.safeParse(username);
+    if (!parsed.success) { setAvail({ state: "invalid", message: parsed.error.issues[0]?.message ?? "Invalid username" }); return; }
+    setAvail({ state: "checking" });
+    let cancelled = false;
+    const t = window.setTimeout(async () => {
+      try {
+        const r = await api.auth.usernameAvailable(parsed.data);
+        if (!cancelled) setAvail({ state: r.available ? "available" : "taken" });
+      } catch {
+        if (!cancelled) setAvail({ state: "unknown" });
+      }
+    }, 350);
+    return () => { cancelled = true; window.clearTimeout(t); };
+  }, [username]);
+
+  const availHint = (() => {
+    switch (avail.state) {
+      case "checking": return <span aria-live="polite" className="inline-flex items-center gap-1.5"><Loader2 className="size-3.5 animate-spin" aria-hidden />Checking…</span>;
+      case "available": return <span aria-live="polite" className="inline-flex items-center gap-1.5 text-success"><Check className="size-3.5" aria-hidden />@{username.toLowerCase()} is available</span>;
+      default: return `${LIMITS.usernameMin}-${LIMITS.usernameMax} letters, numbers or underscores. This is your link: ${SITE_URL.replace(/^https?:\/\//, "")}/u/${username.toLowerCase() || "you"}`;
+    }
+  })();
+  const usernameError = avail.state === "invalid" ? avail.message : avail.state === "taken" ? "That username is taken." : errors.username;
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    setFormError(null);
+    const parsed = registerInput.safeParse({ email, password, username, displayName: displayName || undefined });
+    if (!parsed.success) {
+      const next: Record<string, string> = {};
+      for (const i of parsed.error.issues) { const k = String(i.path[0] ?? "form"); next[k] ??= i.message; }
+      setErrors(next);
+      return;
+    }
+    setErrors({});
+    setBusy(true);
+    try {
+      await api.auth.register(parsed.data);
+      router.replace("/inbox");
+      router.refresh();
+    } catch (err) {
+      const fe = fieldErrors(err);
+      setErrors(fe);
+      if (Object.keys(fe).length === 0) setFormError(errorMessage(err));
+      else if (!fe.email && !fe.username && !fe.password) setFormError(errorMessage(err));
+      setBusy(false);
+    }
+  }
+
+  return (
+    <form onSubmit={onSubmit} noValidate className="space-y-4">
+      <FormAlert message={formError} />
+      <InputField label="Email" type="email" autoComplete="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} required />
+      <div>
+        <InputField
+          label="Username"
+          autoComplete="username"
+          autoCapitalize="none"
+          spellCheck={false}
+          value={username}
+          onChange={(e) => setUsername(e.target.value.trim())}
+          error={usernameError}
+          hint={usernameError ? undefined : availHint}
+          trailing={avail.state === "available" ? <Check className="size-5 text-success" aria-hidden /> : avail.state === "taken" || avail.state === "invalid" ? <X className="size-5 text-danger" aria-hidden /> : undefined}
+          maxLength={LIMITS.usernameMax + 8}
+          required
+        />
+      </div>
+      <InputField label="Display name (optional)" autoComplete="nickname" value={displayName} onChange={(e) => setDisplayName(e.target.value)} maxLength={LIMITS.displayNameMax} error={errors.displayName} />
+      <PasswordField label="Password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} error={errors.password} showRules required />
+      <Button type="submit" size="lg" className="w-full" loading={busy}>Create my profile</Button>
+      <p className="text-center text-xs text-muted">By continuing you agree to our <a className="underline" href="/terms">Terms</a> and <a className="underline" href="/privacy">Privacy policy</a>.</p>
+    </form>
+  );
+}

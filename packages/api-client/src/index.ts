@@ -115,6 +115,7 @@ export function createApiClient(opts: ClientOptions) {
       changeUsername: (username: string) => patch<ProfileDto>("/profile/username", { username }),
       uploadAvatar: (form: FormData) => request<ProfileDto>("POST", "/profile/avatar", undefined, undefined, { form }),
       removeAvatar: () => del<ProfileDto>("/profile/avatar"),
+      recordView: (target: { username: string } | { slug: string }) => post<void>("/public/view", target),
       answers: (username: string, cursor?: string) => get<Page<AnswerDto>>(`/profiles/${encodeURIComponent(username)}/answers`, { cursor })
     },
     answers: { get: (id: string) => get<AnswerDto>(`/answers/${id}`) },
@@ -161,6 +162,7 @@ export function createApiClient(opts: ClientOptions) {
       user: (id: string) => get<AdminUserDto>(`/admin/users/${id}`),
       suspend: (id: string, note?: string) => post<AdminUserDto>(`/admin/users/${id}/suspend`, { note }),
       unsuspend: (id: string, note?: string) => post<AdminUserDto>(`/admin/users/${id}/unsuspend`, { note }),
+      unban: (id: string, note?: string) => post<AdminUserDto>(`/admin/users/${id}/unban`, { note }),
       ban: (id: string, note?: string) => post<AdminUserDto>(`/admin/users/${id}/ban`, { note }),
       reports: (q: { status?: "open" | "resolved" | "dismissed"; cursor?: string; limit?: number }) => get<Page<AdminReportDto>>("/admin/reports", q),
       resolveReport: (id: string, action: ReportAction, note?: string) => post<AdminReportDto>(`/admin/reports/${id}/resolve`, { action, note }),

@@ -39,7 +39,8 @@ export const MODERATION_CATEGORIES = [
   "self_harm",
   "personal_info",
   "dangerous",
-  "spam"
+  "spam",
+  "hidden_word"
 ] as const;
 export type ModerationCategory = (typeof MODERATION_CATEGORIES)[number];
 

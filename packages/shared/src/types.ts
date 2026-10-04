@@ -165,7 +165,8 @@ export interface AdminUserDto {
   status: UserStatus;
   emailVerified: boolean;
   messagesReceived: number;
-  reportsAgainst: number;
+  /** Reports this account filed from its own inbox. */
+  reportsFiled: number;
   createdAt: string;
   lastSeenAt: string | null;
 }

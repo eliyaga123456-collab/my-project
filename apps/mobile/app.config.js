@@ -1,0 +1,34 @@
+// Extends app.json with environment-driven universal-link config.
+// Set EXPO_PUBLIC_WEB_URL (e.g. https://unsaid.example) to enable https://<host>/u/<username> app links.
+module.exports = ({ config }) => {
+  let host = null;
+  try {
+    if (process.env.EXPO_PUBLIC_WEB_URL) host = new URL(process.env.EXPO_PUBLIC_WEB_URL).host;
+  } catch {
+    host = null;
+  }
+  const projectId = process.env.EXPO_PUBLIC_EAS_PROJECT_ID;
+  return {
+    ...config,
+    ios: { ...config.ios, ...(host ? { associatedDomains: [`applinks:${host}`] } : {}) },
+    android: {
+      ...config.android,
+      ...(host
+        ? {
+            intentFilters: [
+              {
+                action: "VIEW",
+                autoVerify: true,
+                data: [
+                  { scheme: "https", host, pathPrefix: "/u" },
+                  { scheme: "https", host, pathPrefix: "/l" }
+                ],
+                category: ["BROWSABLE", "DEFAULT"]
+              }
+            ]
+          }
+        : {})
+    },
+    extra: { ...config.extra, ...(projectId ? { eas: { projectId } } : {}) }
+  };
+};

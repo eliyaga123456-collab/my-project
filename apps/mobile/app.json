@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Unsaid",
+    "slug": "unsaid",
+    "scheme": "unsaid",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#0b0a14",
+    "newArchEnabled": true,
+    "splash": { "backgroundColor": "#0b0a14", "resizeMode": "contain" },
+    "ios": {
+      "bundleIdentifier": "app.unsaid.mobile",
+      "supportsTablet": false,
+      "infoPlist": { "UIBackgroundModes": ["remote-notification"] }
+    },
+    "android": {
+      "package": "app.unsaid.mobile",
+      "backgroundColor": "#0b0a14",
+      "adaptiveIcon": { "backgroundColor": "#0b0a14" },
+      "predictiveBackGestureEnabled": true
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      ["expo-notifications", { "color": "#ff7440", "defaultChannel": "default" }],
+      ["expo-image-picker", { "photosPermission": "Unsaid uses your photos so you can choose a profile picture." }]
+    ],
+    "experiments": { "typedRoutes": false }
+  }
+}
