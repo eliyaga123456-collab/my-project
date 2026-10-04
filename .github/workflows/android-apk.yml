@@ -1,0 +1,53 @@
+# Builds an installable Android APK on GitHub's servers (no Expo account, no cost for public repos) and attaches it to a Release.
+# Trigger: push a change to .github/apk-config.json (set apiUrl/webUrl to where the EAR server is reachable) or run it manually.
+name: Android APK
+on:
+  workflow_dispatch:
+    inputs:
+      api_url: { description: "EAR server URL the app talks to (e.g. https://<codespace>-3000.app.github.dev)", required: false }
+      web_url: { description: "Public web URL used for share/install links", required: false }
+  push:
+    branches: [claude/elegant-volta-5foywr]
+    paths: [".github/apk-config.json", ".github/workflows/android-apk.yml"]
+permissions:
+  contents: write
+concurrency: { group: android-apk, cancel-in-progress: true }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - uses: android-actions/setup-android@v3
+      - name: Read server URLs
+        run: |
+          API="${{ inputs.api_url }}"; WEB="${{ inputs.web_url }}"
+          [ -n "$API" ] || API=$(node -p "require('./.github/apk-config.json').apiUrl")
+          [ -n "$WEB" ] || WEB=$(node -p "require('./.github/apk-config.json').webUrl")
+          echo "EXPO_PUBLIC_API_URL=$API" >> "$GITHUB_ENV"
+          echo "EXPO_PUBLIC_WEB_URL=$WEB" >> "$GITHUB_ENV"
+          echo "Building against API=$API WEB=$WEB"
+      - run: npm ci
+      - name: Generate the native Android project
+        working-directory: apps/mobile
+        run: npx expo prebuild --platform android --no-install --clean
+      - name: Build release APK (arm64)
+        working-directory: apps/mobile/android
+        run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
+      - name: Name the APK
+        run: |
+          cp apps/mobile/android/app/build/outputs/apk/release/app-release.apk EAR.apk
+          ls -la EAR.apk
+      - uses: actions/upload-artifact@v4
+        with: { name: EAR-apk, path: EAR.apk, retention-days: 30 }
+      - name: Publish a Release with the APK
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          TAG="apk-${{ github.run_number }}"
+          gh release create "$TAG" EAR.apk --target "$GITHUB_SHA" --latest \
+            --title "EAR Android app (build ${{ github.run_number }})" \
+            --notes "Installable Android APK. Open it on your phone and allow installs from this source. It connects to: $EXPO_PUBLIC_API_URL. Not published on Google Play."
