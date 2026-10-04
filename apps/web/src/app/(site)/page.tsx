@@ -3,7 +3,7 @@ import { Ban, Bell, ChevronRight, Filter, Inbox, Link2, MessageCircleQuestion, S
 import { ButtonLink } from "@/components/ui";
 import { InboxPreview } from "@/components/landing/InboxPreview";
 
-export const metadata: Metadata = { title: { absolute: "Unsaid — let people say the unsaid" } };
+export const metadata: Metadata = { title: { absolute: "EAR — let people say what they really think" } };
 
 const steps = [
   { icon: Link2, title: "Get your link", body: "Pick a username and your personal link is live in seconds. Drop it in your bio, stories or group chats." },
@@ -30,8 +30,12 @@ export default function Landing() {
             <p className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/60 px-3.5 py-1.5 text-xs font-semibold text-muted backdrop-blur">
               <ShieldCheck className="size-3.5 text-success" aria-hidden /> Kind by design. Safe by default.
             </p>
+            <p className="mt-4 font-display text-sm font-bold tracking-wide text-muted">
+              EAR<span className="grad-text" aria-hidden="true">*</span> &middot; Eliya&apos;s Anonymous Replies
+              <span className="sr-only"> (dedicated to Liron)</span>
+            </p>
             <h1 className="mt-5 text-[2.6rem] font-extrabold leading-[1.02] sm:text-6xl lg:text-7xl">
-              Let people say the <span className="grad-text">unsaid</span>
+              Let people say what they <span className="grad-text">really think</span>
             </h1>
             <p className="mt-5 max-w-xl text-lg text-muted sm:text-xl">
               Share one personal link. Receive honest, anonymous messages. Reply on your terms, with filters and controls that put you in charge.

@@ -27,3 +27,9 @@ export const E = {
   conflict: (message: string, details?: Record<string, string[]>) => new AppError("conflict", message, details),
   rateLimited: (retryAfterSeconds: number) => new AppError("rate_limited", "Too many attempts. Please wait a moment and try again.", undefined, retryAfterSeconds)
 };
+
+/** Drizzle wraps driver errors (`cause`); read the underlying Postgres error either way. */
+export function pgError(e: unknown): { code?: string; constraint?: string } {
+  const x = e as { code?: string; constraint?: string; cause?: { code?: string; constraint?: string } };
+  return { code: x?.cause?.code ?? x?.code, constraint: x?.cause?.constraint ?? x?.constraint };
+}

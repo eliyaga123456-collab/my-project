@@ -72,7 +72,7 @@ export default function Safety() {
       </View>
 
       <Text variant="heading">Blocked sources</Text>
-      <Text variant="caption" tone="muted">Unsaid blocks an anonymous source (a network), not a person. Someone on a new network could still write to you.</Text>
+      <Text variant="caption" tone="muted">EAR blocks an anonymous source (a network), not a person. Someone on a new network could still write to you.</Text>
       {blocks.loading ? <Skeleton height={48} /> : (blocks.data ?? []).length === 0 ? <Text tone="muted">No blocked sources.</Text> : (blocks.data ?? []).map((b) => (
         <Card key={b.id} style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
           <View style={{ flex: 1 }}>

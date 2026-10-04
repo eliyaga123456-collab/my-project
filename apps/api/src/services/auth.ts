@@ -4,7 +4,7 @@ import type { AuthResultDto, MeDto, RegisterInput, SessionDto } from "@unsaid/sh
 import type { AppContext } from "../context";
 import { emailTokens, links, messages, profiles, sessions, settings, users } from "../db/schema";
 import { DUMMY_HASH, hashPassword, randomToken, sha256Hex, verifyPassword } from "../lib/crypto";
-import { E, AppError } from "../lib/errors";
+import { E, AppError, pgError } from "../lib/errors";
 import { profileDto, settingsDto, userDto } from "../mappers";
 import { emails } from "./email";
 
@@ -30,7 +30,7 @@ export class AuthService {
         return u!;
       });
     } catch (e) {
-      const err = e as { code?: string; constraint?: string };
+      const err = pgError(e);
       if (err.code === "23505") {
         if (err.constraint === "users_username_key") throw E.conflict("That username is taken.", { username: ["That username is taken."] });
         throw E.conflict("An account with this email may already exist. Try signing in.", { email: ["An account with this email may already exist."] });

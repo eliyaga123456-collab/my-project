@@ -39,7 +39,7 @@ export function ShareActions({ path, text, cardPath, compact }: { path: string; 
     }
   }
   async function native() {
-    try { await navigator.share({ title: "Unsaid", text, url }); } catch { /* cancelled */ }
+    try { await navigator.share({ title: "EAR", text, url }); } catch { /* cancelled */ }
   }
 
   return (

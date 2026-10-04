@@ -36,7 +36,7 @@ export function classifySendError(e: unknown): SendFailure {
     case "rate_limited":
       return { kind: "rate_limited", message: e.retryAfterSeconds ? `You're sending a lot of messages. Take a breather and try again in about ${formatWait(e.retryAfterSeconds)}.` : "You're sending a lot of messages. Take a breather and try again in a little while." };
     case "moderation_rejected":
-      return { kind: "rejected", message: "That one didn't go through. Messages with harassment, threats, hate or personal info aren't delivered. Try rewording it kindly." };
+      return { kind: "rejected", message: e.message && e.message !== "Unprocessable Entity" ? e.message : "That one didn't go through. Try rewording it kindly." };
     case "account_suspended": return { kind: "paused" };
     case "validation_error": return { kind: "error", message: firstDetail(e) ?? e.message ?? "Please check your message and try again." };
     default: return { kind: "error", message: e.friendly };

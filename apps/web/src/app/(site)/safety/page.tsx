@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LegalPage } from "@/components/site/LegalPage";
 import { SAFETY_EMAIL } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Safety", description: "How Unsaid helps keep anonymous messaging kind, and what you can do." };
+export const metadata: Metadata = { title: "Safety", description: "How EAR helps keep anonymous messaging kind, and what you can do." };
 
 export default function Safety() {
   return (

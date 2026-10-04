@@ -19,7 +19,7 @@ if (existing) {
 } else {
   await db.transaction(async (tx) => {
     const [u] = await tx.insert(users).values({ email, username: "admin_unsaid", passwordHash: await hashPassword(config.ADMIN_SEED_PASSWORD), role: "admin", emailVerifiedAt: new Date() }).returning();
-    await tx.insert(profiles).values({ userId: u!.id, displayName: "Unsaid Admin" });
+    await tx.insert(profiles).values({ userId: u!.id, displayName: "EAR Admin" });
     await tx.insert(settings).values({ userId: u!.id, notifications: { inAppNewMessage: true, pushNewMessage: true, emailNewMessage: false, emailDigest: false, pushActivity: true, emailSafety: true } });
     await tx.insert(links).values({ userId: u!.id, slug: generateSlug(), label: "My link", isPrimary: true });
   });

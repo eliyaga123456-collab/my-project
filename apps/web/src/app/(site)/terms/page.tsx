@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalPage } from "@/components/site/LegalPage";
 
-export const metadata: Metadata = { title: "Terms", description: "The rules for using Unsaid." };
+export const metadata: Metadata = { title: "Terms", description: "The rules for using EAR." };
 
 export default function Terms() {
   return (
-    <LegalPage title="Terms of use" intro="The short version: be kind, be honest, and don't use Unsaid to hurt anyone." updated="October 2026">
-      <h2>Using Unsaid</h2>
+    <LegalPage title="Terms of use" intro="The short version: be kind, be honest, and don't use EAR to hurt anyone." updated="October 2026">
+      <h2>Using EAR</h2>
       <p>You must be old enough to use online services in your country and, where required, have a parent&apos;s permission. You are responsible for your account and for keeping your password secure.</p>
       <h2>What you may not do</h2>
       <ul>
@@ -22,7 +22,7 @@ export default function Terms() {
       <h2>Your content</h2>
       <p>You keep ownership of what you write and publish. By choosing to publish a reply publicly you allow us to display it on your profile and in share cards. The anonymous question shown with it is displayed as written, without any sender information. You can remove public replies at any time.</p>
       <h2>Availability</h2>
-      <p>We work to keep Unsaid running but provide it &ldquo;as is&rdquo;, without guarantees. Features may change. To the extent the law allows, we are not liable for indirect or consequential losses arising from your use of the service.</p>
+      <p>We work to keep EAR running but provide it &ldquo;as is&rdquo;, without guarantees. Features may change. To the extent the law allows, we are not liable for indirect or consequential losses arising from your use of the service.</p>
       <h2>Ending your use</h2>
       <p>You can delete your account at any time. We may suspend or end access for serious or repeated violations.</p>
       <h2>Changes</h2>

@@ -1,4 +1,4 @@
--- Unsaid initial schema. All timestamps are timestamptz (UTC).
+-- EAR initial schema. All timestamps are timestamptz (UTC).
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE TABLE users (

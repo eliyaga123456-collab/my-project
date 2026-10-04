@@ -90,7 +90,7 @@ export function ShareDialog({ message, onClose, onReply }: { message: MessageDto
   const answerId = message?.reply?.public ? message.reply.answerId : null;
   return (
     <Modal open={!!message} onClose={onClose} title="Share this answer" description={answerId ? "Post the link or download the share card." : undefined}>
-      {message && answerId && <ShareActions path={`/a/${answerId}`} text={`“${message.body.slice(0, 90)}” — my answer on Unsaid`} cardPath={`/a/${answerId}/opengraph-image`} />}
+      {message && answerId && <ShareActions path={`/a/${answerId}`} text={`“${message.body.slice(0, 90)}” — my answer on EAR`} cardPath={`/api/share-card/${answerId}`} />}
       {message && !answerId && (
         <div className="space-y-4">
           <p className="text-muted">Only public replies can be shared. {message.reply ? "Your reply is private. Remove it and reply publicly to share." : "Reply publicly and this message becomes a share card."}</p>

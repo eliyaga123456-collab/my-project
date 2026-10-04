@@ -175,7 +175,7 @@ export function useMessageActions({ onUpdated, onRemoved }: Options) {
       </BottomSheet>
 
       <ConfirmSheet visible={panel === "delete"} title="Delete this message?" message="It's removed from your inbox for good. This can't be undone." confirmLabel="Delete" destructive loading={busy} onConfirm={remove} onCancel={close} />
-      <ConfirmSheet visible={panel === "block"} title="Block this sender?" message="Unsaid blocks the anonymous source, not a person — it can't identify anyone, and someone on a different network could still write to you. The message is archived." confirmLabel="Block" destructive loading={busy} onConfirm={block} onCancel={close} />
+      <ConfirmSheet visible={panel === "block"} title="Block this sender?" message="EAR blocks the anonymous source, not a person — it can't identify anyone, and someone on a different network could still write to you. The message is archived." confirmLabel="Block" destructive loading={busy} onConfirm={block} onCancel={close} />
     </>
   );
 

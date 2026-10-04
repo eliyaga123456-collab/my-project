@@ -85,7 +85,7 @@ export function LinksView() {
           <div className="relative">
             <div className="flex flex-wrap items-center gap-2"><h2 id="primary" className="text-xl font-bold">Your personal link</h2>{primary.paused && <Badge tone="warning"><PauseCircle className="size-3" aria-hidden />Paused</Badge>}</div>
             <p data-testid="primary-link" className="mt-3 break-all rounded-md bg-raised px-4 py-3 font-mono text-sm sm:text-base">{primary.url}</p>
-            <div className="mt-4"><ShareActions path={primary.url} text="Send me an anonymous message on Unsaid" /></div>
+            <div className="mt-4"><ShareActions path={primary.url} text="Send me an anonymous message on EAR" /></div>
             <div className="mt-4 border-t border-line pt-2"><Stats link={primary} /></div>
             <Switch checked={!primary.paused} onChange={(on) => togglePause(primary, !on)} label="Accepting messages" description="Turn off to pause this link. Visitors see a friendly paused message and nothing is stored." />
           </div>
@@ -120,7 +120,7 @@ export function LinksView() {
                     <Tooltip label="Delete"><IconButton label={`Delete ${l.label}`} onClick={() => setDeleting(l)} className="hover:text-danger"><Trash2 className="size-4" aria-hidden /></IconButton></Tooltip>
                   </div>
                 </div>
-                <div className="relative mt-3"><ShareActions path={l.url} text="Send me an anonymous message on Unsaid" compact /></div>
+                <div className="relative mt-3"><ShareActions path={l.url} text="Send me an anonymous message on EAR" compact /></div>
                 <div className="relative mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-2">
                   <Stats link={l} />
                   <div className="w-44"><Switch checked={!l.paused} onChange={(on) => togglePause(l, !on)} label="Active" /></div>

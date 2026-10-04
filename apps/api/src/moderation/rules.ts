@@ -23,13 +23,13 @@ const neg = String.raw`(?:not|never|no|dont|don t|isn t|isnt|aren t|arent|nt)`;
 
 const INSULTS = [
   "idiot", "stupid", "dumb", "ugly", "loser", "fat", "disgusting", "worthless", "pathetic", "trash", "garbage", "moron",
-  "retarded", "creep", "freak", "annoying", "fake", "clown", "waste of space", "waste of oxygen", "hideous", "gross"
+  "retarded", "creep", "freak", "fake", "waste of space", "waste of oxygen", "hideous", "gross"
 ];
 const PROFANE_INSULTS = ["slut", "whore", "bitch", "cunt", "bastard", "asshole", "dickhead", "scumbag", "piece of shit", "shit"];
 
 export const RULES: Rule[] = [
   // ---- threats ----
-  { category: "threat", weight: 100, reason: "violent threat", pattern: /\b(?:i|we)(?: will| ll| m going to| am going to| m gonna| am gonna| gonna| wanna| want to|ll)? (?:kill|murder|stab|shoot|strangle|hurt|beat up|beat|rape|burn|destroy|end) (?:you|u|ya)\b/ },
+  { category: "threat", weight: 100, reason: "violent threat", pattern: /\b(?:i|im|we)(?: will| ll| m going to| am going to| m gonna| am gonna| gonna| wanna| want to|ll)? (?:kill|murder|stab|shoot|strangle|hurt|beat up|beat|rape|burn|destroy|end) (?:you|u|ya)\b/ },
   { category: "threat", weight: 100, reason: "violent threat", pattern: /\b(?:you|u) (?:will|re going to|are going to|gonna|better) (?:die|be dead|get hurt|get killed|regret)\b/ },
   { category: "threat", weight: 100, reason: "implied surveillance threat", pattern: /\bi know where (?:you|u) (?:live|sleep|work|go to school)\b/ },
   { category: "threat", weight: 100, reason: "violent threat", pattern: /\b(?:watch your back|sleep with one eye open|coming for you|find you and)\b/ },
@@ -49,6 +49,7 @@ export const RULES: Rule[] = [
   { category: "hate", weight: 100, reason: "hebrew hate speech", pattern: /(?:כל ה|צריך להרוג את ה|מוות ל)(?:ערבים|יהודים|מוסלמים|הומואים|להט״ב|אתיופים)/ },
   // ---- harassment ----
   { category: "harassment", weight: 55, negatable: true, reason: "insult", pattern: new RegExp(String.raw`\b${you} ${be} (?:such |so |really |a |an |the |just )*(?:${INSULTS.join("|")})\b`) },
+  { category: "harassment", weight: 35, negatable: true, reason: "mild put-down", pattern: new RegExp(String.raw`\b${you} ${be} (?:such |so |really |a |an |the |just )*(?:cringe|boring|weird|lame|overrated|basic|irrelevant|desperate|embarrassing|attention seeker|try hard|tryhard|annoying|clown)\b`) },
   { category: "harassment", weight: 100, negatable: true, reason: "abusive insult", pattern: new RegExp(String.raw`\b${you} ${be} (?:such |so |really |a |an |the |just )*(?:${PROFANE_INSULTS.join("|")})\b`) },
   { category: "harassment", weight: 100, reason: "abusive insult", pattern: /\b(?:fuck|screw|eat shit|go to hell|shut the fuck up)(?: off| you| yourself| u)?\b.*\b(?:you|u|yourself)\b|\bfuck (?:you|u|off)\b|\bstfu\b/ },
   { category: "harassment", weight: 55, reason: "targeted harassment", pattern: /\b(?:everyone|nobody|no one) (?:hates|can t stand|is laughing at|thinks you re)\b|\bno one likes (?:you|u)\b|\bnobody likes (?:you|u)\b|\bkill (?:your ?self)\b/ },

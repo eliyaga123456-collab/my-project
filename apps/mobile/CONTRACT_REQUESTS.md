@@ -15,6 +15,6 @@
 6. **Not-found detection on public pages.** Mobile distinguishes 404 by `ApiError.code === "not_found"` (via `friendly`); account
    suspended/banned public profiles should consistently return 404 (per API.md) so the page shows "Link not found".
 7. **Email verification deep link.** `POST /auth/verify-email` / `reset-password` tokens arrive by email as web links. Mobile has no
-   handler for `unsaid://verify?token=` or `unsaid://reset?token=`; if the emails should open the app, define those links.
+   handler for `ear://verify?token=` or `ear://reset?token=`; if the emails should open the app, define those links.
 8. **Session user-agent.** `SessionDto.userAgent` for mobile is the RN/okhttp/CFNetwork UA; consider storing a friendly device label from
    `x-client: mobile` + an optional `x-device-name` header.

@@ -23,7 +23,7 @@ export function Login() {
     <div className="login">
       <div className="login-theme"><IconButton label="Toggle theme" onClick={toggleTheme}>{theme === "dark" ? <Sun size={18} aria-hidden /> : <Moon size={18} aria-hidden />}</IconButton></div>
       <form className="login-card" onSubmit={submit} noValidate>
-        <span className="brand-mark big">Unsaid <em>admin</em></span>
+        <span className="brand-mark big">EAR <em>admin</em></span>
         <h1 className="login-title">Sign in</h1>
         <p className="muted">Moderators and admins only.</p>
         {notAuthorised && (

@@ -37,7 +37,7 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
       {offline ? (
         <View accessibilityRole="alert" style={{ position: "absolute", left: 0, right: 0, bottom: 0, paddingBottom: insets.bottom + 8, paddingTop: 10, paddingHorizontal: 16, backgroundColor: colors.surfaceRaised, borderTopWidth: 1, borderColor: colors.danger, flexDirection: "row", alignItems: "center", gap: 10 }}>
           <Icon name="wifi-off" size={20} tone="danger" />
-          <Text variant="caption" style={{ flex: 1 }}>Can't reach Unsaid. Check your connection.</Text>
+          <Text variant="caption" style={{ flex: 1 }}>Can't reach EAR. Check your connection.</Text>
           <Button title="Retry" small variant="ghost" loading={checking} onPress={recheck} />
         </View>
       ) : null}

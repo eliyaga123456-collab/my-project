@@ -22,7 +22,7 @@ const schema = z.object({
   POW_DIFFICULTY: z.coerce.number().int().min(0).max(26).default(16),
   SOURCE_HASH_RETENTION_DAYS: z.coerce.number().default(30),
   EMAIL_TRANSPORT: z.enum(["outbox", "log", "smtp"]).default("outbox"),
-  EMAIL_FROM: z.string().default("Unsaid <no-reply@unsaid.local>"),
+  EMAIL_FROM: z.string().default("EAR <no-reply@ear.local>"),
   SMTP_URL: z.string().optional(),
   STORAGE_DRIVER: z.enum(["local", "s3"]).default("local"),
   MEDIA_DIR: z.string().default(".data/media"),
@@ -31,7 +31,7 @@ const schema = z.object({
   S3_ENDPOINT: z.string().optional(),
   S3_PUBLIC_BASE_URL: z.string().optional(),
   EXPO_PUSH_ENABLED: bool.default(true),
-  ADMIN_SEED_EMAIL: z.string().default("admin@unsaid.local"),
+  ADMIN_SEED_EMAIL: z.string().default("admin@ear.local"),
   ADMIN_SEED_PASSWORD: z.string().default("change-me-please-123"),
   RATE_LIMIT_DISABLED: bool.default(false),
   LOG_LEVEL: z.string().default("info")

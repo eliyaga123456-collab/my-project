@@ -31,7 +31,7 @@ export default async function AnswerPage({ params }: Props) {
       <AnswerCard answer={a} showAuthor now={Date.now()} />
       <section aria-labelledby="share" className="veil p-5 sm:p-6">
         <h2 id="share" className="mb-3 text-lg font-bold">Share this answer</h2>
-        <ShareActions path={`/a/${a.id}`} text={`${a.author.displayName} on Unsaid: “${clip(a.question, 90)}”`} cardPath={`/a/${a.id}/opengraph-image`} />
+        <ShareActions path={`/a/${a.id}`} text={`${a.author.displayName} on EAR: “${clip(a.question, 90)}”`} cardPath={`/api/share-card/${a.id}`} />
       </section>
       <section className="text-center">
         <p className="text-muted">Want to ask {a.author.displayName} something?</p>

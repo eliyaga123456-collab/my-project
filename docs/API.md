@@ -1,4 +1,4 @@
-# Unsaid API (v1)
+# EAR API (v1)
 
 Base: `{API_URL}/api/v1` · JSON · UTC ISO-8601 timestamps · schemas in `packages/shared/src/schemas.ts`,
 DTOs in `packages/shared/src/types.ts`, typed client in `packages/api-client`.

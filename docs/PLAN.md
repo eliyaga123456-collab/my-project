@@ -1,6 +1,6 @@
-# Unsaid — Product & Engineering Plan
+# EAR — Product & Engineering Plan
 
-Unsaid is an original anonymous Q&A product: create a personal link, share it, receive anonymous
+EAR is an original anonymous Q&A product: create a personal link, share it, receive anonymous
 messages, manage them in an inbox, reply publicly with share cards. It is inspired by the *category*
 (anonymous Q&A) only — name, brand, design, copy and code are our own.
 
@@ -30,7 +30,7 @@ messages, manage them in an inbox, reply publicly with share cards. It is inspir
   mobile uses the same token as a Bearer credential kept in the OS keystore. Passwords: scrypt (N=2^15) with per-user salt.
 - **Web: Next.js (App Router) + Tailwind**, SSR for public profile pages (SEO + share previews), `next/og` for share cards.
 - **Admin: Vite + React SPA** deployed separately (own origin) — admin routes also require `role` ∈ {admin, moderator} server-side.
-- **Mobile: Expo (React Native) + expo-router**, SecureStore, expo-notifications, deep links `unsaid://u/:username`.
+- **Mobile: Expo (React Native) + expo-router**, SecureStore, expo-notifications, deep links `ear://u/:username`.
 - **Storage**: `StorageProvider` interface; local-disk driver for dev, S3-compatible driver for production (env-selected).
 - **Notifications**: `NotificationService` → channels `inApp | push | email` implementing `Channel`; preferences gate each channel.
 - **Rate limiting**: sliding-window `RateLimitStore` interface; in-memory default, Redis-ready for multi-instance (documented).

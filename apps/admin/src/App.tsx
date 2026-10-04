@@ -48,12 +48,12 @@ function Shell() {
       <a href="#main" className="skip">Skip to content</a>
       <header className="topbar">
         <IconButton label={open ? "Close menu" : "Open menu"} onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-controls="sidebar"><Menu size={20} aria-hidden /></IconButton>
-        <span className="brand-mark">Unsaid <em>admin</em></span>
+        <span className="brand-mark">EAR <em>admin</em></span>
       </header>
       {open && <div className="scrim" onClick={() => setOpen(false)} aria-hidden />}
       <aside id="sidebar" className={`sidebar ${open ? "open" : ""}`} aria-label="Primary">
         <div className="sidebar-head">
-          <span className="brand-mark">Unsaid <em>admin</em></span>
+          <span className="brand-mark">EAR <em>admin</em></span>
           <IconButton label="Close menu" className="only-mobile" onClick={() => setOpen(false)}><X size={18} aria-hidden /></IconButton>
         </div>
         <nav>

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LegalPage } from "@/components/site/LegalPage";
 import { CONTACT_EMAIL, SAFETY_EMAIL } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Contact", description: "Talk to the Unsaid team." };
+export const metadata: Metadata = { title: "Contact", description: "Talk to the EAR team." };
 
 export default function Contact() {
   return (

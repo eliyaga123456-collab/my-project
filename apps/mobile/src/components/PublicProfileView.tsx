@@ -83,7 +83,7 @@ export function PublicProfileView({ target }: { target: Target }) {
     return (
       <Screen>
         {header}
-        {notFound ? <EmptyState icon="link" title="Link not found" body="This link doesn't exist, was renamed, or the account is gone." actionLabel="Get your own Unsaid" onAction={() => router.replace("/welcome")} /> : <ErrorState message={profile.error ?? "Try again"} onRetry={profile.reload} />}
+        {notFound ? <EmptyState icon="link" title="Link not found" body="This link doesn't exist, was renamed, or the account is gone." actionLabel="Get your own EAR" onAction={() => router.replace("/welcome")} /> : <ErrorState message={profile.error ?? "Try again"} onRetry={profile.reload} />}
       </Screen>
     );
   }

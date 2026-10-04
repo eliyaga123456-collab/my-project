@@ -1,5 +1,5 @@
 /**
- * Unsaid design tokens — single source of truth for web, admin and mobile.
+ * EAR design tokens — single source of truth for web, admin and mobile.
  * Direction: "after-dark confessional". Deep ink surfaces, a warm ember primary and a cool
  * mist secondary. Soft, blurry depth; sharp type. Mysterious but kind.
  */
@@ -47,5 +47,12 @@ export const themes = {
 export const radii = { sm: 8, md: 14, lg: 22, xl: 32, pill: 999 } as const;
 export const space = { 1: 4, 2: 8, 3: 12, 4: 16, 5: 20, 6: 24, 8: 32, 10: 40, 12: 48, 16: 64 } as const;
 export const fonts = { display: "Bricolage Grotesque", body: "Inter" } as const;
-export const brand = { name: "Unsaid", tagline: "Say the unsaid.", gradient: ["#ff7440", "#b24cff", "#6d62f2"] as const };
+export const brand = {
+  name: "EAR",
+  fullName: "Eliya's Anonymous Replies",
+  tagline: "Say what you really think.",
+  /** Shown next to the wordmark as "EAR*" with this footnote. */
+  dedication: "* For Liron 💛",
+  dedicationSr: "Dedicated to Liron", gradient: ["#ff7440", "#b24cff", "#6d62f2"] as const
+};
 export type ThemeName = keyof typeof themes;

@@ -108,7 +108,7 @@ export function InboxView({ shareUrlPath }: { shareUrlPath: string }) {
   }
   async function doReport(reason: string, details?: string) {
     if (!target) return;
-    try { await api.messages.report(target.id, reason, details); close(); toast.success("Report sent. Thank you for keeping Unsaid kind."); } catch (e) { toast.error(errorMessage(e)); throw e; }
+    try { await api.messages.report(target.id, reason, details); close(); toast.success("Report sent. Thank you for keeping EAR kind."); } catch (e) { toast.error(errorMessage(e)); throw e; }
   }
   async function doDelete() {
     if (!target) return;

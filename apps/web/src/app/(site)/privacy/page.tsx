@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LegalPage } from "@/components/site/LegalPage";
 import { CONTACT_EMAIL } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Privacy", description: "How Unsaid handles your data and how anonymity actually works." };
+export const metadata: Metadata = { title: "Privacy", description: "How EAR handles your data and how anonymity actually works." };
 
 export default function Privacy() {
   return (

@@ -10,7 +10,7 @@ export type MessageAction = "reply" | "share" | "delete" | "report" | "block" | 
 
 const categoryLabel: Record<string, string> = {
   harassment: "harassment", threat: "threat", hate: "hate", sexual: "sexual content",
-  self_harm: "self-harm", personal_info: "personal info", dangerous: "dangerous", spam: "spam"
+  self_harm: "self-harm", personal_info: "personal info", dangerous: "dangerous", spam: "spam", hidden_word: "Hidden word"
 };
 
 export function MessageCard({

@@ -35,11 +35,11 @@ function Shell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-dvh pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">
+    <div className="min-h-dvh pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0">
       <header className="sticky top-0 z-40 border-b border-line bg-bg/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between gap-4 px-4 sm:px-6">
-          <Link href="/inbox" aria-label="Unsaid inbox" className="rounded-full"><Logo /></Link>
-          <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
+          <Link href="/inbox" aria-label="EAR inbox" className="rounded-full"><Logo /></Link>
+          <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
             {items.map((it) => (
               <Link
                 key={it.href}
@@ -70,7 +70,7 @@ function Shell({ children }: { children: ReactNode }) {
       <VerifyBanner />
       <main id="main" className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-10">{children}</main>
 
-      <nav aria-label="Primary" className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-bg/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
+      <nav aria-label="Primary" className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-bg/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden">
         <ul className="mx-auto grid max-w-md grid-cols-5">
           {items.map((it) => (
             <li key={it.href}>

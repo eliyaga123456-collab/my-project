@@ -42,7 +42,7 @@ export function describeUserAgent(ua: string | null): string {
   if (!ua) return "Unknown device";
   if (/okhttp|android/i.test(ua)) return "Android device";
   if (/iphone|ipad|ios|cfnetwork/i.test(ua)) return "iOS device";
-  if (/expo/i.test(ua)) return "Unsaid app";
+  if (/expo/i.test(ua)) return "EAR app";
   if (/chrome|firefox|safari|edge/i.test(ua)) return "Web browser";
   return ua.slice(0, 40);
 }

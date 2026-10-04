@@ -8,10 +8,10 @@ import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: "Unsaid — say the unsaid", template: "%s · Unsaid" },
+  title: { default: "EAR — say what you really think", template: "%s · EAR" },
   description: "Get your personal link, receive anonymous messages, reply on your terms. Kind by design, safe by default.",
-  applicationName: "Unsaid",
-  openGraph: { type: "website", siteName: "Unsaid", title: "Unsaid — say the unsaid", description: "Anonymous questions, answered on your terms." },
+  applicationName: "EAR",
+  openGraph: { type: "website", siteName: "EAR", title: "EAR — say what you really think", description: "Anonymous questions, answered on your terms." },
   twitter: { card: "summary_large_image" },
   icons: { icon: "/icon.svg" }
 };

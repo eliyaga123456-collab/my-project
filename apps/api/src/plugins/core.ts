@@ -38,6 +38,12 @@ export async function registerCore(app: FastifyInstance, ctx: AppContext, authSv
 
   app.decorateRequest("auth", null);
 
+  // Tolerate empty JSON bodies (e.g. POST/DELETE with a JSON content-type but no payload) and reject malformed JSON cleanly.
+  app.addContentTypeParser("application/json", { parseAs: "string", bodyLimit: 64 * 1024 }, (_req, body, done) => {
+    if (body === "" || body === undefined) return done(null, {});
+    try { done(null, JSON.parse(body as string)); } catch { done(new AppError("validation_error", "That request body isn't valid JSON.")); }
+  });
+
   // metrics
   app.addHook("onResponse", async (req, reply) => {
     ctx.metrics.requests++;

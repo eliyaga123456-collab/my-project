@@ -4,6 +4,7 @@ import { Avatar, EmptyState } from "@/components/ui";
 import { SendForm, type SendTarget } from "./SendForm";
 import { AnswerCard } from "./AnswerCard";
 import { MoreAnswers } from "./MoreAnswers";
+import { RecordView } from "./RecordView";
 
 export function ProfileView({ profile, target, answers, nextCursor }: { profile: PublicProfileDto; target: SendTarget; answers: AnswerDto[]; nextCursor: string | null }) {
   const paused = profile.linkState === "paused" || !profile.acceptingMessages;
@@ -11,6 +12,7 @@ export function ProfileView({ profile, target, answers, nextCursor }: { profile:
   const now = Date.now();
   return (
     <div className="animate-ink-in">
+      <RecordView target={target} />
       <section aria-labelledby="who" className="text-center">
         <Avatar name={profile.displayName} src={profile.avatarUrl} size={96} className="mx-auto" />
         <h1 id="who" className="mt-4 text-3xl font-extrabold sm:text-4xl [overflow-wrap:anywhere]">{profile.displayName}</h1>

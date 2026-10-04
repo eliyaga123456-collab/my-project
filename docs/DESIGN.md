@@ -1,10 +1,10 @@
-# Unsaid — Design Direction
+# EAR — Design Direction
 
 **Concept: "after-dark confessional."** The product lives in the moment between a thought and saying it.
 Deep ink surfaces (`#0b0a14`) with soft blurred light blooms, a warm **ember** primary (energy, a lit match)
 against cool **mist** violet (mystery). Light theme = warm bone paper with the same accents.
 
-**Voice:** short, human, a little cheeky, never edgy-cruel. "Say the unsaid." / "Nothing's traced back to you — but be kind."
+**Voice:** short, human, a little cheeky, never edgy-cruel. "Say what you really think." / "Nothing's traced back to you — but be kind."
 
 **Type:** *Bricolage Grotesque* (display — characterful, slightly quirky terminals) + *Inter* (UI). Tight negative
 tracking on big headlines, generous line-height on body.

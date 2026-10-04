@@ -3,7 +3,7 @@ import type { AnswerDto, LinkDto, Page, ProfileDto, PublicProfileDto, UpdateProf
 import type { AppContext } from "../context";
 import { linkDailyStats, links, messages, profiles, settings, users } from "../db/schema";
 import { decodeCursor, encodeCursor } from "../lib/cursor";
-import { E } from "../lib/errors";
+import { E, pgError } from "../lib/errors";
 import { avatarUrl, profileDto } from "../mappers";
 import { generateSlug } from "./slug";
 import { newAvatarKey, processAvatar } from "./storage";
@@ -69,7 +69,7 @@ export class ProfileService {
       const [p] = await this.ctx.db.select().from(profiles).where(eq(profiles.userId, user.id));
       return profileDto(this.ctx, u!, p!);
     } catch (e) {
-      if ((e as { code?: string }).code === "23505") throw E.conflict("That username is taken.", { username: ["That username is taken."] });
+      if (pgError(e).code === "23505") throw E.conflict("That username is taken.", { username: ["That username is taken."] });
       throw e;
     }
   }

@@ -65,7 +65,7 @@ class EmailChannel implements Channel {
   constructor(private transport: EmailTransport) {}
   wants(i: NotifyInput, p: NotificationPrefsRow) { return i.type === "new_message" ? p.emailNewMessage : i.type === "safety" ? p.emailSafety : false; }
   async deliver(i: NotifyInput, to: Recipient) {
-    await this.transport.send({ to: to.email, subject: fmt(i.title, 1), text: `${fmt(i.body, 1)}\n\n— Unsaid\nManage notification settings in the app.` });
+    await this.transport.send({ to: to.email, subject: fmt(i.title, 1), text: `${fmt(i.body, 1)}\n\n— EAR\nManage notification settings in the app.` });
   }
 }
 

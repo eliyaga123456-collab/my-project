@@ -11,7 +11,7 @@ export function Overview() {
 
   return (
     <>
-      <PageHeader title="Overview" subtitle="How Unsaid is doing right now." actions={<Button size="sm" icon={<RefreshCw size={14} aria-hidden />} onClick={() => reload()}>Refresh</Button>} />
+      <PageHeader title="Overview" subtitle="How EAR is doing right now." actions={<Button size="sm" icon={<RefreshCw size={14} aria-hidden />} onClick={() => reload()}>Refresh</Button>} />
       {error && !data ? <ErrorState message={error} onRetry={() => reload()} /> : (
         <>
           <div className="stat-grid" aria-busy={loading}>
