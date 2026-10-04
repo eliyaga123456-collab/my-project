@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => {
   const target = env.VITE_API_URL || "http://localhost:4000";
   const proxy = { "/api/v1": { target, changeOrigin: false }, "/media": { target, changeOrigin: false } };
   return {
-    // @vitejs/plugin-react@6 resolves the hoisted vite@7 in this workspace; use Vite 8's built-in JSX transform instead.
+    // Vite 8 compiles JSX natively via oxc, so no React plugin is needed (plugin-react@6 requires vite 8 and resolved the hoisted vite 7).
     oxc: { jsx: { runtime: "automatic" } },
     resolve: { alias: { react: pkgDir("react"), "react-dom": pkgDir("react-dom") } },
     server: { port: 3100, proxy },
