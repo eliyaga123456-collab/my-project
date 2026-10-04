@@ -41,6 +41,8 @@ export async function registerCore(app: FastifyInstance, ctx: AppContext, authSv
   // Tolerate empty JSON bodies (e.g. POST/DELETE with a JSON content-type but no payload) and reject malformed JSON cleanly.
   app.addContentTypeParser("application/json", { parseAs: "string", bodyLimit: 64 * 1024 }, (_req, body, done) => {
     if (body === "" || body === undefined) return done(null, {});
+    // Postgres text cannot hold NUL; reject it up front instead of surfacing a 500 from any text column.
+    if ((body as string).includes("\\u0000")) return done(new AppError("validation_error", "That request contains unsupported characters."));
     try { done(null, JSON.parse(body as string)); } catch { done(new AppError("validation_error", "That request body isn't valid JSON.")); }
   });
 

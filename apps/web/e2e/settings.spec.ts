@@ -48,7 +48,7 @@ test("settings: hidden words, enhanced moderation, pause link, blocked sources",
   await page.getByRole("dialog").getByRole("button", { name: "Block" }).click();
   await expect(card).toHaveCount(0);
   await page.goto("/settings");
-  const blocked = page.locator("#s-blocked");
+  const blocked = page;
   await expect(blocked.getByRole("button", { name: /Unblock/ })).toHaveCount(1);
   await blocked.getByRole("button", { name: /Unblock/ }).click();
   await expect(page.getByText("No one is blocked")).toBeVisible();

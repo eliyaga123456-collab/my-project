@@ -65,7 +65,7 @@ export class AdminService {
 
   async users(q: { q?: string; status?: string; cursor?: string; limit: number }): Promise<Page<AdminUserDto>> {
     const c = decodeCursor(q.cursor);
-    const term = q.q?.trim();
+    const term = q.q?.replace(/\u0000/g, "").trim();
     const like = term ? `%${term.replace(/[%_\\]/g, "\\$&")}%` : null;
     const rows = await this.userSelect().where(and(
       q.status ? eq(users.status, q.status as User["status"]) : undefined,
@@ -161,14 +161,17 @@ export class AdminService {
   async abuse(): Promise<AdminAbuseDto> {
     const { db } = this.ctx;
     const top = await db.execute<{ ref: string; messages: number; rejected: number; reports: number; last: Date }>(sql`
-      select left(source_hash, 8) as ref,
-        count(*) filter (where outcome in ('allow','hold'))::int as messages,
-        count(*) filter (where outcome = 'reject')::int as rejected,
-        (select count(*) from reports r where left(r.source_hash, 8) = left(e.source_hash, 8))::int as reports,
-        max(created_at) as last
-      from moderation_events e where source_hash is not null and created_at > now() - interval '7 days' and kind = 'message'
-      group by left(source_hash, 8), left(source_hash, 8) having count(*) >= 2
-      order by (count(*) filter (where outcome = 'reject')) desc, count(*) desc limit 20`);
+      with agg as (
+        select left(source_hash, 8) as ref,
+          count(*) filter (where outcome in ('allow','hold'))::int as messages,
+          count(*) filter (where outcome = 'reject')::int as rejected,
+          max(created_at) as last
+        from moderation_events where source_hash is not null and created_at > now() - interval '7 days' and kind = 'message'
+        group by left(source_hash, 8) having count(*) >= 2
+      )
+      select agg.ref, agg.messages, agg.rejected, agg.last,
+        (select count(*) from reports r where left(r.source_hash, 8) = agg.ref)::int as reports
+      from agg order by agg.rejected desc, agg.messages desc limit 20`);
     const [flood] = (await db.execute<{ n: number }>(sql`select count(*)::int as n from moderation_events where outcome in ('challenge') and created_at > now() - interval '24 hours'`)).rows;
     const cats = await db.execute<{ category: string; count: number }>(sql`select c as category, count(*)::int as count from moderation_events, unnest(categories) c where outcome = 'reject' and created_at > now() - interval '7 days' group by c order by count desc`);
     return {

@@ -29,6 +29,10 @@ async function login(page: Page, email: string, password: string) {
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
 }
+async function loginOk(page: Page, email: string, password: string) {
+  await login(page, email, password);
+  await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
+}
 function psql(sql: string) {
   execFileSync("psql", ["-U", "postgres", "-h", "localhost", "unsaid", "-c", sql], { stdio: "pipe" });
 }
@@ -39,10 +43,12 @@ let mod: Awaited<ReturnType<typeof register>>;
 let plain: Awaited<ReturnType<typeof register>>;
 
 test.beforeAll(async () => {
+  // the dev API restarts on file changes; wait until it answers
+  for (let i = 0; i < 30; i++) { try { if ((await fetch(API + "/public/challenge")).ok) break; } catch { /* retry */ } await new Promise((r) => setTimeout(r, 1000)); }
   target = await register("e2etarget");
   mod = await register("e2emod");
   plain = await register("e2eplain");
-  psql(`update users set role='moderator' where email='${mod.email}'`);
+  psql(`update users set role='moderator', email_verified_at=now() where email='${mod.email}'`);
 });
 
 test("non-admin sign-in shows 'Not authorised' and stays signed out", async ({ page }) => {
@@ -78,7 +84,7 @@ async function act(page: Page, button: string) {
 }
 
 test("admin: suspend, unsuspend, ban, unban a user", async ({ page }) => {
-  await login(page, ADMIN.email, ADMIN.password);
+  await loginOk(page, ADMIN.email, ADMIN.password);
   await openUser(page, target.username);
   await act(page, "Suspend");
   await expect(page.getByText("User suspended")).toBeVisible();
@@ -93,7 +99,7 @@ test("admin: suspend, unsuspend, ban, unban a user", async ({ page }) => {
 });
 
 test("admin: status filter and search", async ({ page }) => {
-  await login(page, ADMIN.email, ADMIN.password);
+  await loginOk(page, ADMIN.email, ADMIN.password);
   await page.goto("/users");
   await page.getByLabel("Status").selectOption("active");
   await expect(page.getByRole("row", { name: new RegExp(`@${target.username}`) })).toBeVisible();
@@ -102,7 +108,7 @@ test("admin: status filter and search", async ({ page }) => {
 });
 
 test("moderator: can suspend but not ban/unban; no Ban source on reports", async ({ page }) => {
-  await login(page, mod.email, mod.password);
+  await loginOk(page, mod.email, mod.password);
   await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
   await openUser(page, target.username);
   await expect(page.getByRole("dialog").getByRole("button", { name: "Suspend" })).toBeVisible();
@@ -132,7 +138,7 @@ test("admin: report actions explain they act on the anonymous source", async ({ 
   expect(msg).toBeTruthy();
   expect((await api("POST", `/messages/${msg.id}/report`, { reason: "harassment" }, owner.token)).status).toBe(201);
 
-  await login(page, ADMIN.email, ADMIN.password);
+  await loginOk(page, ADMIN.email, ADMIN.password);
   await page.goto("/reports");
   const card = page.locator("article", { hasText: body });
   await expect(card).toBeVisible();
