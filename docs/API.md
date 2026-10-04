@@ -4,6 +4,7 @@ Base: `{API_URL}/api/v1` · JSON · UTC ISO-8601 timestamps · schemas in `packa
 DTOs in `packages/shared/src/types.ts`, typed client in `packages/api-client`.
 
 ## Conventions
+- **Language**: send `x-lang: en|he` (or rely on `Accept-Language`). Error messages, emails and notification text come back in that language.
 - **Auth**: session token. Web = `HttpOnly` cookie `unsaid_session` (set on register/login). Mobile = send `x-client: mobile`
   → token also returned in the body (`AuthResultDto.token`); send `Authorization: Bearer <token>`.
 - **CSRF**: every state-changing request must include header `x-requested-with: unsaid` (the client does) and, when sent
@@ -45,8 +46,8 @@ Unverified accounts can use the app but cannot publish public answers; admin req
 | POST `/profile/avatar` | multipart `file` (jpeg/png/webp ≤2MB) | `ProfileDto` |
 | DELETE `/profile/avatar` | – | `ProfileDto` |
 | GET `/links` | – | `{items: LinkDto[]}` (primary first) |
-| POST `/links` | `{label}` | `LinkDto` (max 10) |
-| PATCH `/links/:id` | `{label?,paused?}` | `LinkDto` |
+| POST `/links` | `{label, prompt?, closesAt?}` | `LinkDto` — a **round**: own question and optional closing time (max 10 links) |
+| PATCH `/links/:id` | `{label?,paused?,prompt?,closesAt?}` | `LinkDto` (set `closesAt` to reopen/extend, `null` = never closes) |
 | DELETE `/links/:id` | – | 204 (primary cannot be deleted) |
 | POST `/link/pause` | `{paused,until?}` | `LinkDto` (primary link) |
 | GET `/media/:key` | public | avatar bytes (`nosniff`, immutable cache) |
@@ -56,9 +57,10 @@ Unverified accounts can use the app but cannot publish public answers; admin req
 ## Messages
 | | | |
 |---|---|---|
+| POST `/public/view` | `{username}` or `{slug}` | 204 — counts a visit (called from the browser so the real address is used) |
 | GET `/public/challenge` | public | `ChallengeDto` (proof of work) |
 | POST `/messages` | `SendMessageInput` | 201 `{status:"delivered"}` — also returned when the message was *held* by moderation (sender can't tell) |
-| GET `/messages?status=inbox\|filtered\|archived&cursor&limit` | auth | `Page<MessageDto>` |
+| GET `/messages?status=inbox\|filtered\|archived&linkId&cursor&limit` | auth | `Page<MessageDto>` (`linkId` = one round) |
 | GET `/messages/:id` | auth | `MessageDto` |
 | PATCH `/messages/:id` | `{read?,status?}` | `MessageDto` |
 | DELETE `/messages/:id` | auth | 204 |
@@ -75,7 +77,7 @@ Unverified accounts can use the app but cannot publish public answers; admin req
 ## Safety, settings, notifications, analytics
 | | | |
 |---|---|---|
-| GET/PATCH `/settings` | `UpdateSettingsInput` | `SettingsDto` |
+| GET/PATCH `/settings` | `UpdateSettingsInput` (incl. `locale: en|he`) | `SettingsDto` |
 | GET/POST `/hidden-words`, DELETE `/hidden-words/:id` | `{word}` | `{items}` / `{id,word}` / 204 |
 | GET `/notifications?cursor` | auth | `Page<NotificationDto> & {unread}` |
 | POST `/notifications/read` | `{ids}` or `{all:true}` | 204 |
@@ -84,8 +86,8 @@ Unverified accounts can use the app but cannot publish public answers; admin req
 
 ## Admin (`role` admin|moderator; destructive actions need admin)
 `GET /admin/overview` · `GET /admin/users?q&status&cursor` · `GET /admin/users/:id` ·
-`POST /admin/users/:id/{suspend,unsuspend,ban}` `{note?}` · `GET /admin/reports?status` ·
-`POST /admin/reports/:id/resolve` `{action: dismiss|remove_message|suspend_user|ban_user, note?}` ·
+`POST /admin/users/:id/{suspend,unsuspend,ban,unban}` `{note?}` (`unban`: admin only) · `GET /admin/reports?status` ·
+`POST /admin/reports/:id/resolve` `{action: dismiss|remove_message|suspend_user|ban_user, note?}` — user actions apply to the **anonymous source** (keyed hash, `banned_sources`; suspend = 7 days) since senders have no account ·
 `GET /admin/moderation-events` · `GET /admin/audit-logs` · `GET /admin/abuse` · `GET /admin/health`.
 All admin mutations are written to `audit_logs`.
 
