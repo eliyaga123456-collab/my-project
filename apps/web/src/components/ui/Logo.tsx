@@ -41,10 +41,14 @@ export function Wordmark({ className }: { className?: string }) {
 }
 
 export function Logo({ className, size = 30, wordmark = true }: { className?: string; size?: number; wordmark?: boolean }) {
+  const { t } = useT();
+  if (!wordmark) return <span className={cx("ear-logo inline-flex items-center", className)}><LogoMark size={size} /></span>;
+  const h = Math.round(size * 1.45);
   return (
-    <span className={cx("ear-logo inline-flex items-center gap-2", className)}>
-      <LogoMark size={size} />
-      {wordmark && <Wordmark className="text-xl" />}
+    <span className={cx("ear-logo inline-flex items-center", className)}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/brand/ear-wordmark.webp" alt="EAR" width={Math.round(h * 1.47)} height={h} decoding="async" className="select-none object-contain transition-transform duration-300 hover:scale-105" />
+      <span className="sr-only"> ({t("common.brand.dedicationSr")})</span>
     </span>
   );
 }

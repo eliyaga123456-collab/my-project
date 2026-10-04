@@ -30,7 +30,7 @@ export async function renderShareCard(answerId: string, extraHeaders: Record<str
         <div style={{ display: "flex", flexDirection: "column", width: "100%", padding: "56px 72px", position: "relative" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-              <div style={{ width: 44, height: 44, borderRadius: 14, background: "linear-gradient(135deg,#ff7440,#b24cff 55%,#6d62f2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 28, fontWeight: 800 }}>U</div>
+              <div style={{ width: 44, height: 44, borderRadius: 14, background: "linear-gradient(135deg,#ff7440,#b24cff 55%,#6d62f2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 28, fontWeight: 800 }}>E</div>
               <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: -1, display: "flex" }}>EAR</div>
             </div>
             <div style={{ display: "flex", fontSize: 24, color: "#a6a3c7" }}>{handle}</div>

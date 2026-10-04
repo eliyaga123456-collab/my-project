@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withTiming } from "react-native-reanimated";
 import { useT } from "@/i18n";
-import { EarMark } from "./EarMark";
+import { WordmarkLogo } from "./WordmarkLogo";
 
 /** Brand moment shown right after the native splash: the ear appears, sound waves pulse, wordmark fades in, then everything lifts away. */
 export function AnimatedSplash() {
@@ -33,9 +33,8 @@ export function AnimatedSplash() {
   return (
     <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.root, root]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
       <Animated.View style={[styles.ring, ringStyle]} />
-      <Animated.View style={logoStyle}><EarMark size={132} animated={!reduce} /></Animated.View>
+      <Animated.View style={logoStyle}><WordmarkLogo width={300} /></Animated.View>
       <Animated.View style={[styles.wordWrap, wordStyle]}>
-        <Text style={styles.word}>EAR<Text style={styles.star}>*</Text></Text>
         <Text style={styles.tag}>{t("brand.tagline")}</Text>
         <Text style={styles.dedication}>{t("brand.dedication")}</Text>
       </Animated.View>
@@ -46,7 +45,7 @@ export function AnimatedSplash() {
 const styles = StyleSheet.create({
   root: { backgroundColor: "#0b0a14", alignItems: "center", justifyContent: "center", zIndex: 999, elevation: 999 },
   ring: { position: "absolute", width: 220, height: 220, borderRadius: 110, borderWidth: 2, borderColor: "#b24cff" },
-  wordWrap: { alignItems: "center", marginTop: 18, gap: 6 },
+  wordWrap: { alignItems: "center", marginTop: 6, gap: 6 },
   word: { color: "#f6f4ff", fontSize: 44, fontWeight: "800", letterSpacing: 1, writingDirection: "ltr" },
   star: { color: "#ff7440" },
   tag: { color: "#a8a3c2", fontSize: 16 },

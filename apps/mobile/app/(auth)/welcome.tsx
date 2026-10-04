@@ -1,12 +1,12 @@
 import { View } from "react-native";
 import { useRouter } from "expo-router";
-import { EarMark } from "@/components/EarMark";
+import { WordmarkLogo } from "@/components/WordmarkLogo";
 import { Button } from "@/components/Button";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { Screen } from "@/components/Screen";
 import { Text } from "@/components/Text";
 import { InkIn } from "@/theme/motion";
-import { LRI, PDI, useT } from "@/i18n";
+import { useT } from "@/i18n";
 
 export default function Welcome() {
   const router = useRouter();
@@ -20,10 +20,8 @@ export default function Welcome() {
       <View>
         <LanguagePicker align="end" />
         <InkIn style={{ marginTop: 28, gap: 20 }}>
-        <EarMark size={104} animated />
-        <View accessible accessibilityLabel={t("brand.wordmarkLabel")}>
-          {/* The wordmark is Latin: isolate it as LTR so the asterisk stays on its right in a Hebrew (RTL) layout. */}
-          <Text variant="display" style={{ fontSize: 56, lineHeight: 60 }}>{LRI}EAR<Text variant="display" tone="primary" style={{ fontSize: 28, lineHeight: 36 }}>*</Text>{PDI}</Text>
+        <View accessible accessibilityLabel={t("brand.wordmarkLabel")} style={{ gap: 6 }}>
+          <WordmarkLogo width={250} style={{ marginStart: -10 }} />
           <Text tone="muted" style={{ fontSize: 14, letterSpacing: 0.3 }}>{t("brand.fullName")}</Text>
         </View>
         <Text variant="display" style={{ fontSize: 40, lineHeight: 44 }}>{tagline}</Text>

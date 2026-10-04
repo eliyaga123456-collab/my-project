@@ -33,6 +33,8 @@ export default async function Landing() {
         <div className="blob animate-drift -top-24 left-1/2 -z-10 size-[26rem] -translate-x-1/2" style={{ background: "linear-gradient(135deg,var(--grad-1),var(--grad-2))" }} />
         <div className="mx-auto grid max-w-6xl items-center gap-14 px-4 pb-16 pt-10 sm:px-6 sm:pt-16 lg:grid-cols-[1.1fr_1fr] lg:gap-10 lg:pt-20">
           <div className="stagger">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/ear-wordmark.webp" alt="" width={236} height={160} fetchPriority="high" className="animate-float mb-1 h-auto w-48 select-none drop-shadow-[0_18px_40px_rgba(178,76,255,0.35)] sm:w-60" />
             <p className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/60 px-3.5 py-1.5 text-xs font-semibold text-muted backdrop-blur">
               <ShieldCheck className="size-3.5 text-success" aria-hidden /> {t("site.landing.badge")}
             </p>

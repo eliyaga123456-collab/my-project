@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View, useColorScheme } from "react-native";
 import { getLocales } from "expo-localization";
 import { fallbackStrings } from "@/lib/fallbackText";
-import { EarMark } from "./EarMark";
+import { WordmarkLogo } from "./WordmarkLogo";
 
 /** Calm loading state while the session is restored (the server may be cold-starting). Plain RN so it never depends on other providers. */
 export function BootScreen({ failed, onRetry }: { failed: boolean; onRetry: () => void }) {
@@ -15,7 +15,7 @@ export function BootScreen({ failed, onRetry }: { failed: boolean; onRetry: () =
   const muted = dark ? "#a8a3c2" : "#5d5878";
   return (
     <View style={[StyleSheet.absoluteFill, styles.root, { backgroundColor: dark ? "#0b0a14" : "#faf8ff" }]} accessibilityLiveRegion="polite">
-      <EarMark size={88} animated={!failed} />
+      <WordmarkLogo width={210} />
       {failed ? null : <ActivityIndicator size="small" color="#ff7440" />}
       <Text style={[styles.title, { color: fg }]}>{s.connecting}</Text>
       {slow || failed ? <Text style={[styles.body, { color: muted }]}>{s.connectingSlow}</Text> : null}

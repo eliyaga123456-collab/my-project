@@ -12,7 +12,7 @@ export default function Image() {
         <div style={{ position: "absolute", right: -140, bottom: -180, width: 680, height: 680, borderRadius: 999, background: "#6d62f2", opacity: 0.5, filter: "blur(100px)", display: "flex" }} />
         <div style={{ display: "flex", flexDirection: "column", position: "relative" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div style={{ width: 56, height: 56, borderRadius: 18, background: "linear-gradient(135deg,#ff7440,#b24cff 55%,#6d62f2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 34, fontWeight: 800 }}>U</div>
+            <div style={{ width: 56, height: 56, borderRadius: 18, background: "linear-gradient(135deg,#ff7440,#b24cff 55%,#6d62f2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 34, fontWeight: 800 }}>E</div>
             <div style={{ display: "flex", fontSize: 38, fontWeight: 800 }}>EAR</div>
           </div>
           <div style={{ display: "flex", fontSize: 104, fontWeight: 800, lineHeight: 1.02, marginTop: 40, letterSpacing: -3 }}>Say what you really think.</div>
