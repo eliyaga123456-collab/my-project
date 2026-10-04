@@ -10,8 +10,9 @@ export async function migrate(databaseUrl: string, log: (m: string) => void = co
   const client = new pg.Client({ connectionString: cleanDatabaseUrl(databaseUrl) });
   await client.connect();
   try {
-    await client.query("CREATE TABLE IF NOT EXISTS _migrations (name text PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT now())");
+    // Lock first: concurrent CREATE TABLE IF NOT EXISTS races on pg_type.
     await client.query("SELECT pg_advisory_lock(727274)");
+    await client.query("CREATE TABLE IF NOT EXISTS _migrations (name text PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT now())");
     const done = new Set((await client.query("SELECT name FROM _migrations")).rows.map((r) => r.name as string));
     for (const file of readdirSync(dir).filter((f) => f.endsWith(".sql")).sort()) {
       if (done.has(file)) continue;
@@ -32,7 +33,7 @@ export async function migrate(databaseUrl: string, log: (m: string) => void = co
   }
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1] && /migrate\.[cm]?[jt]s$/.test(process.argv[1])) {
   const url = process.env.DATABASE_URL ?? "postgres://postgres@localhost:5432/unsaid";
   migrate(url).then(() => console.log("migrations up to date")).catch((e) => { console.error(e); process.exit(1); });
 }
