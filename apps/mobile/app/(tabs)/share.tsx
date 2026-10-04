@@ -27,6 +27,7 @@ import { fontFamily, useTheme } from "@/theme";
 import { useFocusEffect } from "expo-router";
 import { useCallback } from "react";
 import { Chips } from "@/components/Chips";
+import { ShareTargets } from "@/components/ShareTargets";
 import { WEB_URL } from "@/lib/env";
 import { installUrl as buildInstallUrl, inviteMessage, linkShareMessage, linkUrl, safely } from "@/lib/share";
 import { useAuth } from "@/providers/AuthProvider";
@@ -99,6 +100,7 @@ export default function SharePage() {
         {!l.closed ? <Button title={t("share.sharePrompt")} small onPress={() => share(l)} style={{ flex: 1 }} /> : null}
         <Button title={t("share.copy")} small variant="secondary" onPress={() => copy(l)} style={{ flex: 1 }} />
       </View>
+      {!l.closed ? <ShareTargets text={shareText(l)} url={urlOf(l)} onMore={() => share(l)} /> : null}
       {!l.isPrimary ? <Button title={t("share.seeResponses")} small variant="secondary" onPress={() => router.navigate({ pathname: "/inbox", params: { round: l.id } })} /> : null}
       {l.closed ? <Button title={t("share.reopen")} small variant="ghost" disabled={busy} onPress={() => guard(async () => { replaceLink(await api.links.update(l.id, { paused: false, closesAt: new Date(Date.now() + 86_400_000).toISOString() })); toast.show(t("share.roundReopened"), "success"); })} /> : null}
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", minHeight: 44 }}>

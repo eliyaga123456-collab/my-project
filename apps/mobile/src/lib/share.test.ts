@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { setRuntimeLocale } from "../i18n/core";
-import { answerUrl, installUrl, inviteMessage, linkShareMessage, linkUrl, safely } from "./share";
+import { answerUrl, needsClipboard, targetUrl, targetWebUrl, installUrl, inviteMessage, linkShareMessage, linkUrl, safely } from "./share";
 
 describe("share builders", () => {
   it("builds primary and round URLs from WEB_URL", () => {
@@ -25,5 +25,17 @@ describe("share builders", () => {
     expect(await safely(async () => { throw new Error("boom"); }, (e) => { seen = e; })).toBe(false);
     expect((seen as Error).message).toBe("boom");
     expect(await safely(async () => 1)).toBe(true);
+  });
+  it("builds deep links for messengers and flags the ones that need the clipboard", () => {
+    const text = "Ask me anything: https://x.app/u/a?x=1&y=2";
+    expect(targetUrl("whatsapp", text)).toBe(`whatsapp://send?text=${encodeURIComponent(text)}`);
+    expect(targetUrl("whatsapp", text)).not.toContain(" ");
+    expect(targetUrl("telegram", text).startsWith("tg://msg?text=")).toBe(true);
+    expect(targetUrl("sms", text).startsWith("sms:?body=")).toBe(true);
+    expect(targetUrl("instagram", text)).toBe("instagram://story-camera");
+    expect(targetWebUrl("whatsapp", text, "https://x.app/u/a")?.startsWith("https://wa.me/?text=")).toBe(true);
+    expect(targetWebUrl("sms", text, "u")).toBeNull();
+    expect(needsClipboard("instagram") && needsClipboard("tiktok")).toBe(true);
+    expect(needsClipboard("whatsapp")).toBe(false);
   });
 });

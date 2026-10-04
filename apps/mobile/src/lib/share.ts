@@ -24,3 +24,29 @@ export const inviteMessage = (key: "share.inviteMessage" | "me.inviteMessage", u
 export async function safely(fn: () => Promise<unknown>, onError?: (e: unknown) => void): Promise<boolean> {
   try { await fn(); return true; } catch (e) { try { onError?.(e); } catch { /* ignore */ } return false; }
 }
+
+export type ShareTarget = "whatsapp" | "telegram" | "instagram" | "tiktok" | "sms";
+const enc = encodeURIComponent;
+
+/** Deep link that opens the target app. WhatsApp/Telegram/SMS take the text; Instagram and TikTok cannot be pre-filled, so the caller copies the link first. */
+export function targetUrl(target: ShareTarget, text: string): string {
+  switch (target) {
+    case "whatsapp": return `whatsapp://send?text=${enc(text)}`;
+    case "telegram": return `tg://msg?text=${enc(text)}`;
+    case "sms": return `sms:?body=${enc(text)}`;
+    case "instagram": return "instagram://story-camera";
+    case "tiktok": return "snssdk1233://";
+  }
+}
+/** Browser fallback when the app is not installed. */
+export function targetWebUrl(target: ShareTarget, text: string, url: string): string | null {
+  switch (target) {
+    case "whatsapp": return `https://wa.me/?text=${enc(text)}`;
+    case "telegram": return `https://t.me/share/url?url=${enc(url)}&text=${enc(text)}`;
+    case "instagram": return "https://www.instagram.com/";
+    case "tiktok": return "https://www.tiktok.com/";
+    case "sms": return null;
+  }
+}
+/** Instagram and TikTok have no "post this link" deep link: we copy the link and open the app so it can be pasted into a story/bio. */
+export const needsClipboard = (t: ShareTarget) => t === "instagram" || t === "tiktok";
