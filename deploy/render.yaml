@@ -1,0 +1,32 @@
+# Render Blueprint: New > Blueprint > pick this repo (set "Blueprint path" to deploy/render.yaml).
+# Postgres is NOT created here (Render's free DB expires) - use Neon and paste DATABASE_URL.
+services:
+  - type: web
+    name: ear-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - { key: NODE_ENV, value: production }
+      - { key: AUTO_MIGRATE, value: "true" }
+      - { key: TRUST_PROXY, value: "true" }
+      - { key: COOKIE_SECURE, value: "true" }
+      - { key: APP_SECRET, generateValue: true }   # >= 32 chars; do not rotate casually (invalidates source hashes)
+      - { key: DATABASE_URL, sync: false }          # Neon DIRECT (non-pooled) URL, ?sslmode=require
+      - { key: WEB_URL, sync: false }               # https://<web>.vercel.app
+      - { key: API_URL, sync: false }               # https://ear-api.onrender.com
+      - { key: WEB_ORIGINS, sync: false }           # same as WEB_URL
+      - { key: ADMIN_ORIGINS, sync: false }         # https://<admin>.vercel.app
+      - { key: EMAIL_TRANSPORT, value: smtp }
+      - { key: EMAIL_FROM, sync: false }
+      - { key: SMTP_URL, sync: false }
+      - { key: STORAGE_DRIVER, value: s3 }
+      - { key: S3_BUCKET, sync: false }
+      - { key: S3_REGION, value: auto }
+      - { key: S3_ENDPOINT, sync: false }
+      - { key: S3_PUBLIC_BASE_URL, sync: false }
+      - { key: AWS_ACCESS_KEY_ID, sync: false }
+      - { key: AWS_SECRET_ACCESS_KEY, sync: false }

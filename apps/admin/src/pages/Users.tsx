@@ -81,6 +81,7 @@ function UserDrawer({ user, onClose, onUpdated }: { user: AdminUserDto; onClose:
     try {
       const updated = action === "suspend" ? await client.admin.suspend(u.id, n)
         : action === "ban" ? await client.admin.ban(u.id, n)
+        : action === "unban" ? await client.admin.unban(u.id, n)
         : await client.admin.unsuspend(u.id, n);
       onUpdated(updated);
       fresh.reload(true);

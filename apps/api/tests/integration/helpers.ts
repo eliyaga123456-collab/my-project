@@ -85,3 +85,23 @@ export function multipart(name: string, filename: string, contentType: string, d
   const tail = Buffer.from(`\r\n--${boundary}--\r\n`);
   return { payload: Buffer.concat([head, data, tail]), headers: { "content-type": `multipart/form-data; boundary=${boundary}`, "x-requested-with": "unsaid" } };
 }
+
+export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+export async function waitFor<T>(fn: () => Promise<T | null | undefined | false>, ms = 3000): Promise<T> {
+  const end = Date.now() + ms;
+  for (;;) {
+    const v = await fn();
+    if (v) return v;
+    if (Date.now() > end) throw new Error("waitFor timed out");
+    await sleep(25);
+  }
+}
+/** Register a verified user (so public answers are allowed). */
+export async function verifiedUser(t: TestApp, username: string) {
+  const u = await register(t, { username, email: `${username}@example.com` });
+  await verifyEmail(t, u.email);
+  return u;
+}
+export async function inbox(t: TestApp, cookie: string, status = "inbox", query: Record<string, string> = {}) {
+  return json<{ items: any[]; nextCursor: string | null }>(await api(t, "GET", "/messages", { cookie, query: { status, ...query } }));
+}

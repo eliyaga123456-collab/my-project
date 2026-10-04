@@ -8,11 +8,12 @@ import { usePaged } from "../lib/hooks";
 import { canBan, cleanNote, formatDateTime, formatRelative, labelize } from "../lib/format";
 import { Badge, Button, Card, ConfirmDialog, EmptyState, ErrorState, LoadMore, PageHeader, SkeletonRows, StatusBadge, Tabs, useToast } from "../ui";
 
+const SOURCE_NOTE = "Senders are anonymous and have no accounts, so this acts on the anonymous source (a one-way hashed reference), not on the recipient.";
 const COPY: Record<ReportAction, { label: string; title: string; danger: boolean; done: string; body: (r: AdminReportDto) => string }> = {
   dismiss: { label: "Dismiss", title: "Dismiss report", danger: false, done: "Report dismissed", body: () => "The report will be closed without action." },
-  remove_message: { label: "Remove message", title: "Remove message", danger: true, done: "Message removed", body: () => "The message will be removed from the recipient's inbox and the report resolved." },
-  suspend_user: { label: "Suspend user", title: "Suspend recipient", danger: true, done: "User suspended", body: (r) => `@${r.recipient.username} will be suspended and the report resolved.` },
-  ban_user: { label: "Ban user", title: "Ban recipient", danger: true, done: "User banned", body: (r) => `@${r.recipient.username} will be permanently banned and the report resolved.` }
+  remove_message: { label: "Remove message", title: "Remove message", danger: true, done: "Message removed", body: () => "The message will be removed from the recipient's inbox and the report resolved. The sender is not penalised." },
+  suspend_user: { label: "Suspend source (7 days)", title: "Suspend source for 7 days", danger: true, done: "Source suspended for 7 days", body: () => `${SOURCE_NOTE} The source will be blocked from sending messages to anyone on EAR for 7 days, and the report resolved.` },
+  ban_user: { label: "Ban source", title: "Ban source", danger: true, done: "Source banned", body: () => `${SOURCE_NOTE} The source will be banned from sending messages platform-wide until an admin lifts the ban, and the report resolved.` }
 };
 const ICON = { dismiss: X, remove_message: EyeOff, suspend_user: ShieldOff, ban_user: Ban } as const;
 
