@@ -13,6 +13,7 @@ module.exports = ({ config }) => {
     ios: { ...config.ios, ...(host ? { associatedDomains: [`applinks:${host}`] } : {}) },
     android: {
       ...config.android,
+      versionCode: Number(process.env.EAR_VERSION_CODE) || 1,
       ...(host
         ? {
             intentFilters: [

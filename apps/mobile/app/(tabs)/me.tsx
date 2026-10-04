@@ -33,6 +33,8 @@ export default function Me() {
   const [editing, setEditing] = useState(false);
   const [renaming, setRenaming] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [displayName, setDisplayName] = useState(me?.profile.displayName ?? "");
   const [bio, setBio] = useState(me?.profile.bio ?? "");
@@ -43,6 +45,13 @@ export default function Me() {
   if (!me) return null;
   const p = me.profile;
   const guard = async (fn: () => Promise<void>) => { setBusy(true); try { await fn(); } catch (e) { toast.show(errorMessage(e), "error"); report(e); } setBusy(false); };
+
+  const deleteAccount = () => guard(async () => {
+    await api.auth.deleteAccount(deletePassword);
+    setDeleting(false); setDeletePassword("");
+    toast.show(t("me.accountDeleted"), "success");
+    await logout();
+  });
 
   const openEdit = () => { setDisplayName(p.displayName); setBio(p.bio); setPrompt(p.prompt); setEditing(true); };
   const saveProfile = () => guard(async () => {
@@ -116,6 +125,7 @@ export default function Me() {
       </Card>
       <Text variant="caption" tone="muted" style={{ textAlign: "center" }}>{t("me.signedInAs", { email: me.user.email })}</Text>
       <Button title={t("me.logOut")} variant="danger" onPress={() => setConfirmLogout(true)} />
+      <Button title={t("me.deleteAccount")} variant="ghost" onPress={() => { setDeletePassword(""); setDeleting(true); }} />
 
       <BottomSheet visible={editing} onClose={() => setEditing(false)} title={t("me.editTitle")}>
         <Input label={t("me.displayName")} value={displayName} onChangeText={setDisplayName} maxLength={LIMITS.displayNameMax} />
@@ -127,6 +137,12 @@ export default function Me() {
         <Text tone="muted">{t("me.renameBody")}</Text>
         <Input ltr label={t("me.username")} value={username} onChangeText={(t) => setUsername(t.toLowerCase())} error={usernameError} autoCapitalize="none" autoCorrect={false} maxLength={LIMITS.usernameMax} />
         <Button title={t("me.renameSubmit")} onPress={saveUsername} loading={busy} disabled={username === p.username} />
+      </BottomSheet>
+      <BottomSheet visible={deleting} onClose={() => setDeleting(false)} title={t("me.deleteTitle")}>
+        <Text tone="muted">{t("me.deleteBody")}</Text>
+        <Input ltr label={t("me.deletePassword")} value={deletePassword} onChangeText={setDeletePassword} secureTextEntry textContentType="password" autoComplete="current-password" />
+        <Button title={t("me.deleteConfirm")} variant="danger" onPress={deleteAccount} loading={busy} disabled={!deletePassword} />
+        <Button title={t("common.cancel")} variant="ghost" onPress={() => setDeleting(false)} />
       </BottomSheet>
       <ConfirmSheet visible={confirmLogout} title={t("me.logoutTitle")} message={t("me.logoutBody")} confirmLabel={t("me.logOut")} destructive onConfirm={() => { setConfirmLogout(false); void logout(); }} onCancel={() => setConfirmLogout(false)} />
     </Screen>

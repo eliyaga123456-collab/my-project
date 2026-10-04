@@ -1,0 +1,67 @@
+# Builds a SIGNED Android App Bundle (.aab) for Google Play. Manual trigger only.
+# Needs four repository secrets (Settings -> Secrets and variables -> Actions). See docs/PLAY_STORE.he.md.
+#   KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
+name: Android AAB (Google Play)
+on:
+  workflow_dispatch:
+    inputs:
+      version_code:
+        description: "Play versionCode (must increase on every upload). Empty = this run's number."
+        required: false
+permissions:
+  contents: read
+concurrency: { group: android-aab, cancel-in-progress: false }
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: Check signing secrets
+        env:
+          KS: ${{ secrets.KEYSTORE_BASE64 }}
+          KP: ${{ secrets.KEYSTORE_PASSWORD }}
+          KA: ${{ secrets.KEY_ALIAS }}
+          KK: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          for v in KS KP KA KK; do [ -n "${!v}" ] || { echo "::error::Missing secret for $v. Follow docs/PLAY_STORE.he.md step 2."; exit 1; }; done
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - name: Accept Android SDK licenses (SDK is preinstalled on the runner)
+        run: |
+          echo "ANDROID_HOME=${ANDROID_HOME:-/usr/local/lib/android/sdk}" >> "$GITHUB_ENV"
+          yes | "${ANDROID_HOME:-/usr/local/lib/android/sdk}"/cmdline-tools/*/bin/sdkmanager --licenses >/dev/null || true
+      - name: Prepare signing + build settings
+        env:
+          KS: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          echo "$KS" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          echo "::add-mask::${{ secrets.KEY_ALIAS }}"
+          {
+            echo "EAR_KEYSTORE_PATH=$RUNNER_TEMP/upload.jks"
+            echo "EAR_KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}"
+            echo "EAR_KEY_ALIAS=${{ secrets.KEY_ALIAS }}"
+            echo "EAR_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}"
+            echo "EAR_VERSION_CODE=${{ inputs.version_code || github.run_number }}"
+            echo "EXPO_PUBLIC_API_URL=$(node -p "require('./.github/apk-config.json').apiUrl")"
+            echo "EXPO_PUBLIC_WEB_URL=$(node -p "require('./.github/apk-config.json').webUrl")"
+          } >> "$GITHUB_ENV"
+      - run: npm ci
+      - name: Generate the native Android project
+        working-directory: apps/mobile
+        run: npx expo prebuild --platform android --no-install --clean
+      - name: Build signed release bundle
+        working-directory: apps/mobile/android
+        run: ./gradlew bundleRelease --no-daemon -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
+      - name: Verify the bundle is signed with the upload key
+        run: |
+          AAB=apps/mobile/android/app/build/outputs/bundle/release/app-release.aab
+          ls -la "$AAB"
+          keytool -printcert -jarfile "$AAB" | grep -E "Owner|SHA256" | head -3
+      - uses: actions/upload-artifact@v4
+        with:
+          name: EAR-aab
+          path: apps/mobile/android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 14

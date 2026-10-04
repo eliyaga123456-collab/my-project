@@ -64,7 +64,8 @@
         {
           "photosPermission": "EAR uses your photos so you can choose a profile picture."
         }
-      ]
+      ],
+      "./plugins/withReleaseSigning"
     ],
     "experiments": {
       "typedRoutes": false
