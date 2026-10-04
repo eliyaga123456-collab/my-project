@@ -149,6 +149,9 @@ export const he: Dict = {
   },
   message: {
     title: "הודעה",
+    formatLabel: "פורמט הכרטיס",
+    formatSquare: "פוסט מרובע",
+    formatStory: "סטורי",
     shareStory: "שיתוף כתמונה לסטורי",
     copyMyLink: "העתקת הקישור שלי",
     linkCopied: "הקישור הועתק",

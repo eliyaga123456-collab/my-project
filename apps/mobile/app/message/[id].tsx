@@ -9,6 +9,8 @@ import type { MessageDto } from "@unsaid/shared";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { MessageStoryCard, STORY_SIZE } from "@/components/MessageStoryCard";
+import { MessageSquareCard } from "@/components/MessageSquareCard";
+import { Chips } from "@/components/Chips";
 import { useToast } from "@/components/Toast";
 import { WEB_URL } from "@/lib/env";
 import { linkUrl, safely } from "@/lib/share";
@@ -31,6 +33,7 @@ export default function MessageScreen() {
   const toast = useToast();
   const cardRef = useRef<View>(null);
   const [busy, setBusy] = useState(false);
+  const [format, setFormat] = useState<"square" | "story">("square");
   const myUrl = linkUrl(WEB_URL, { isPrimary: true, slug: "" }, me?.profile.username);
   const { data, setData, error, loading, reload } = useRequest(() => api.messages.get(String(id)), [id]);
 
@@ -43,7 +46,7 @@ export default function MessageScreen() {
   const shareStory = async () => {
     setBusy(true);
     await safely(async () => {
-      const uri = await captureRef(cardRef, { format: "png", quality: 1, result: "tmpfile", width: STORY_SIZE.width * 4, height: STORY_SIZE.height * 4 });
+      const uri = await captureRef(cardRef, { format: "png", quality: 1, result: "tmpfile", width: format === "square" ? 1080 : STORY_SIZE.width * 4, height: format === "square" ? 1080 : STORY_SIZE.height * 4 });
       if (!(await Sharing.isAvailableAsync())) { toast.show(t("actions.sharingUnavailable"), "error"); return; }
       await Sharing.shareAsync(uri, { mimeType: "image/png", dialogTitle: t("message.shareStory"), UTI: "public.png" });
     }, () => toast.show(t("errors.generic"), "error"));
@@ -66,8 +69,9 @@ export default function MessageScreen() {
       {loading ? <SkeletonList count={1} /> : error || !data ? <ErrorState message={error ?? t("message.notFound")} onRetry={reload} /> : (
         <>
           <Text variant="label" tone="muted">{t("message.anonymousAgo", { time: formatRelative(data.createdAt) })}</Text>
+          <Chips label={t("message.formatLabel")} value={format} onChange={setFormat} options={[{ value: "square", label: t("message.formatSquare") }, { value: "story", label: t("message.formatStory") }]} />
           <View style={{ alignItems: "center" }}>
-            <MessageStoryCard ref={cardRef} body={data.body} handleUrl={myUrl} />
+            {format === "square" ? <MessageSquareCard ref={cardRef} body={data.body} handleUrl={myUrl} /> : <MessageStoryCard ref={cardRef} body={data.body} handleUrl={myUrl} />}
           </View>
           <Button title={t("message.shareStory")} onPress={() => void shareStory()} loading={busy} />
           <Button title={t("message.copyMyLink")} variant="secondary" onPress={() => void copyLink()} />

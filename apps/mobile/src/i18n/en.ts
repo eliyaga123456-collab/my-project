@@ -149,6 +149,9 @@ export const en = {
   },
   message: {
     title: "Message",
+    formatLabel: "Card format",
+    formatSquare: "Square post",
+    formatStory: "Story",
     shareStory: "Share as a story image",
     copyMyLink: "Copy my link",
     linkCopied: "Link copied",
