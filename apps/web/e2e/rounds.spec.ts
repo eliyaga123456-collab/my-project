@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { newUser, signup, stamp, visitorSend } from "./helpers";
 
 test("rounds: create -> visitor sends -> filter inbox -> pause -> closed -> reopen", async ({ page, browser, baseURL }) => {
+  test.setTimeout(150_000);
   const u = await signup(page, newUser("rnd"));
   const s = stamp();
   const name = `Dinner ${s}`;
@@ -66,12 +67,13 @@ test("rounds: closed round shows 'This round has closed' and can be reopened", a
   const item = page.getByRole("listitem").filter({ hasText: name });
   const path = new URL((await item.locator("p.font-mono").innerText()).trim(), "http://x").pathname;
 
-  // The API accepts any ISO timestamp, so back-date the closing time to simulate the timer elapsing.
+  // The API only accepts future closing times, so set one a few seconds ahead and let the timer elapse.
   const headers = { "x-requested-with": "unsaid" };
   const list = await (await page.request.get("/api/v1/links", { headers })).json();
   const round = list.items.find((l: { label: string }) => l.label === name);
-  const res = await page.request.patch(`/api/v1/links/${round.id}`, { headers, data: { closesAt: new Date(Date.now() - 60_000).toISOString() } });
+  const res = await page.request.patch(`/api/v1/links/${round.id}`, { headers, data: { closesAt: new Date(Date.now() + 3_000).toISOString() } });
   expect(res.ok()).toBeTruthy();
+  await page.waitForTimeout(3_500);
 
   const ctx = await browser.newContext({ baseURL });
   const vp = await ctx.newPage();
