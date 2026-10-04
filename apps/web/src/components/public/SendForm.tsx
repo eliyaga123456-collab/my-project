@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { CheckCircle2, Loader2, PauseCircle, ShieldCheck, Sparkles } from "lucide-react";
+import { CheckCircle2, Loader2, PauseCircle, RefreshCw, ShieldCheck, Sparkles } from "lucide-react";
 import type { ChallengeDto } from "@unsaid/shared";
 import { LIMITS } from "@/lib/limits";
 import { Button, ButtonLink, TextareaField } from "@/components/ui";
@@ -26,6 +26,12 @@ export function SendForm({ target, displayName: rawName, initiallyPaused, initia
   const { t, locale } = tr;
   const displayName = isolateIn(locale, rawName);
   const [body, setBody] = useState("");
+  const allIdeas = t("public.send.ideas").split("|").filter(Boolean);
+  const [ideaStart, setIdeaStart] = useState(0);
+  useEffect(() => { setIdeaStart(Math.floor(Math.random() * Math.max(1, allIdeas.length))); // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const ideas = [0, 1, 2].map((i) => allIdeas[(ideaStart + i) % allIdeas.length]).filter((x): x is string => !!x);
+  const useIdea = (text: string) => { setBody((b) => (b.trim() ? `${b.trim()} ${text}` : text).slice(0, LIMITS.messageMax)); area.current?.focus(); };
   const [phase, setPhase] = useState<Phase>(initiallyClosed ? "closed" : initiallyPaused ? "paused" : "idle");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -126,6 +132,21 @@ export function SendForm({ target, displayName: rawName, initiallyPaused, initia
         enterKeyHint="send"
         onFocus={() => void loadSender()}
       />
+      <div className="space-y-2" aria-label={t("public.send.ideasLabel")}>
+        <div className="flex items-center justify-between gap-2 text-xs font-semibold text-muted">
+          <span className="inline-flex items-center gap-1.5"><Sparkles className="size-3.5 text-primary" aria-hidden />{t("public.send.ideasLabel")}</span>
+          <button type="button" onClick={() => setIdeaStart((n) => (n + 3) % Math.max(1, allIdeas.length))} className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 transition hover:bg-raised hover:text-fg active:scale-95">
+            <RefreshCw className="size-3.5" aria-hidden />{t("public.send.ideasShuffle")}
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {ideas.map((idea) => (
+            <button key={idea} type="button" disabled={busy} onClick={() => useIdea(idea)} dir="auto" className="min-h-11 rounded-full border border-line bg-surface px-4 py-2 text-start text-sm transition hover:-translate-y-0.5 hover:border-primary/60 hover:bg-raised active:scale-95 disabled:opacity-50">
+              {idea}
+            </button>
+          ))}
+        </div>
+      </div>
       {notice && <p role="alert" className="rounded-md border border-warning/40 bg-warning/10 px-4 py-3 text-sm">{notice}</p>}
       {phase === "verifying" && (
         <p role="status" className="flex items-center gap-2 text-sm text-muted"><Loader2 className="size-4 animate-spin" aria-hidden /> {t("public.send.verifying")}</p>

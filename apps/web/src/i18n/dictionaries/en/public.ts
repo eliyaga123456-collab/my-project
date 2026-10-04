@@ -25,6 +25,9 @@ export const pub = {
     note: "Questions are anonymous. <link>How we keep it kind</link>."
   },
   send: {
+    ideasLabel: "Need an idea?",
+    ideasShuffle: "More ideas",
+    ideas: "What's something you've always wanted to ask me?|What song reminds you of me?|Tell me something kind you never said out loud|What was your honest first impression of me?|What's a skill of mine you admire?|What should I do this weekend?|What's one thing you'd change about me? (be kind)|Ask me anything, I'll be honest",
     closedTitle: "This round has closed",
     closedBody: "{name} stopped collecting messages here. Thanks for stopping by!",
     startRound: "Start your own round",

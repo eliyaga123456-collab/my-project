@@ -149,6 +149,9 @@ export const en = {
   },
   message: {
     title: "Message",
+    shareStory: "Share as a story image",
+    copyMyLink: "Copy my link",
+    linkCopied: "Link copied",
     close: "Close",
     notFound: "Message not found",
     anonymousAgo: "Anonymous · {time}",
@@ -213,6 +216,10 @@ export const en = {
       spam: "Spam",
       other: "Something else"
     }
+  },
+  storyCard: {
+    label: "ANONYMOUS MESSAGE",
+    cta: "Send me anonymous messages"
   },
   shareCard: {
     askedLabel: "ANONYMOUS ASKED",

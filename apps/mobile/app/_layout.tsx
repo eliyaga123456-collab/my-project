@@ -23,6 +23,7 @@ import { ToastProvider } from "@/components/Toast";
 import { routeForNotificationData } from "@/lib/push";
 import { CrashScreen } from "@/components/AppErrorBoundary";
 import { BootScreen } from "@/components/BootScreen";
+import { AnimatedSplash } from "@/components/AnimatedSplash";
 import { installGlobalErrorHandler } from "@/lib/globalErrors";
 
 installGlobalErrorHandler();
@@ -77,6 +78,7 @@ function Gate() {
         <Stack.Screen name="message/[id]" options={{ presentation: "modal", animation: "slide_from_bottom" }} />
       </Stack>
       {status === "loading" ? <BootScreen failed={bootFailed} onRetry={retryBoot} /> : null}
+      <AnimatedSplash />
     </>
   );
 }

@@ -149,6 +149,9 @@ export const he: Dict = {
   },
   message: {
     title: "הודעה",
+    shareStory: "שיתוף כתמונה לסטורי",
+    copyMyLink: "העתקת הקישור שלי",
+    linkCopied: "הקישור הועתק",
     close: "סגירה",
     notFound: "ההודעה לא נמצאה",
     anonymousAgo: "אנונימי · {time}",
@@ -213,6 +216,10 @@ export const he: Dict = {
       spam: "ספאם",
       other: "משהו אחר"
     }
+  },
+  storyCard: {
+    label: "הודעה אנונימית",
+    cta: "שלחו לי הודעה אנונימית"
   },
   shareCard: {
     askedLabel: "אנונימי שאל",
