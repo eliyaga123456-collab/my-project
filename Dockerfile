@@ -6,12 +6,13 @@ WORKDIR /repo
 COPY package.json package-lock.json .npmrc ./
 COPY apps/api/package.json apps/api/
 COPY apps/web/package.json apps/web/
-COPY apps/admin/package.json apps/admin/
-COPY apps/mobile/package.json apps/mobile/
 COPY packages/shared/package.json packages/shared/
 COPY packages/api-client/package.json packages/api-client/
 COPY packages/tokens/package.json packages/tokens/
-RUN npm ci --workspace @unsaid/api --workspace @unsaid/web
+# Only the website, the API and the shared packages belong in this image (no mobile/admin toolchains).
+# Dropping the other workspaces keeps the lockfile's versions but lets npm hoist shared deps (react, next) to the root.
+RUN node -e "const fs=require('fs');const p=require('./package.json');p.workspaces=['apps/api','apps/web','packages/*'];fs.writeFileSync('package.json',JSON.stringify(p,null,2))" \
+ && npm install --no-audit --no-fund
 COPY tsconfig.base.json ./
 COPY packages packages
 COPY apps/api apps/api
