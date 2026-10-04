@@ -21,7 +21,7 @@ N=$(curl -fsS -b "$JAR" "$BASE/api/v1/messages?status=inbox" | jq '.items | leng
 echo "inbox ok"
 R=$(curl -fsS -b "$JAR" "${H[@]}" -X POST "$BASE/api/v1/links" -d '{"label":"Smoke round","prompt":"Question?"}' | jq -r .slug)
 curl -fsS "$BASE/api/v1/links/public/$R" | jq -e '.prompt=="Question?"' >/dev/null
-curl -fsS "$BASE/l/$R" | grep -q "Question?"
+PAGE=$(curl -fsS "$BASE/l/$R"); grep -q "Question?" <<<"$PAGE" || { echo "round page missing its prompt"; exit 1; }
 echo "rounds ok"
-curl -fsSI "$BASE/" | grep -qi "x-content-type-options: nosniff"
+HDRS=$(curl -fsSI "$BASE/"); grep -qi "x-content-type-options: nosniff" <<<"$HDRS" || { echo "missing nosniff header"; exit 1; }
 echo "ALL OK"
