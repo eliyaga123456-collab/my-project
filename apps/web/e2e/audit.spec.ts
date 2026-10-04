@@ -36,10 +36,18 @@ test("responsive + a11y audit", async ({ browser, baseURL, request }) => {
 
   const pages: PageDef[] = [
     { name: "landing", path: "/", auth: false },
+    { name: "signup", path: "/signup", auth: false },
+    { name: "login", path: "/login", auth: false },
     { name: "profile", path: `/u/${u.username}`, auth: false },
     { name: "round", path: roundPath, auth: false },
     { name: "answer", path: answerPath, auth: false },
-    { name: "install", path: "/install", auth: false }
+    { name: "install", path: "/install", auth: false },
+    { name: "inbox", path: "/inbox", auth: true },
+    { name: "inbox-round", path: `/inbox?round=${created.id}`, auth: true },
+    { name: "rounds", path: "/links", auth: true },
+    { name: "settings", path: "/settings", auth: true },
+    { name: "analytics", path: "/analytics", auth: true },
+    { name: "notifications", path: "/notifications", auth: true }
   ];
   const only = process.env.AUDIT_PAGES?.split(",");
   const problems: string[] = [];

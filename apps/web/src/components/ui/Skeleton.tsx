@@ -15,10 +15,10 @@ export function MessageCardSkeleton() {
   );
 }
 
-export function ListSkeleton({ rows = 3, label = "Loading" }: { rows?: number; label?: string }) {
+export function ListSkeleton({ rows = 3, label }: { rows?: number; label?: string }) {
   return (
     <div role="status" aria-live="polite" className="space-y-4">
-      <span className="sr-only">{label}…</span>
+      {label && <span className="sr-only">{label}</span>}
       {Array.from({ length: rows }, (_, i) => <MessageCardSkeleton key={i} />)}
     </div>
   );

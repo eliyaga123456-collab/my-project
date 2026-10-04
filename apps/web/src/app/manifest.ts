@@ -10,7 +10,8 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     dir,
     short_name: "EAR",
     description: t("site.meta.manifestDescription"),
-    start_url: "/",
+    // Static manifest: launched from the Home Screen the app opens the inbox; the (app) layout sends signed-out users to /login.
+    start_url: "/inbox",
     scope: "/",
     display: "standalone",
     orientation: "portrait",

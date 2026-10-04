@@ -59,7 +59,7 @@ export function Dropdown({ label, trigger, items, align = "end", triggerClassNam
           role="menu"
           aria-label={label}
           onKeyDown={onMenuKey}
-          className={cx("animate-pop absolute z-50 mt-2 min-w-52 rounded-md border border-line bg-surface p-1.5 shadow-[var(--shadow)]", align === "end" ? "right-0" : "left-0")}
+          className={cx("animate-pop absolute z-50 mt-2 min-w-52 rounded-md border border-line bg-surface p-1.5 shadow-[var(--shadow)]", align === "end" ? "end-0" : "start-0")}
         >
           {items.map((it, i) => (
             <button
@@ -70,7 +70,7 @@ export function Dropdown({ label, trigger, items, align = "end", triggerClassNam
               disabled={it.disabled}
               onClick={() => { close(false); it.onSelect(); }}
               className={cx(
-                "flex min-h-11 w-full items-center gap-3 rounded-sm px-3 text-left text-sm font-medium transition focus:bg-raised focus:outline-none hover:bg-raised disabled:opacity-50",
+                "flex min-h-11 w-full items-center gap-3 rounded-sm px-3 text-start text-sm font-medium transition focus:bg-raised focus:outline-none hover:bg-raised disabled:opacity-50",
                 it.danger ? "text-danger" : "text-fg"
               )}
             >

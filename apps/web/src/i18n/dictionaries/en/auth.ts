@@ -1,12 +1,59 @@
-/** auth namespace: the few account links that land on the web (email verification, password reset). */
+/** auth namespace: log in / sign up / password flows for the web app (the installable iPhone PWA). */
 export const auth = {
-  openApp: "Open the EAR app",
+  androidNote: "On Android, the native EAR app is the recommended way to use your account. <link>Get the Android app</link>. This web version is mainly for iPhone.",
+  login: {
+    metaTitle: "Log in",
+    title: "Welcome back",
+    subtitle: "Log in to read what people left for you.",
+    newHere: "New here?",
+    createProfile: "Create your profile",
+    email: "Email",
+    password: "Password",
+    emailInvalid: "Enter a valid email address",
+    passwordRequired: "Enter your password",
+    forgot: "Forgot password?",
+    submit: "Log in",
+    badCredentials: "Email or password is incorrect."
+  },
+  signup: {
+    metaTitle: "Create your profile",
+    title: "Get your link",
+    subtitle: "Create a profile and start receiving anonymous messages.",
+    haveAccount: "Already have an account?",
+    logIn: "Log in",
+    email: "Email",
+    username: "Username",
+    displayName: "Display name (optional)",
+    password: "Password",
+    checking: "Checking…",
+    available: "@{name} is available",
+    usernameHint: "{min}-{max} letters, numbers or underscores. This is your link: {link}",
+    taken: "That username is taken.",
+    usernameInvalid: "Use {min}-{max} letters, numbers or underscores.",
+    emailInvalid: "Enter a valid email address",
+    passwordInvalid: "Choose a password between {min} and {max} characters",
+    displayNameInvalid: "That display name is too long",
+    submit: "Create my profile",
+    terms: "By continuing you agree to our <terms>Terms</terms> and <privacy>Privacy policy</privacy>."
+  },
+  forgot: {
+    metaTitle: "Forgot password",
+    title: "Reset your password",
+    subtitle: "We'll email you a link to choose a new one.",
+    back: "Back to log in",
+    email: "Email",
+    emailInvalid: "Enter a valid email address",
+    submit: "Send reset link",
+    sentTitle: "Check your inbox",
+    sentBody: "If an account exists for <b>{email}</b>, a reset link is on its way. It expires soon, so use it right away."
+  },
   verify: {
     metaTitle: "Verify email",
     title: "Email verification",
     loading: "Verifying your email…",
     okTitle: "Email verified",
     okBody: "You can now publish public answers.",
+    goInbox: "Go to my inbox",
     missing: "This verification link is incomplete",
     invalid: "This link is invalid or has expired",
     badBody: "Log in and use “Resend verification email” from the banner at the top of your inbox."
@@ -21,7 +68,7 @@ export const auth = {
     mismatch: "Passwords don't match",
     invalidPassword: "Invalid password",
     invalidLink: "This reset link is invalid or has expired. Request a new one.",
-    requestNew: "Request a new link in the app",
+    requestNew: "Request a new link",
     doneTitle: "Password updated",
     doneBody: "You've been signed out everywhere. Log in with your new password."
   },

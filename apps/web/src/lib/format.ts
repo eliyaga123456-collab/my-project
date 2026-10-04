@@ -60,7 +60,7 @@ export function mediaSrc(url: string | null | undefined): string | null {
 }
 
 /** Only allow same-site relative redirect targets. */
-export function safeNext(next: string | null | undefined, fallback = "/"): string {
+export function safeNext(next: string | null | undefined, fallback = "/inbox"): string {
   if (!next || !next.startsWith("/") || next.startsWith("//") || next.startsWith("/\\")) return fallback;
   return next;
 }
@@ -72,9 +72,14 @@ export function hueFor(seed: string): number {
   return h % 360;
 }
 
-export function shortUserAgent(ua: string | null): string {
-  if (!ua) return "Unknown device";
-  const browser = /Edg\//.test(ua) ? "Edge" : /Firefox\//.test(ua) ? "Firefox" : /Chrome\//.test(ua) ? "Chrome" : /Safari\//.test(ua) ? "Safari" : /unsaid|okhttp|expo/i.test(ua) ? "Mobile app" : "Browser";
+export function shortUserAgent(ua: string | null, tr?: Pick<Translator, "t">): string {
+  const L = {
+    unknown: tr ? tr.t("app.settings.sessions.unknownDevice") : "Unknown device",
+    app: tr ? tr.t("app.settings.sessions.mobileApp") : "Mobile app",
+    browser: tr ? tr.t("app.settings.sessions.browser") : "Browser"
+  };
+  if (!ua) return L.unknown;
+  const browser = /Edg\//.test(ua) ? "Edge" : /Firefox\//.test(ua) ? "Firefox" : /Chrome\//.test(ua) ? "Chrome" : /Safari\//.test(ua) ? "Safari" : /unsaid|okhttp|expo/i.test(ua) ? L.app : L.browser;
   const os = /Windows/.test(ua) ? "Windows" : /Android/.test(ua) ? "Android" : /iPhone|iPad|iOS/.test(ua) ? "iOS" : /Mac OS X|Macintosh/.test(ua) ? "macOS" : /Linux/.test(ua) ? "Linux" : "";
-  return os ? `${browser} on ${os}` : browser;
+  return os ? (tr ? tr.t("app.settings.sessions.browserOn", { browser, os }) : `${browser} on ${os}`) : browser;
 }

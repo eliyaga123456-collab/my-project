@@ -25,7 +25,7 @@ export function ResetForm({ token }: { token?: string }) {
       <div role="alert" className="space-y-4 text-center">
         <p className="font-semibold">{t("auth.reset.incompleteTitle")}</p>
         <p className="text-sm text-muted">{t("auth.reset.incompleteBody")}</p>
-        <ButtonLink href="/install">{t("auth.openApp")}</ButtonLink>
+        <ButtonLink href="/forgot-password">{t("auth.reset.requestNew")}</ButtonLink>
       </div>
     );
   }
@@ -54,14 +54,14 @@ export function ResetForm({ token }: { token?: string }) {
         <div className="mx-auto grid size-14 place-items-center rounded-full bg-success/15 text-success"><CheckCircle2 className="size-7" aria-hidden /></div>
         <p className="font-semibold">{t("auth.reset.doneTitle")}</p>
         <p className="text-sm text-muted">{t("auth.reset.doneBody")}</p>
-        <ButtonLink href="/install" className="w-full">{t("auth.openApp")}</ButtonLink>
+        <ButtonLink href="/login" className="w-full">{t("common.nav.logIn")}</ButtonLink>
       </div>
     );
   }
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-4">
       <FormAlert message={formError} />
-      {formError && <p className="text-center text-sm"><Link href="/install" className="text-secondary underline">{t("auth.reset.requestNew")}</Link></p>}
+      {formError && <p className="text-center text-sm"><Link href="/forgot-password" className="text-secondary underline">{t("auth.reset.requestNew")}</Link></p>}
       <PasswordField label={t("auth.reset.newPassword")} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} error={errors.password} showRules required />
       <PasswordField label={t("auth.reset.confirmPassword")} autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} error={errors.confirm} required />
       <Button type="submit" size="lg" className="w-full" loading={busy}>{t("auth.reset.submit")}</Button>

@@ -26,7 +26,7 @@ export function Switch({
           checked ? "grad-bg" : "bg-raised ring-1 ring-line"
         )}
       >
-        <span className={cx("absolute left-0.5 top-0.5 size-6 rounded-full bg-white shadow transition-transform duration-200", checked && "translate-x-5")} />
+        <span className={cx("absolute start-0.5 top-0.5 size-6 rounded-full bg-white shadow transition-transform duration-200", checked && "translate-x-5 rtl:-translate-x-5")} />
       </button>
     </div>
   );

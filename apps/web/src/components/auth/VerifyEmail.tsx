@@ -26,7 +26,7 @@ export function VerifyEmail({ token }: { token?: string }) {
         <div className="mx-auto grid size-14 place-items-center rounded-full bg-success/15 text-success"><CheckCircle2 className="size-7" aria-hidden /></div>
         <p className="font-semibold">{t("auth.verify.okTitle")}</p>
         <p className="text-sm text-muted">{t("auth.verify.okBody")}</p>
-        <ButtonLink href="/install" className="w-full">{t("auth.openApp")}</ButtonLink>
+        <ButtonLink href="/inbox" className="w-full">{t("auth.verify.goInbox")}</ButtonLink>
       </div>
     );
   }
@@ -35,7 +35,7 @@ export function VerifyEmail({ token }: { token?: string }) {
       <div className="mx-auto grid size-14 place-items-center rounded-full bg-danger/15 text-danger"><XCircle className="size-7" aria-hidden /></div>
       <p className="font-semibold">{state === "missing" ? t("auth.verify.missing") : t("auth.verify.invalid")}</p>
       <p className="text-sm text-muted">{t("auth.verify.badBody")}</p>
-      <ButtonLink href="/install" className="w-full">{t("auth.openApp")}</ButtonLink>
+      <ButtonLink href="/login" className="w-full">{t("common.nav.logIn")}</ButtonLink>
     </div>
   );
 }

@@ -8,9 +8,9 @@ export function niceMax(v: number): number {
   return step * pow;
 }
 
-export function formatDay(date: string): string {
+export function formatDay(date: string, locale: "en" | "he" = "en"): string {
   const d = new Date(`${date.slice(0, 10)}T00:00:00Z`);
-  return Number.isNaN(d.getTime()) ? date : d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+  return Number.isNaN(d.getTime()) ? date : d.toLocaleDateString(locale === "he" ? "he-IL" : "en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 }
 
 /** Builds SVG geometry for a views line and messages bars in a w x h plot area. */

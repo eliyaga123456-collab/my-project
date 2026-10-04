@@ -63,9 +63,9 @@ describe("mediaSrc", () => {
 describe("safeNext", () => {
   it("blocks open redirects", () => {
     expect(safeNext("/inbox")).toBe("/inbox");
-    expect(safeNext("//evil.com")).toBe("/");
-    expect(safeNext("https://evil.com")).toBe("/");
-    expect(safeNext("/\\evil.com")).toBe("/");
+    expect(safeNext("//evil.com")).toBe("/inbox");
+    expect(safeNext("https://evil.com")).toBe("/inbox");
+    expect(safeNext("/\\evil.com")).toBe("/inbox");
     expect(safeNext(undefined, "/x")).toBe("/x");
   });
 });

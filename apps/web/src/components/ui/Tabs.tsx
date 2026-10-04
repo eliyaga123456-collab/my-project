@@ -1,17 +1,21 @@
 "use client";
 
 import { useRef, type KeyboardEvent, type ReactNode } from "react";
+import { useT } from "@/i18n/client";
 import { cx } from "./cx";
 
 export interface TabItem { id: string; label: string; badge?: ReactNode }
 
 export function Tabs({ tabs, value, onChange, label, idPrefix = "tab" }: { tabs: TabItem[]; value: string; onChange: (id: string) => void; label: string; idPrefix?: string }) {
+  const { isRTL } = useT();
   const refs = useRef<Record<string, HTMLButtonElement | null>>({});
   const onKey = (e: KeyboardEvent) => {
     const i = tabs.findIndex((t) => t.id === value);
     let next = i;
-    if (e.key === "ArrowRight") next = (i + 1) % tabs.length;
-    else if (e.key === "ArrowLeft") next = (i - 1 + tabs.length) % tabs.length;
+    const fwd = isRTL ? "ArrowLeft" : "ArrowRight";
+    const back = isRTL ? "ArrowRight" : "ArrowLeft";
+    if (e.key === fwd) next = (i + 1) % tabs.length;
+    else if (e.key === back) next = (i - 1 + tabs.length) % tabs.length;
     else if (e.key === "Home") next = 0;
     else if (e.key === "End") next = tabs.length - 1;
     else return;
