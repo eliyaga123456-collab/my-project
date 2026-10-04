@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>EAR* — Eliya's Anonymous Replies</title>
+<meta name="description" content="Get a link, receive anonymous messages, reply on your terms. Download the Android app or install it from your browser.">
+<meta name="theme-color" content="#0b0a14">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0}
+
+:root { --bg:#0b0a14; --surface:#181730; --raised:#222143; --fg:#f6f4ff; --muted:#a6a3c7; --line:rgba(255,255,255,.12); --accent:#ff7440; --accent-fg:#1a0d07; --mist:#a9a2ff; --ok:#4fd6a4; --warn:#ffc247; --bad:#ff5d73;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif; --body:"Inter",ui-sans-serif,system-ui,sans-serif; color-scheme:dark; }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --bg:#faf8f5; --surface:#ffffff; --raised:#f2eee8; --fg:#11101e; --muted:#625f82; --line:rgba(17,16,30,.12); --accent:#d9421a; --accent-fg:#fff; --mist:#5648d4; --ok:#12805a; --warn:#9a6200; --bad:#c42540; color-scheme:light; } }
+:root[data-theme="light"] { --bg:#faf8f5; --surface:#ffffff; --raised:#f2eee8; --fg:#11101e; --muted:#625f82; --line:rgba(17,16,30,.12); --accent:#d9421a; --accent-fg:#fff; --mist:#5648d4; --ok:#12805a; --warn:#9a6200; --bad:#c42540; color-scheme:light; }
+* { box-sizing:border-box }
+body { background:var(--bg); color:var(--fg); font:16px/1.5 var(--body); padding-inline:16px; padding-block:16px 48px }
+main { max-width:640px; margin:0 auto; display:grid; gap:16px }
+h1,h2,h3 { font-family:var(--display); letter-spacing:-.02em; margin:0; text-wrap:balance }
+p { margin:0 }
+.muted { color:var(--muted) }
+.star { color:var(--accent) }
+.banner { background:var(--raised); border:1px solid var(--line); border-radius:12px; padding:10px 14px; font-size:.9rem; color:var(--muted) }
+header { display:flex; align-items:center; justify-content:space-between; gap:12px }
+.brand { font:800 1.5rem var(--display) }
+nav { display:flex; gap:6px; flex-wrap:wrap }
+button, select, textarea, input { font:inherit; color:inherit }
+.tab, .chip { min-height:44px; padding:0 16px; border-radius:999px; border:1px solid var(--line); background:transparent; color:var(--muted); font-weight:600; cursor:pointer }
+.tab[aria-pressed="true"], .chip[aria-pressed="true"] { background:var(--accent); color:var(--accent-fg); border-color:transparent }
+.card { background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:18px; display:grid; gap:12px; min-width:0 }
+.btn { min-height:48px; border:0; border-radius:999px; padding:0 22px; background:var(--accent); color:var(--accent-fg); font-weight:700; cursor:pointer }
+.btn.sec { background:var(--raised); color:var(--fg) }
+.btn.small { min-height:40px; padding:0 16px; font-size:.9rem }
+.btn:disabled { opacity:.5 }
+textarea, input, select { width:100%; background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:12px }
+textarea { min-height:120px; resize:vertical }
+label { font-weight:600; font-size:.9rem }
+:focus-visible { outline:2px solid var(--mist); outline-offset:2px }
+.row { display:flex; gap:8px; flex-wrap:wrap; align-items:center }
+.avatar { width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg,#1fb6a6,#2f4fb0); display:grid; place-items:center; font:800 2rem var(--display); color:#fff; margin-inline:auto }
+.center { text-align:center; justify-items:center }
+.msg { border:1px solid var(--line); border-radius:14px; padding:14px; display:grid; gap:8px; background:var(--surface) }
+.msg.new { border-color:var(--accent) }
+.tag { font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted) }
+.pill { font-size:.75rem; font-weight:700; padding:2px 10px; border-radius:999px; background:var(--raised); color:var(--mist) }
+.reply { border-inline-start:3px solid var(--accent); padding-inline-start:12px }
+.ok { color:var(--ok) } .warn { color:var(--warn) } .bad { color:var(--bad) }
+.mono { font-family:ui-monospace,Menlo,monospace; font-size:.85rem; word-break:break-all; background:var(--raised); padding:8px 10px; border-radius:8px }
+ol { margin:0; padding-inline-start:20px; display:grid; gap:8px }
+[hidden] { display:none !important }
+
+.hero{display:grid;gap:16px;padding-block:8px 8px}
+.hero h1{font-size:clamp(2.2rem,8vw,3.6rem);line-height:1.02}
+.grad{background:linear-gradient(135deg,#ff7440,#b24cff 60%,#6d62f2);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cta{display:flex;gap:10px;flex-wrap:wrap}
+a.btn{display:inline-flex;align-items:center;text-decoration:none}
+details{border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--surface)}
+summary{cursor:pointer;font-weight:700;min-height:32px}
+.shots{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.shots img{width:100%;height:auto;border-radius:14px;border:1px solid var(--line)}
+footer{text-align:center;color:var(--muted);font-size:.9rem;padding-block:8px}
+</style>
+</head>
+<body>
+<main>
+  <section class="hero" aria-labelledby="top">
+    <div class="brand">EAR<span class="star">*</span> <span class="muted" style="font:600 .9rem var(--body)">Eliya's Anonymous Replies</span></div>
+    <h1 id="top">Say what you <span class="grad">really think.</span></h1>
+    <p class="muted">Get your link, start an anonymous round with your own question, share it, and read what people really think. Kind by design, safe by default.</p>
+    <div class="cta">
+      <a class="btn" href="https://github.com/eliyaga123456-collab/my-project/releases/latest/download/EAR.apk">Download for Android (APK)</a>
+      <a class="btn sec" href="https://ear-8ii9.onrender.com">Open the website</a>
+    </div>
+    <details id="ios"><summary>iPhone / iPad</summary><p class="muted" style="margin-top:10px">There is no App Store app yet. Use the EAR web app instead: open <a href="https://ear-8ii9.onrender.com/install" style="color:inherit">ear-8ii9.onrender.com/install</a> in <strong>Safari</strong>, tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>, and sign up inside it. You get your own link and inbox, just like in the Android app.</p></details>
+    <details><summary>Android notes</summary><p class="muted" style="margin-top:10px">The APK is installed outside Google Play: open the file, allow installs from this source when Android asks, then tap Install. It connects to the live EAR server. The first request after a quiet period can take up to a minute while the free server wakes up. Newer builds can be installed from inside the app (Me tab → Update now).</p></details>
+  </section>
+
+  <header><div class="brand">EAR<span class="star">*</span></div>
+    <nav aria-label="Demo sections">
+      <button class="tab" data-tab="visit" aria-pressed="true">Visitor</button>
+      <button class="tab" data-tab="inbox" aria-pressed="false">Inbox <span id="count"></span></button>
+      <button class="tab" data-tab="rounds" aria-pressed="false">Rounds</button>
+      <button class="tab" data-tab="install" aria-pressed="false">Install</button>
+    </nav></header>
+  <p class="banner" role="note">This is a clickable demo of the real flow. Everything you do here stays in your browser and nothing is sent anywhere.</p>
+
+  <section id="visit" aria-labelledby="vh">
+    <div class="card center"><div class="avatar" aria-hidden="true">E</div><h1 id="vh">Eliya</h1><p class="muted">@eliya · Ask me anything. Be kind 💛</p></div>
+    <div class="card">
+      <label for="round">Which link did you open?</label>
+      <select id="round"></select>
+      <h2 id="question"></h2>
+      <div id="sendbox" class="card" style="padding:0;border:0;background:none">
+        <label for="body" class="muted">Anonymous message</label>
+        <textarea id="body" maxlength="500" placeholder="Write something..."></textarea>
+        <div class="row" style="justify-content:space-between"><span class="muted" id="len">0/500</span></div>
+        <button class="btn" id="send">Send anonymously</button>
+        <p id="notice" role="status" class="muted"></p>
+      </div>
+      <p id="closed" hidden class="warn" role="status">This round has closed. Thanks for stopping by!</p>
+      <p class="muted" style="font-size:.85rem">Be kind. Harassment is filtered and reportable. Eliya won't see who you are.</p>
+    </div>
+  </section>
+
+  <section id="inbox" hidden aria-labelledby="ih" style="display:grid;gap:12px">
+    <h2 id="ih">Inbox</h2>
+    <div class="row" id="rf" role="group" aria-label="Filter by round"></div>
+    <div class="row"><button class="tab" id="t-inbox" aria-pressed="true">Inbox</button><button class="tab" id="t-filtered" aria-pressed="false">Filtered</button></div>
+    <div id="list" style="display:grid;gap:10px"></div>
+  </section>
+
+  <section id="rounds" hidden aria-labelledby="rh" style="display:grid;gap:12px">
+    <h2 id="rh">Start a new anonymous round</h2>
+    <form class="card" id="rf2">
+      <label for="rname">Round name</label><input id="rname" maxlength="40" placeholder="e.g. Friday dinner ideas">
+      <label for="rq">Your question (optional)</label><textarea id="rq" maxlength="120" style="min-height:70px" placeholder="What should I cook on Friday? 🍳"></textarea>
+      <label for="rdur">Close it automatically after</label>
+      <select id="rdur"><option value="0">No end</option><option value="1">1 hour</option><option value="24">24 hours</option><option value="72">3 days</option></select>
+      <button class="btn" type="submit">Create round &amp; get link</button>
+    </form>
+    <h2>Your rounds</h2><div id="rlist" style="display:grid;gap:10px"></div>
+  </section>
+
+  <section id="install" hidden aria-labelledby="nh" style="display:grid;gap:12px">
+    <h2 id="nh">Get EAR on your phone</h2>
+    <div class="card"><h3>iPhone / iPad</h3><ol><li>Open <a href="https://ear-8ii9.onrender.com/install" style="color:inherit">ear-8ii9.onrender.com/install</a> in <strong>Safari</strong>.</li><li>Tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>, then <strong>Add</strong>.</li><li>Open EAR from your home screen and sign up.</li></ol></div>
+    <div class="card"><h3>Android</h3><ol><li>Download the <a href="https://github.com/eliyaga123456-collab/my-project/releases/latest/download/EAR.apk" style="color:inherit">EAR APK</a> and open it.</li><li>Allow installs from this source if Android asks, then tap <strong>Install</strong>.</li><li>Later updates: Me tab → <strong>Update now</strong>.</li></ol></div>
+    <p class="muted">This page is a demo of the product. The live site is <a href="https://ear-8ii9.onrender.com" style="color:inherit">ear-8ii9.onrender.com</a>.</p>
+  </section>
+
+  <section aria-labelledby="sh" style="display:grid;gap:12px"><h2 id="sh">How the real app looks</h2>
+    <div class="shots"><img loading="lazy" alt="Landing page" src="landing.webp"><img loading="lazy" alt="Public page with a round question" src="round-visitor.webp"><img loading="lazy" alt="Rounds page" src="rounds.webp"><img loading="lazy" alt="Inbox filtered by round" src="round-inbox.webp"><img loading="lazy" alt="Install page" src="install.webp"><img loading="lazy" alt="Admin dashboard" src="admin.webp"></div></section>
+  <footer>* For Liron 💛 · <a href="https://github.com/eliyaga123456-collab/my-project" style="color:inherit">Source</a></footer>
+</main>
+<script>
+(function(){
+  var KEY="ear-demo-v1", S;
+  function load(){ try{ S=JSON.parse(localStorage.getItem(KEY)); }catch(e){ S=null; }
+    if(!S) S={rounds:[{id:"main",name:"Always-on link",q:"Tell me something you never said ✨",closes:0}],msgs:[
+      {id:1,round:"main",body:"What's something you've always wanted to tell me?",st:"inbox",read:false,reply:null,t:Date.now()-600000},
+      {id:2,round:"main",body:"Your presentation yesterday was honestly brilliant. Thank you!",st:"inbox",read:true,reply:"That made my whole week 🙏",t:Date.now()-3600000}],n:3}; }
+  function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+  load();
+  var $=function(i){return document.getElementById(i)}, fR="all", fS="inbox";
+  function esc(s){ var d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
+  function closed(r){ return r.closes && r.closes<=Date.now(); }
+  function rname(id){ var r=S.rounds.filter(function(x){return x.id===id})[0]; return r?r.name:""; }
+  function rounds(){ var h=""; S.rounds.forEach(function(r){ h+='<option value="'+esc(r.id)+'">'+esc(r.name)+(closed(r)?" (closed)":"")+'</option>'; }); var cur=$("round").value; $("round").innerHTML=h; if(cur) $("round").value=cur; }
+  function visit(){ rounds(); var r=S.rounds.filter(function(x){return x.id===$("round").value})[0]||S.rounds[0]; $("question").textContent=r.q||"Send me an anonymous message"; var c=closed(r); $("sendbox").hidden=c; $("closed").hidden=!c; }
+  function judge(t){ var x=t.toLowerCase();
+    if(/kill you|kys|i will hurt|nobody would miss/.test(x)) return "reject";
+    if(/ugly|stupid|idiot|loser|http|www\./.test(x)) return "hold"; return "ok"; }
+  $("body").addEventListener("input",function(){ $("len").textContent=$("body").value.length+"/500"; });
+  $("round").addEventListener("change",visit);
+  $("send").addEventListener("click",function(){
+    var v=$("body").value.trim(), n=$("notice");
+    if(v.length<2){ n.className="bad"; n.textContent="Write a little more"; return; }
+    var j=judge(v);
+    if(j==="reject"){ n.className="bad"; n.textContent="That message sounds threatening, so it wasn't sent. Please keep it kind."; return; }
+    S.msgs.unshift({id:S.n++,round:$("round").value,body:v,st:j==="hold"?"filtered":"inbox",read:false,reply:null,t:Date.now()});
+    save(); $("body").value=""; $("len").textContent="0/500"; n.className="ok"; n.textContent="Sent anonymously ✓ Switch to Inbox to see it arrive."; render(); });
+  function chips(){ var h='<button class="chip" data-r="all" aria-pressed="'+(fR==="all")+'">All messages</button>';
+    S.rounds.forEach(function(r){ h+='<button class="chip" data-r="'+esc(r.id)+'" aria-pressed="'+(fR===r.id)+'">'+esc(r.name)+'</button>'; }); $("rf").innerHTML=h; }
+  $("rf").addEventListener("click",function(e){ var b=e.target.closest("[data-r]"); if(b){ fR=b.getAttribute("data-r"); render(); } });
+  $("t-inbox").addEventListener("click",function(){ fS="inbox"; render(); });
+  $("t-filtered").addEventListener("click",function(){ fS="filtered"; render(); });
+  function list(){ var m=S.msgs.filter(function(x){ return x.st===fS && (fR==="all"||x.round===fR); });
+    $("t-inbox").setAttribute("aria-pressed",fS==="inbox"); $("t-filtered").setAttribute("aria-pressed",fS==="filtered");
+    if(!m.length){ $("list").innerHTML='<div class="card center"><h3>'+(fS==="inbox"?"No messages yet":"Nothing filtered")+'</h3><p class="muted">'+(fS==="inbox"?"Share your link and see what people have to say.":"Messages held by the filters appear here.")+'</p></div>'; return; }
+    $("list").innerHTML=m.map(function(x){ var h='<article class="msg'+(x.read?"":" new")+'"><div class="row"><span class="tag">Anonymous</span>'+(x.round!=="main"?'<span class="pill">'+esc(rname(x.round))+'</span>':"")+(x.read?"":'<span class="pill" style="color:var(--accent)">New</span>')+'</div><p>'+esc(x.body)+'</p>';
+      if(x.reply) h+='<div class="reply"><span class="tag">Your reply · Public</span><p>'+esc(x.reply)+'</p></div>';
+      h+='<div class="row">'+(x.reply?"":'<button class="btn small" data-a="reply" data-id="'+x.id+'">Reply</button>')+'<button class="btn small sec" data-a="read" data-id="'+x.id+'">'+(x.read?"Mark unread":"Mark read")+'</button><button class="btn small sec" data-a="del" data-id="'+x.id+'">Delete</button></div></article>'; return h; }).join(""); }
+  $("list").addEventListener("click",function(e){ var b=e.target.closest("[data-a]"); if(!b) return; var id=+b.getAttribute("data-id"), m=S.msgs.filter(function(x){return x.id===id})[0], a=b.getAttribute("data-a");
+    if(a==="del") S.msgs=S.msgs.filter(function(x){return x.id!==id});
+    if(a==="read") m.read=!m.read;
+    if(a==="reply"){ var t=window.prompt?null:null; var box=document.createElement("div"); box.className="row"; box.innerHTML='<input aria-label="Your reply" placeholder="Write a reply" style="flex:1;min-width:200px"><button class="btn small">Post publicly</button>'; b.closest("article").appendChild(box); var inp=box.querySelector("input"); inp.focus(); box.querySelector("button").addEventListener("click",function(){ if(inp.value.trim()){ m.reply=inp.value.trim(); m.read=true; save(); render(); } }); return; }
+    save(); render(); });
+  function rl(){ $("rlist").innerHTML=S.rounds.map(function(r){ var c=closed(r); var url="ear.example/"+(r.id==="main"?"u/eliya":"l/"+r.id); var cnt=S.msgs.filter(function(x){return x.round===r.id}).length;
+      return '<div class="card"><div class="row"><strong>'+esc(r.name)+'</strong><span class="pill '+(c?"":"ok")+'">'+(c?"Closed":"Open")+'</span></div>'+(r.q?'<p>“'+esc(r.q)+'”</p>':"")+'<p class="mono">'+esc(url)+'</p><p class="muted">'+cnt+' messages'+(r.closes&&!c?" · closes "+new Date(r.closes).toLocaleString([], {weekday:"short",hour:"numeric",minute:"2-digit"}):"")+'</p><div class="row"><button class="btn small sec" data-view="'+esc(r.id)+'">See responses</button>'+(c?'<button class="btn small sec" data-reopen="'+esc(r.id)+'">Reopen 24h</button>':(r.id!=="main"?'<button class="btn small sec" data-close="'+esc(r.id)+'">Close now</button>':""))+'</div></div>'; }).join(""); }
+  $("rlist").addEventListener("click",function(e){ var b=e.target;
+    if(b.dataset.view){ fR=b.dataset.view; show("inbox"); }
+    if(b.dataset.close){ S.rounds.filter(function(r){return r.id===b.dataset.close})[0].closes=Date.now()-1; save(); render(); }
+    if(b.dataset.reopen){ S.rounds.filter(function(r){return r.id===b.dataset.reopen})[0].closes=Date.now()+86400000; save(); render(); } });
+  $("rf2").addEventListener("submit",function(e){ e.preventDefault(); var n=$("rname").value.trim(); if(!n){ $("rname").focus(); return; }
+    var h=+$("rdur").value; S.rounds.push({id:Math.random().toString(36).slice(2,8),name:n,q:$("rq").value.trim(),closes:h?Date.now()+h*3600000:0}); save(); $("rname").value=""; $("rq").value=""; render(); });
+  function render(){ var u=S.msgs.filter(function(x){return x.st==="inbox"&&!x.read}).length; $("count").textContent=u?"("+u+")":""; chips(); list(); rl(); visit(); }
+  function show(t){ ["visit","inbox","rounds","install"].forEach(function(s){ $(s).hidden=s!==t; }); document.querySelectorAll(".tab[data-tab]").forEach(function(b){ b.setAttribute("aria-pressed",b.dataset.tab===t); }); render(); }
+  document.querySelectorAll(".tab[data-tab]").forEach(function(b){ b.addEventListener("click",function(){ show(b.dataset.tab); }); });
+  show("visit");
+})();
+</script>
+<script>
+(function(){
+  var ev=null, b=document.getElementById("pwa");
+  var ios=/iPhone|iPad|iPod/i.test(navigator.userAgent), standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+  if(standalone) b.hidden=true;
+  window.addEventListener("beforeinstallprompt",function(e){ e.preventDefault(); ev=e; });
+  b.addEventListener("click",function(){
+    if(ev){ ev.prompt(); ev=null; }
+    else if(ios){ var d=document.getElementById("ios"); d.open=true; d.scrollIntoView({behavior:"smooth",block:"center"}); }
+    else alert("Use your browser menu: Install app / Add to Home screen.");
+  });
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function(){});
+})();
+</script>
+</body>
+</html>
