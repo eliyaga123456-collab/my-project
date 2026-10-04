@@ -339,7 +339,7 @@ describe("avatar upload abuse", () => {
 
   it("oversize (>2MB) -> 413, even when it is a valid image", async () => {
     const A = await verifiedUser(t, "alice");
-    const noisy = await sharp({ create: { width: 1500, height: 1500, channels: 3 as const, noise: { type: "gaussian" as const, mean: 128, sigma: 60 } } }).png().toBuffer();
+    const noisy = await sharp({ create: { width: 1500, height: 1500, channels: 3 as const, background: "black", noise: { type: "gaussian" as const, mean: 128, sigma: 60 } } }).png().toBuffer();
     expect(noisy.length).toBeGreaterThan(2 * 1024 * 1024);
     const r = await up(A.cookie, "a.png", "image/png", noisy);
     expect(r.statusCode).toBe(413);
