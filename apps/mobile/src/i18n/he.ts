@@ -221,6 +221,15 @@ export const he: Dict = {
     label: "הודעה אנונימית",
     cta: "שלחו לי הודעה אנונימית"
   },
+  round: {
+    title: "סבב",
+    notFound: "הסבב הזה כבר לא קיים",
+    yourLink: "הקישור של הסבב",
+    copyLink: "העתקת קישור",
+    editTitle: "פרטי הסבב",
+    saved: "נשמר",
+    keepOpen: "להשאיר פתוח"
+  },
   shareCard: {
     askedLabel: "אנונימי שאל",
     handleLine: "@{handle} · EAR"
@@ -229,6 +238,8 @@ export const he: Dict = {
     title: "שיתוף",
     intro: "פתחו סבב אנונימי, שלחו את הקישור שלו, ואנשים יוכלו לכתוב לכם בלי להירשם.",
     startRound: "פתיחת סבב חדש",
+    autoRoundName: "סבב {n}",
+    newRoundShort: "סבב חדש",
     shareTo: "שיתוף אל",
     more: "עוד…",
     pasteIn: "הקישור הועתק. הדביקו אותו בסטורי או בביו ב-{app}.",

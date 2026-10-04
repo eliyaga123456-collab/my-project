@@ -4,7 +4,6 @@ import * as Clipboard from "expo-clipboard";
 import type { LinkDto } from "@unsaid/shared";
 import { LIMITS } from "@unsaid/shared";
 import { Badge } from "@/components/Badge";
-import { BottomSheet } from "@/components/BottomSheet";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { ConfirmSheet } from "@/components/ConfirmSheet";
@@ -12,7 +11,6 @@ import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { Icon } from "@/components/Icon";
 import { IconButton } from "@/components/IconButton";
-import { Input } from "@/components/Input";
 import { Screen } from "@/components/Screen";
 import { SkeletonList } from "@/components/Skeleton";
 import { Text } from "@/components/Text";
@@ -26,11 +24,11 @@ import { useNetwork } from "@/providers/NetworkProvider";
 import { fontFamily, useTheme } from "@/theme";
 import { useFocusEffect } from "expo-router";
 import { useCallback } from "react";
-import { Chips } from "@/components/Chips";
 import { ShareTargets } from "@/components/ShareTargets";
 import { WEB_URL } from "@/lib/env";
 import { installUrl as buildInstallUrl, inviteMessage, linkShareMessage, linkUrl, safely } from "@/lib/share";
 import { useAuth } from "@/providers/AuthProvider";
+import { useQuickRound } from "@/lib/quickRound";
 import { useRouter } from "expo-router";
 
 export default function SharePage() {
@@ -40,11 +38,8 @@ export default function SharePage() {
   const { report } = useNetwork();
   const { me } = useAuth();
   const links = useRequest(() => api.links.list().then((r) => r.items));
-  const [creating, setCreating] = useState(false);
+  const quick = useQuickRound();
   const router = useRouter();
-  const [label, setLabel] = useState("");
-  const [question, setQuestion] = useState("");
-  const [duration, setDuration] = useState<"none" | "1" | "24" | "72" | "168">("none");
   const [busy, setBusy] = useState(false);
   const [toDelete, setToDelete] = useState<LinkDto | null>(null);
 
@@ -73,12 +68,6 @@ export default function SharePage() {
     const u = l.isPrimary ? await api.links.pause(paused) : await api.links.update(l.id, { paused });
     replaceLink(u); toast.show(paused ? t("share.linkPaused") : t("share.linkLive"), "success");
   });
-  const create = () => guard(async () => {
-    const hours = duration === "none" ? 0 : Number(duration);
-    const l = await api.links.create({ label: label.trim(), ...(question.trim() ? { prompt: question.trim() } : {}), closesAt: hours ? new Date(Date.now() + hours * 3_600_000).toISOString() : null });
-    links.setData((cur) => [...(cur ?? []), l]); setLabel(""); setQuestion(""); setDuration("none"); setCreating(false); toast.show(t("share.roundStarted"), "success");
-    void sendShare(shareText(l));
-  });
   const remove = () => guard(async () => {
     if (!toDelete) return;
     await api.links.remove(toDelete.id);
@@ -101,6 +90,7 @@ export default function SharePage() {
         <Button title={t("share.copy")} small variant="secondary" onPress={() => copy(l)} style={{ flex: 1 }} />
       </View>
       {!l.closed ? <ShareTargets text={shareText(l)} url={urlOf(l)} onMore={() => share(l)} /> : null}
+      {!l.isPrimary ? <Button title={t("round.title")} small variant="ghost" onPress={() => router.push({ pathname: "/round/[id]", params: { id: l.id } })} /> : null}
       {!l.isPrimary ? <Button title={t("share.seeResponses")} small variant="secondary" onPress={() => router.navigate({ pathname: "/inbox", params: { round: l.id } })} /> : null}
       {l.closed ? <Button title={t("share.reopen")} small variant="ghost" disabled={busy} onPress={() => guard(async () => { replaceLink(await api.links.update(l.id, { paused: false, closesAt: new Date(Date.now() + 86_400_000).toISOString() })); toast.show(t("share.roundReopened"), "success"); })} /> : null}
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", minHeight: 44 }}>
@@ -117,7 +107,7 @@ export default function SharePage() {
       <Text tone="muted">{t("share.intro")}</Text>
       {links.loading ? <SkeletonList count={2} /> : links.error && !links.data ? <ErrorState message={links.error} onRetry={links.reload} /> : (
         <>
-          <Button title={t("share.startRound")} onPress={() => setCreating(true)} disabled={items.length >= LIMITS.linksPerUser} icon={<Icon name="plus" size={18} color="#fff" />} />
+          <Button title={t("share.startRound")} onPress={() => void quick.create()} loading={quick.busy} disabled={items.length >= LIMITS.linksPerUser} icon={<Icon name="plus" size={18} color="#fff" />} />
           <Text variant="heading" style={{ marginTop: 8 }}>{t("share.yourRounds")}</Text>
           {extras.length === 0 ? <Text tone="muted">{t("share.noRounds")}</Text> : extras.map(renderLink)}
           <Text variant="heading" style={{ marginTop: 8 }}>{t("share.alwaysOn")}</Text>
@@ -133,13 +123,6 @@ export default function SharePage() {
           </Card>
         </>
       )}
-      <BottomSheet visible={creating} onClose={() => setCreating(false)} title={t("share.newRoundTitle")}>
-        <Input label={t("share.roundName")} value={label} onChangeText={setLabel} placeholder={t("share.roundNamePlaceholder")} maxLength={LIMITS.linkLabelMax} />
-        <Input label={t("share.yourQuestion")} value={question} onChangeText={setQuestion} placeholder={t("share.questionPlaceholder")} maxLength={LIMITS.roundPromptMax} returnKeyType="done" />
-        <Text variant="caption" tone="muted">{t("share.closeAfter")}</Text>
-        <Chips label={t("share.durationLabel")} value={duration} onChange={setDuration} options={[{ value: "none", label: t("share.durations.none") }, { value: "1", label: t("share.durations.h1") }, { value: "24", label: t("share.durations.h24") }, { value: "72", label: t("share.durations.d3") }, { value: "168", label: t("share.durations.d7") }]} />
-        <Button title={t("share.createAndShare")} onPress={create} loading={busy} disabled={label.trim().length === 0} />
-      </BottomSheet>
       <ConfirmSheet visible={!!toDelete} title={t("share.deleteTitle")} message={t("share.deleteBody", { label: toDelete?.label ?? "" })} confirmLabel={t("common.delete")} destructive loading={busy} onConfirm={remove} onCancel={() => setToDelete(null)} />
     </Screen>
   );

@@ -76,6 +76,7 @@ function Gate() {
       <StatusBar style={name === "dark" ? "light" : "dark"} />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background }, animation: "fade" }}>
         <Stack.Screen name="message/[id]" options={{ presentation: "modal", animation: "slide_from_bottom" }} />
+        <Stack.Screen name="round/[id]" options={{ presentation: "modal", animation: "slide_from_bottom" }} />
       </Stack>
       {status === "loading" ? <BootScreen failed={bootFailed} onRetry={retryBoot} /> : null}
       <AnimatedSplash />

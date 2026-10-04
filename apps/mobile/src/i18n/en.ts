@@ -221,6 +221,15 @@ export const en = {
     label: "ANONYMOUS MESSAGE",
     cta: "Send me anonymous messages"
   },
+  round: {
+    title: "Round",
+    notFound: "This round no longer exists",
+    yourLink: "Your round link",
+    copyLink: "Copy link",
+    editTitle: "Round details",
+    saved: "Saved",
+    keepOpen: "Keep open"
+  },
   shareCard: {
     askedLabel: "ANONYMOUS ASKED",
     handleLine: "@{handle} · EAR"
@@ -229,6 +238,8 @@ export const en = {
     title: "Share",
     intro: "Start an anonymous round, send its link, and people can write to you without signing up.",
     startRound: "Start a new round",
+    autoRoundName: "Round {n}",
+    newRoundShort: "New round",
     shareTo: "Share to",
     more: "More…",
     pasteIn: "Link copied. Paste it in your {app} story or bio.",

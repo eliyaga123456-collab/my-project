@@ -17,6 +17,8 @@ import { useTheme } from "@/theme";
 import { isolate, useT, type Key } from "@/i18n";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Chips } from "@/components/Chips";
+import { Button } from "@/components/Button";
+import { useQuickRound } from "@/lib/quickRound";
 import type { LinkDto } from "@unsaid/shared";
 
 const EMPTY: Record<MessageStatus, { title: Key; body: Key }> = {
@@ -38,6 +40,7 @@ export default function Inbox() {
     { value: "filtered", label: t("inbox.segments.filtered") },
     { value: "archived", label: t("inbox.segments.archived") }
   ];
+  const quick = useQuickRound();
   const [round, setRound] = useState<string>("all");
   const [rounds, setRounds] = useState<LinkDto[]>([]);
   // "See responses" on the Share tab deep-links here; consume the param so picking another chip later sticks.
@@ -95,7 +98,10 @@ export default function Inbox() {
 
   const header = (
     <View style={{ gap: 14, marginBottom: 16 }}>
-      <Text variant="title">{t("inbox.title")}</Text>
+      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+        <Text variant="title" style={{ flex: 1 }}>{t("inbox.title")}</Text>
+        <Button title={t("share.newRoundShort")} small onPress={() => void quick.create()} loading={quick.busy} />
+      </View>
       <Text tone="muted">{me ? isolate(`@${me.profile.username}`) : ""}</Text>
       {rounds.length > 0 ? <Chips scroll label={t("inbox.filterLabel")} value={round} onChange={setRound} options={[{ value: "all", label: t("inbox.allMessages") }, ...rounds.map((r) => ({ value: r.id, label: r.label }))]} /> : null}
       <Tabs options={segments} value={status} onChange={setStatus} />
