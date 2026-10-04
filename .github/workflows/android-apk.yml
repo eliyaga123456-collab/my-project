@@ -33,6 +33,9 @@ jobs:
           [ -n "$WEB" ] || WEB=$(node -p "require('./.github/apk-config.json').webUrl")
           echo "EXPO_PUBLIC_API_URL=$API" >> "$GITHUB_ENV"
           echo "EXPO_PUBLIC_WEB_URL=$WEB" >> "$GITHUB_ENV"
+          # The in-app updater compares this build number with the newest "apk-<n>" release.
+          echo "EAR_VERSION_CODE=${{ github.run_number }}" >> "$GITHUB_ENV"
+          echo "EXPO_PUBLIC_UPDATE_REPO=${{ github.repository }}" >> "$GITHUB_ENV"
           echo "Building against API=$API WEB=$WEB"
       - run: npm ci
       - name: Generate the native Android project
