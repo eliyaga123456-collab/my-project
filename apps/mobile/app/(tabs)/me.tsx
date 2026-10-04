@@ -10,6 +10,7 @@ import { BottomSheet } from "@/components/BottomSheet";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { ConfirmSheet } from "@/components/ConfirmSheet";
+import { UpdateCard } from "@/components/UpdateCard";
 import { Input, Textarea } from "@/components/Input";
 import { NavRow } from "@/components/SettingRow";
 import { Screen } from "@/components/Screen";
@@ -92,6 +93,7 @@ export default function Me() {
   return (
     <Screen tabs>
       <Text variant="title">{t("me.title")}</Text>
+      <UpdateCard />
       <Card style={{ alignItems: "center", gap: 10 }}>
         <Avatar name={p.displayName || p.username} uri={p.avatarUrl} size={88} />
         <Text variant="heading">{p.displayName || p.username}</Text>

@@ -29,7 +29,10 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0b0a14"
       },
-      "predictiveBackGestureEnabled": true
+      "predictiveBackGestureEnabled": true,
+      "permissions": [
+        "REQUEST_INSTALL_PACKAGES"
+      ]
     },
     "plugins": [
       "expo-router",
