@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Share, View } from "react-native";
+import { Alert, Share, View } from "react-native";
 import { WEB_URL } from "@/lib/env";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
@@ -75,11 +75,11 @@ export default function Me() {
     setBusy(false);
   };
 
-  const pickAvatar = async () => {
+  const pickAvatar = async (crop: boolean) => {
     // The system photo picker needs NO storage permission (and asking for READ_MEDIA_IMAGES, which we don't declare, always fails on Android 13+).
     let res: ImagePicker.ImagePickerResult;
     try {
-      res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], allowsEditing: false, quality: 0.9 });
+      res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], allowsEditing: crop, quality: 0.9 });
     } catch (e) {
       toast.show(t("me.photoPickFailed", { reason: String((e as Error)?.message ?? e).slice(0, 120) }), "error");
       return;
@@ -111,7 +111,7 @@ export default function Me() {
         {p.bio ? <Text style={{ textAlign: "center" }}>{p.bio}</Text> : null}
         <View style={{ flexDirection: "row", gap: 8, marginTop: 4 }}>
           <Button title={t("me.editProfile")} small variant="secondary" onPress={openEdit} />
-          <Button title={p.avatarUrl ? t("me.changePhoto") : t("me.addPhoto")} small variant="ghost" onPress={pickAvatar} loading={busy} />
+          <Button title={p.avatarUrl ? t("me.changePhoto") : t("me.addPhoto")} small variant="ghost" onPress={() => Alert.alert(t("me.changePhoto"), undefined, [{ text: t("me.photoCrop"), onPress: () => void pickAvatar(true) }, { text: t("me.photoGif"), onPress: () => void pickAvatar(false) }, { text: t("common.cancel"), style: "cancel" }])} loading={busy} />
         </View>
         {p.avatarUrl ? <Button title={t("me.removePhoto")} small variant="ghost" onPress={removeAvatar} /> : null}
       </Card>

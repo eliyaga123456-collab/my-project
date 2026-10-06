@@ -312,6 +312,8 @@ export const en = {
     editProfile: "Edit profile",
     addPhoto: "Add photo",
     changePhoto: "Change photo",
+    photoCrop: "Photo (crop it your way)",
+    photoGif: "GIF / animated (no crop)",
     removePhoto: "Remove photo",
     emailNotVerified: "Email not verified",
     verifyBody: "Verify {email} to publish public answers.",

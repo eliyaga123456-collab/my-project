@@ -312,6 +312,8 @@ export const he: Dict = {
     editProfile: "עריכת פרופיל",
     addPhoto: "הוספת תמונה",
     changePhoto: "החלפת תמונה",
+    photoCrop: "תמונה (חיתוך חופשי)",
+    photoGif: "GIF / תמונה מונפשת (בלי חיתוך)",
     removePhoto: "הסרת התמונה",
     emailNotVerified: "האימייל לא אומת",
     verifyBody: "אמתו את {email} כדי לפרסם תשובות פומביות.",
