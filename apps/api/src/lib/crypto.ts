@@ -1,3 +1,4 @@
+import { createCipheriv, createDecipheriv } from "node:crypto";
 import { createHash, createHmac, randomBytes, scrypt as _scrypt, timingSafeEqual } from "node:crypto";
 
 const N = 2 ** 15, R = 8, P = 1, KEYLEN = 64;
@@ -32,4 +33,21 @@ export const hmacHex = (secret: string, v: string) => createHmac("sha256", secre
 export function safeEqual(a: string, b: string): boolean {
   const ba = Buffer.from(a), bb = Buffer.from(b);
   return ba.length === bb.length && timingSafeEqual(ba, bb);
+}
+
+/** AES-256-GCM field encryption keyed from APP_SECRET (for data that must be recoverable by an admin but not readable in a raw DB dump). */
+const fieldKey = (secret: string) => createHash("sha256").update(`field-encryption-v1:${secret}`).digest();
+export function encryptField(secret: string, plain: string): string {
+  const iv = randomBytes(12);
+  const c = createCipheriv("aes-256-gcm", fieldKey(secret), iv);
+  const enc = Buffer.concat([c.update(plain, "utf8"), c.final()]);
+  return Buffer.concat([iv, c.getAuthTag(), enc]).toString("base64");
+}
+export function decryptField(secret: string, packed: string): string | null {
+  try {
+    const b = Buffer.from(packed, "base64");
+    const d = createDecipheriv("aes-256-gcm", fieldKey(secret), b.subarray(0, 12));
+    d.setAuthTag(b.subarray(12, 28));
+    return Buffer.concat([d.update(b.subarray(28)), d.final()]).toString("utf8");
+  } catch { return null; }
 }

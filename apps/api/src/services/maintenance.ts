@@ -9,6 +9,7 @@ export async function runMaintenance(ctx: AppContext) {
   await ctx.db.execute(sql`update messages set source_hash = null, device_hash = null where created_at < now() - make_interval(days => ${days}) and (source_hash is not null or device_hash is not null)`);
   await ctx.db.execute(sql`update moderation_events set source_hash = null where created_at < now() - make_interval(days => ${days}) and source_hash is not null`);
   await ctx.db.execute(sql`update reports set source_hash = null where created_at < now() - make_interval(days => ${days * 3}) and source_hash is not null`);
+  await ctx.db.execute(sql`delete from message_evidence where keep_until < now()`);
   await ctx.db.execute(sql`delete from banned_sources where until is not null and until < now()`);
   await ctx.db.execute(sql`delete from sessions where expires_at < now() - interval '7 days' or revoked_at < now() - interval '7 days'`);
   await ctx.db.execute(sql`delete from email_tokens where expires_at < now() - interval '7 days'`);

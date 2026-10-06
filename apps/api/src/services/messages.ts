@@ -2,8 +2,8 @@ import { randomUUID } from "node:crypto";
 import { and, desc, eq, gt, isNull, lt, or, sql } from "drizzle-orm";
 import type { BlockDto, MessageDto, MessageStatus, ModerationCategory, Page, ReportReason, SendMessageInput } from "@unsaid/shared";
 import type { AppContext } from "../context";
-import { bannedSources, blocks, hiddenWords, links, messages, moderationEvents, reports, users } from "../db/schema";
-import { hmacHex } from "../lib/crypto";
+import { bannedSources, blocks, hiddenWords, links, messageEvidence, messages, moderationEvents, reports, users } from "../db/schema";
+import { encryptField, hmacHex } from "../lib/crypto";
 import { decodeCursor, encodeCursor } from "../lib/cursor";
 import { AppError, E } from "../lib/errors";
 import { issueChallenge, verifyChallenge } from "../lib/pow";
@@ -14,7 +14,7 @@ import { moderate } from "../moderation/engine";
 import { isClosed, isPaused, ProfileService } from "./profiles";
 
 type User = typeof users.$inferSelect;
-export interface SenderContext { ip: string; deviceId: string | null }
+export interface SenderContext { ip: string; deviceId: string | null; userAgent?: string | null }
 
 const REJECT_COPY: Partial<Record<ModerationCategory, string>> = {
   threat: "That message sounds threatening, so it wasn't sent. Please keep it kind.",
@@ -115,6 +115,11 @@ export class MessageService {
     });
     if (!msg) { await this.event({ outcome: "duplicate", userId: user.id, sourceHash: src }); return { status: "delivered" }; }
     await this.event({ outcome: verdict.decision, categories: verdict.categories, score: verdict.score, messageId: msg.id, userId: user.id, sourceHash: src });
+    // Safety evidence (disclosed in the privacy policy): encrypted network address, short retention, admin-only.
+    await ctx.db.insert(messageEvidence).values({
+      messageId: msg.id, ipEnc: encryptField(ctx.config.APP_SECRET, sender.ip), channel: input.src ?? "direct",
+      userAgent: sender.userAgent ? sender.userAgent.slice(0, 300) : null, keepUntil: new Date(Date.now() + ctx.config.EVIDENCE_DAYS * 24 * HOUR)
+    }).catch((e) => console.error("evidence insert failed", e));
     await this.profilesSvc.bumpStat(link.id, "messages");
 
     // Notifications (never block the sender's response on them)
@@ -197,6 +202,8 @@ export class MessageService {
       messageId: id, reporterId: user.id, recipientId: user.id, reason, details: details ?? null, messageBody: cur.m.body,
       messageCreatedAt: cur.m.createdAt, filteredCategories: cur.m.filteredCategories, sourceHash: cur.m.sourceHash
     }).onConflictDoNothing();
+    // A report keeps the evidence for the longer window so it can be handed to the authorities if needed.
+    await this.ctx.db.update(messageEvidence).set({ keepUntil: new Date(Date.now() + this.ctx.config.EVIDENCE_REPORTED_DAYS * 24 * HOUR) }).where(eq(messageEvidence.messageId, id)).catch(() => undefined);
     await this.ctx.db.insert(moderationEvents).values({ kind: "report", outcome: "report", categories: [reason === "other" ? "harassment" : reason as ModerationCategory], messageId: id, userId: user.id, sourceHash: cur.m.sourceHash }).catch(() => undefined);
   }
 

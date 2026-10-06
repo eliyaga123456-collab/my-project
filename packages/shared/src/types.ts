@@ -228,3 +228,9 @@ export interface AdminHealthDto {
   counters: { requests: number; errors5xx: number; rateLimited: number };
   checkedAt: string;
 }
+
+/** Operator view of what is happening on the platform: newest rounds and newest accounts (no sender identities exist to show). */
+export interface AdminActivityDto {
+  rounds: { id: string; label: string; prompt: string | null; ownerUsername: string; ownerEmail: string; createdAt: string; closesAt: string | null; paused: boolean; views: number; messages: number }[];
+  signups: { id: string; username: string; email: string; createdAt: string; status: UserStatus }[];
+}

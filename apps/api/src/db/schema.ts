@@ -189,3 +189,12 @@ export const bannedSources = pgTable("banned_sources", {
   createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
   createdAt: ts("created_at").notNull().defaultNow()
 });
+
+export const messageEvidence = pgTable("message_evidence", {
+  messageId: uuid("message_id").primaryKey().references(() => messages.id, { onDelete: "cascade" }),
+  ipEnc: text("ip_enc").notNull(),
+  channel: text("channel"),
+  userAgent: text("user_agent"),
+  createdAt: ts("created_at").notNull().defaultNow(),
+  keepUntil: ts("keep_until").notNull()
+});

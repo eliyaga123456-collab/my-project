@@ -1,6 +1,6 @@
 import { API_PREFIX } from "@unsaid/shared";
 import type {
-  AdminAbuseDto, AdminAuditLogDto, AdminHealthDto, AdminModerationEventDto, AdminOverviewDto, AdminReportDto,
+  AdminAbuseDto, AdminActivityDto, AdminAuditLogDto, AdminHealthDto, AdminModerationEventDto, AdminOverviewDto, AdminReportDto,
   AdminUserDto, AnalyticsDto, AnswerDto, ApiErrorBody, AuthResultDto, BlockDto, ChallengeDto, ErrorCode, LinkDto,
   MeDto, MessageDto, NotificationDto, Page, ProfileDto, PublicProfileDto, SendMessageResultDto, SessionDto, SettingsDto
 } from "@unsaid/shared";
@@ -175,6 +175,7 @@ export function createApiClient(opts: ClientOptions) {
       moderationEvents: (cursor?: string) => get<Page<AdminModerationEventDto>>("/admin/moderation-events", { cursor }),
       auditLogs: (cursor?: string) => get<Page<AdminAuditLogDto>>("/admin/audit-logs", { cursor }),
       abuse: () => get<AdminAbuseDto>("/admin/abuse"),
+      activity: () => get<AdminActivityDto>("/admin/activity"),
       health: () => get<AdminHealthDto>("/admin/health")
     }
   };

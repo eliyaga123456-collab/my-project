@@ -1,11 +1,13 @@
 import { buildApp } from "./app";
 import { loadConfig } from "./config";
+import { bootstrapAdmin } from "./db/bootstrapAdmin";
 import { migrate } from "./db/migrate";
 
 const config = loadConfig();
 if (config.NODE_ENV !== "production" || process.env.AUTO_MIGRATE === "true") {
   await migrate(config.DATABASE_URL, (m) => console.log(`[migrate] ${m}`));
 }
+await bootstrapAdmin(config, (m) => console.log(m)).catch((e) => console.error("[admin] bootstrap failed", e));
 const { app } = await buildApp({ config });
 await app.listen({ port: config.PORT, host: config.HOST });
 

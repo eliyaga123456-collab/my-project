@@ -171,7 +171,7 @@ export function registerRoutes(app: FastifyInstance, ctx: AppContext, svc: { aut
     api.post("/messages", async (req, reply) => {
       const input = parse(sendMessageInput, req.body);
       const dev = setDevice(req, reply);
-      const out = await messages.send(input, { ip: req.ip, deviceId: dev });
+      const out = await messages.send(input, { ip: req.ip, deviceId: dev, userAgent: (req.headers["user-agent"] as string | undefined) ?? null });
       return reply.status(201).send(out);
     });
     api.get("/messages", async (req) => {
@@ -232,6 +232,8 @@ export function registerRoutes(app: FastifyInstance, ctx: AppContext, svc: { aut
     api.post("/admin/reports/:id/resolve", async (req) => { const a = requireStaff(req); const i = parse(adminResolveReportInput, req.body); return admin.resolveReport(a.user, (req.params as { id: string }).id, i.action, i.note); });
     api.get("/admin/moderation-events", async (req) => { requireStaff(req); return admin.moderationEvents((req.query as { cursor?: string }).cursor); });
     api.get("/admin/audit-logs", async (req) => { requireStaff(req); return admin.auditLogs((req.query as { cursor?: string }).cursor); });
+    api.get("/admin/messages/:id/evidence", async (req) => { const a = requireStaff(req, true); return admin.evidence(a.user, uuidParam((req.params as { id: string }).id)); });
+    api.get("/admin/activity", async (req) => { requireStaff(req); return admin.activity(); });
     api.get("/admin/abuse", async (req) => { requireStaff(req); return admin.abuse(); });
     api.get("/admin/health", async (req) => { requireStaff(req); return admin.health(VERSION); });
 

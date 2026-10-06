@@ -83,7 +83,12 @@ export const pauseLinkInput = z.object({
 });
 
 // ---------- Messages ----------
+/** Which share button produced the link the sender opened (from the link itself; says nothing about the person). */
+export const SHARE_CHANNELS = ["wa", "ig", "tt", "tg", "sms", "more", "copy", "direct"] as const;
+export type ShareChannel = (typeof SHARE_CHANNELS)[number];
+
 export const sendMessageInput = z.object({
+  src: z.enum(SHARE_CHANNELS).optional(),
   /** Either the profile username (primary link) or an additional link slug. */
   username: usernameSchema.optional(),
   slug: z.string().trim().min(4).max(32).regex(/^[a-zA-Z0-9_-]+$/).optional(),

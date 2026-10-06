@@ -1,7 +1,8 @@
 import { and, desc, eq, ilike, lt, or, sql } from "drizzle-orm";
-import type { AdminAbuseDto, AdminAuditLogDto, AdminHealthDto, AdminModerationEventDto, AdminOverviewDto, AdminReportDto, AdminUserDto, ModerationCategory, Page, ReportAction } from "@unsaid/shared";
+import type { AdminAbuseDto, AdminActivityDto, AdminAuditLogDto, AdminHealthDto, AdminModerationEventDto, AdminOverviewDto, AdminReportDto, AdminUserDto, ModerationCategory, Page, ReportAction } from "@unsaid/shared";
 import type { AppContext } from "../context";
-import { auditLogs, bannedSources, messages, moderationEvents, profiles, reports, sessions, users } from "../db/schema";
+import { auditLogs, bannedSources, messageEvidence, messages, moderationEvents, profiles, reports, sessions, users } from "../db/schema";
+import { decryptField } from "../lib/crypto";
 import { decodeCursor, encodeCursor } from "../lib/cursor";
 import { E } from "../lib/errors";
 
@@ -156,6 +157,33 @@ export class AdminService {
     const rows = await this.ctx.db.select().from(auditLogs).where(c ? or(lt(auditLogs.createdAt, new Date(c.t)), and(eq(auditLogs.createdAt, new Date(c.t)), lt(auditLogs.id, c.id))) : undefined).orderBy(desc(auditLogs.createdAt), desc(auditLogs.id)).limit(51);
     const page = rows.slice(0, 50);
     return { items: page.map((a) => ({ id: a.id, actorId: a.actorId, action: a.action, targetType: a.targetType, targetId: a.targetId, meta: a.meta, createdAt: a.createdAt.toISOString() })), nextCursor: rows.length > 50 ? encodeCursor(page.at(-1)!.createdAt, page.at(-1)!.id) : null };
+  }
+
+  /** Technical safety evidence for one message. Admin-only; every read is audit-logged. Contains NO name/phone/social account (the service never has them). */
+  async evidence(actor: User, messageId: string) {
+    const [e] = await this.ctx.db.select().from(messageEvidence).where(eq(messageEvidence.messageId, messageId)).limit(1);
+    if (!e) throw E.notFound("No evidence is stored for this message (it may have expired).");
+    await this.audit(actor, "evidence.view", "message", messageId);
+    return {
+      messageId, networkAddress: decryptField(this.ctx.config.APP_SECRET, e.ipEnc), channel: e.channel, userAgent: e.userAgent,
+      sentAt: e.createdAt.toISOString(), keepUntil: e.keepUntil.toISOString()
+    };
+  }
+
+  async activity(): Promise<AdminActivityDto> {
+    const { db } = this.ctx;
+    const rounds = await db.execute<{ id: string; label: string; prompt: string | null; owner_username: string; owner_email: string; created_at: Date; closes_at: Date | null; paused: boolean; views: number; messages: number }>(sql`
+      select l.id, l.label, l.prompt, u.username as owner_username, u.email as owner_email, l.created_at, l.closes_at, l.paused,
+        coalesce((select sum(views) from link_daily_stats s where s.link_id = l.id), 0)::int as views,
+        (select count(*) from messages m where m.link_id = l.id)::int as messages
+      from links l join users u on u.id = l.user_id
+      where l.is_primary = false
+      order by l.created_at desc limit 50`);
+    const signups = await db.select({ id: users.id, username: users.username, email: users.email, createdAt: users.createdAt, status: users.status }).from(users).orderBy(desc(users.createdAt)).limit(30);
+    return {
+      rounds: rounds.rows.map((r) => ({ id: r.id, label: r.label, prompt: r.prompt, ownerUsername: r.owner_username, ownerEmail: r.owner_email, createdAt: new Date(r.created_at).toISOString(), closesAt: r.closes_at ? new Date(r.closes_at).toISOString() : null, paused: r.paused, views: r.views, messages: r.messages })),
+      signups: signups.map((u) => ({ ...u, createdAt: u.createdAt.toISOString() }))
+    };
   }
 
   async abuse(): Promise<AdminAbuseDto> {

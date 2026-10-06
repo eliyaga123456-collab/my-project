@@ -20,6 +20,9 @@ const schema = z.object({
   COOKIE_SECURE: bool.optional(),
   SESSION_TTL_DAYS: z.coerce.number().default(30),
   POW_DIFFICULTY: z.coerce.number().int().min(0).max(26).default(16),
+  /** Days the (encrypted) sender network address is kept for safety; extended to EVIDENCE_REPORTED_DAYS when the message is reported. */
+  EVIDENCE_DAYS: z.coerce.number().int().min(1).max(60).default(14),
+  EVIDENCE_REPORTED_DAYS: z.coerce.number().int().min(1).max(365).default(90),
   SOURCE_HASH_RETENTION_DAYS: z.coerce.number().default(30),
   EMAIL_TRANSPORT: z.enum(["outbox", "log", "smtp"]).default("outbox"),
   EMAIL_FROM: z.string().default("EAR <no-reply@ear.local>"),
@@ -31,6 +34,11 @@ const schema = z.object({
   S3_ENDPOINT: z.string().optional(),
   S3_PUBLIC_BASE_URL: z.string().optional(),
   EXPO_PUSH_ENABLED: bool.default(true),
+  /** Creates the FIRST admin at startup when no admin exists (needs a strong password). Remove from the environment afterwards. */
+  ADMIN_BOOTSTRAP_EMAIL: z.string().email().optional(),
+  ADMIN_BOOTSTRAP_PASSWORD: z.string().min(12).optional(),
+  /** Gets an email whenever someone opens a new round (uses the configured email transport). */
+  ADMIN_ALERT_EMAIL: z.string().email().optional(),
   ADMIN_SEED_EMAIL: z.string().default("admin@ear.local"),
   ADMIN_SEED_PASSWORD: z.string().default("change-me-please-123"),
   RATE_LIMIT_DISABLED: bool.default(false),
