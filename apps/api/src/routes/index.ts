@@ -1,3 +1,4 @@
+import { makeShareVideo, readShareVideo } from "../services/video";
 import multipart from "@fastify/multipart";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
@@ -142,6 +143,22 @@ export function registerRoutes(app: FastifyInstance, ctx: AppContext, svc: { aut
     api.patch("/profile/username", async (req) => {
       const a = requireAuth(req);
       return profiles.changeUsername(a.user, parse(updateUsernameInput, req.body).username);
+    });
+    api.get("/share/video/:id", async (req, reply) => {
+      const buf = await readShareVideo((req.params as { id: string }).id);
+      if (!buf) throw E.notFound();
+      return reply.header("content-type", "video/mp4").header("cache-control", "private, max-age=600").header("x-content-type-options", "nosniff").send(buf);
+    });
+    api.post("/share/video", async (req) => {
+      const a = requireAuth(req);
+      await limit(ctx, `video:${a.user.id}`, 12, HOUR);
+      if (!req.isMultipart()) throw new AppError("unsupported_media", "Send the card as a PNG image.");
+      const file = await req.file();
+      if (!file) throw E.validation("Choose an image.");
+      const buf = await file.toBuffer();
+      if (file.file.truncated) throw new AppError("payload_too_large", "Image is too large (max 10 MB).");
+      const id = await makeShareVideo(buf);
+      return { url: `${ctx.config.WEB_URL.replace(/\/$/, "")}/api/v1/share/video/${id}` };
     });
     api.post("/profile/avatar", async (req) => {
       const a = requireAuth(req);

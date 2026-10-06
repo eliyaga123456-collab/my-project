@@ -162,6 +162,9 @@ export function createApiClient(opts: ClientOptions) {
       unregisterPush: (token: string) => request<void>("DELETE", "/push-tokens", { token })
     },
     analytics: { me: (days = 14) => get<AnalyticsDto>("/analytics/me", { days }) },
+    share: {
+      video: (form: FormData) => request<{ url: string }>("POST", "/share/video", undefined, undefined, { form })
+    },
     admin: {
       overview: () => get<AdminOverviewDto>("/admin/overview"),
       users: (q: { q?: string; status?: string; cursor?: string; limit?: number }) => get<Page<AdminUserDto>>("/admin/users", q),

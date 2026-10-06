@@ -13,6 +13,8 @@ import { MessageSquareCard } from "@/components/MessageSquareCard";
 import { Chips } from "@/components/Chips";
 import { useToast } from "@/components/Toast";
 import { WEB_URL } from "@/lib/env";
+import { makeCardVideo } from "@/lib/shareVideo";
+import { errorMessage } from "@/lib/errors";
 import { linkUrl, safely } from "@/lib/share";
 import { ErrorState } from "@/components/ErrorState";
 import { IconButton } from "@/components/IconButton";
@@ -33,7 +35,7 @@ export default function MessageScreen() {
   const toast = useToast();
   const cardRef = useRef<View>(null);
   const [busy, setBusy] = useState(false);
-  const [format, setFormat] = useState<"square" | "story">("square");
+  const [format, setFormat] = useState<"square" | "story" | "video">("square");
   const myUrl = linkUrl(WEB_URL, { isPrimary: true, slug: "" }, me?.profile.username);
   const { data, setData, error, loading, reload } = useRequest(() => api.messages.get(String(id)), [id]);
 
@@ -49,8 +51,16 @@ export default function MessageScreen() {
     await safely(() => Clipboard.setStringAsync(myUrl));
     toast.show(t("message.storyLinkHint"), "info");
     await safely(async () => {
-      const uri = await captureRef(cardRef, { format: "png", quality: 1, result: "tmpfile", width: format === "square" ? 1080 : STORY_SIZE.width * 4, height: format === "square" ? 1080 : STORY_SIZE.height * 4 });
+      const square = format === "square";
+      const uri = await captureRef(cardRef, { format: "png", quality: 1, result: "tmpfile", width: square ? 1080 : format === "video" ? 1080 : STORY_SIZE.width * 4, height: square ? 1080 : format === "video" ? 1920 : STORY_SIZE.height * 4 });
       if (!(await Sharing.isAvailableAsync())) { toast.show(t("actions.sharingUnavailable"), "error"); return; }
+      if (format === "video") {
+        toast.show(t("message.videoMaking"), "info");
+        let mp4: string;
+        try { mp4 = await makeCardVideo(uri); } catch (e) { toast.show(t("message.videoFailed", { reason: errorMessage(e) }), "error"); return; }
+        await Sharing.shareAsync(mp4, { mimeType: "video/mp4", dialogTitle: t("message.shareVideo"), UTI: "public.mpeg-4" });
+        return;
+      }
       await Sharing.shareAsync(uri, { mimeType: "image/png", dialogTitle: t("message.shareStory"), UTI: "public.png" });
     }, () => toast.show(t("errors.generic"), "error"));
     setBusy(false);
@@ -72,12 +82,12 @@ export default function MessageScreen() {
       {loading ? <SkeletonList count={1} /> : error || !data ? <ErrorState message={error ?? t("message.notFound")} onRetry={reload} /> : (
         <>
           <Text variant="label" tone="muted">{t("message.anonymousAgo", { time: formatRelative(data.createdAt) })}</Text>
-          <Chips label={t("message.formatLabel")} value={format} onChange={setFormat} options={[{ value: "square", label: t("message.formatSquare") }, { value: "story", label: t("message.formatStory") }]} />
+          <Chips label={t("message.formatLabel")} value={format} onChange={setFormat} options={[{ value: "square", label: t("message.formatSquare") }, { value: "story", label: t("message.formatStory") }, { value: "video", label: t("message.formatVideo") }]} />
           <View style={{ alignItems: "center" }}>
             {format === "square" ? <MessageSquareCard ref={cardRef} body={data.body} handleUrl={myUrl} /> : <MessageStoryCard ref={cardRef} body={data.body} handleUrl={myUrl} />}
           </View>
           <Text variant="caption" tone="muted" style={{ textAlign: "center" }}>{t("message.linkStickerHint")}</Text>
-          <Button title={t("message.shareStory")} onPress={() => void shareStory()} loading={busy} />
+          <Button title={format === "video" ? t("message.shareVideo") : t("message.shareStory")} onPress={() => void shareStory()} loading={busy} />
           <Button title={t("message.copyMyLink")} variant="secondary" onPress={() => void copyLink()} />
           {data.reply ? (
             <Card style={{ gap: 8 }}>

@@ -29,6 +29,8 @@ RUN npm run build -w @unsaid/api && npm run build -w @unsaid/web
 FROM node:22-bookworm-slim
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 AUTO_MIGRATE=true PORT=3000 MEDIA_DIR=/repo/.data/media
 WORKDIR /repo
+# ffmpeg turns a message card into a short video for Instagram / TikTok stories.
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg && rm -rf /var/lib/apt/lists/*
 COPY --from=build /repo /repo
 COPY deploy/start-combined.sh /usr/local/bin/start-combined
 RUN chmod +x /usr/local/bin/start-combined && mkdir -p /repo/.data/media && chown -R node:node /repo
