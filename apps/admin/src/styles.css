@@ -202,3 +202,19 @@ textarea.input { resize: vertical; min-height: 80px; }
 
 /* long Hebrew / unbroken strings must wrap instead of overflowing */
 .page-sub, .card-title, .state-title, .state-hint, .stat-hint, .notice, .confirm-body, .toast span { overflow-wrap: anywhere; }
+
+/* ---- EAR admin signature look: aurora, glow, gradient accents ---- */
+@keyframes aurora-drift { 0% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(3%,-4%,0) scale(1.12); } 100% { transform: translate3d(0,0,0) scale(1); } }
+@keyframes sheen { from { background-position: -200% 0; } to { background-position: 200% 0; } }
+@keyframes rise-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+body::before { animation: aurora-drift 14s ease-in-out infinite; background: radial-gradient(700px 480px at 85% -10%, color-mix(in srgb, #ff4fa3 20%, transparent), transparent 70%), radial-gradient(620px 440px at -5% 105%, color-mix(in srgb, #9b5cff 18%, transparent), transparent 70%), radial-gradient(420px 320px at 60% 120%, color-mix(in srgb, #ff7440 12%, transparent), transparent 70%); }
+.brand-mark em { background: linear-gradient(90deg, #9b5cff, #ff4fa3, #ff7440, #9b5cff); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: sheen 5s linear infinite; }
+.card { position: relative; animation: rise-in .4s var(--ease) both; transition: transform .2s var(--ease), box-shadow .2s var(--ease), border-color .2s; }
+.card::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; background: linear-gradient(135deg, color-mix(in srgb, #ff4fa3 55%, transparent), transparent 40%, color-mix(in srgb, #9b5cff 55%, transparent)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: .55; pointer-events: none; transition: opacity .2s; }
+.card:hover { transform: translateY(-2px); box-shadow: 0 12px 34px -14px color-mix(in srgb, #ff4fa3 55%, transparent); } .card:hover::before { opacity: 1; }
+.btn-primary { background: linear-gradient(120deg, #9b5cff, #ff4fa3 60%, #ff7440); box-shadow: 0 6px 22px -8px #ff4fa3; transition: transform .15s var(--ease), box-shadow .15s; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 28px -8px #ff4fa3; }
+.nav-link { transition: background .15s, color .15s, transform .15s var(--ease); } .nav-link:hover { transform: translateX(3px); }
+[dir="rtl"] .nav-link:hover { transform: translateX(-3px); }
+.nav-link.active { background: linear-gradient(90deg, color-mix(in srgb, #ff4fa3 22%, transparent), transparent); }
+@media (prefers-reduced-motion: reduce) { body::before, .brand-mark em, .card { animation: none; } .card:hover, .btn-primary:hover, .nav-link:hover { transform: none; } }

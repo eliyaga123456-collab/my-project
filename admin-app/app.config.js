@@ -13,8 +13,9 @@ module.exports = {
       package: "app.ear.admin",
       versionCode: Number(process.env.EAR_VERSION_CODE) || 1,
       adaptiveIcon: { foregroundImage: "./assets/adaptive-icon.png", backgroundColor: "#0b0a14" },
-      permissions: ["INTERNET"]
+      permissions: ["INTERNET", "REQUEST_INSTALL_PACKAGES"]
     },
-    plugins: ["./withReleaseSigning"]
+    plugins: ["./withReleaseSigning"],
+    extra: { updateRepo: process.env.EXPO_PUBLIC_UPDATE_REPO || "eliyaga123456-collab/my-project" }
   }
 };
