@@ -197,7 +197,7 @@ export const app = {
       uploadAria: "Upload profile photo",
       upload: "Upload photo",
       remove: "Remove",
-      avatarHint: "JPEG, PNG or WebP up to 10 MB.",
+      avatarHint: "JPEG, PNG, GIF or WebP up to 10 MB.",
       displayName: "Display name",
       bio: "Bio",
       prompt: "Your prompt",

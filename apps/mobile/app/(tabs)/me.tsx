@@ -78,7 +78,7 @@ export default function Me() {
     // The system photo picker needs NO storage permission (and asking for READ_MEDIA_IMAGES, which we don't declare, always fails on Android 13+).
     let res: ImagePicker.ImagePickerResult;
     try {
-      res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], allowsEditing: true, aspect: [1, 1], quality: 0.8 });
+      res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], allowsEditing: false, quality: 0.9 });
     } catch (e) {
       toast.show(t("me.photoPickFailed", { reason: String((e as Error)?.message ?? e).slice(0, 120) }), "error");
       return;
@@ -86,8 +86,8 @@ export default function Me() {
     if (res.canceled || !res.assets[0]) return;
     const a = res.assets[0];
     if (a.fileSize && a.fileSize > LIMITS.avatarMaxBytes) { toast.show(t("me.photoTooBig"), "error"); return; }
-    const type = a.mimeType === "image/png" || a.mimeType === "image/webp" ? a.mimeType : "image/jpeg";
-    const ext = type === "image/png" ? "png" : type === "image/webp" ? "webp" : "jpg";
+    const type = a.mimeType === "image/png" || a.mimeType === "image/webp" || a.mimeType === "image/gif" ? a.mimeType : "image/jpeg";
+    const ext = type === "image/png" ? "png" : type === "image/webp" ? "webp" : type === "image/gif" ? "gif" : "jpg";
     setBusy(true);
     try {
       const form = new FormData();

@@ -23,7 +23,7 @@ export function useQuickRound() {
       const n = items.filter((l) => !l.isPrimary).length + 1;
       const link = await api.links.create({ label: t("share.autoRoundName", { n: String(n) }).slice(0, LIMITS.linkLabelMax) });
       haptic.success();
-      router.push({ pathname: "/round/[id]", params: { id: link.id } });
+      router.push({ pathname: "/round/[id]", params: { id: link.id, fresh: "1" } });
     } catch (e) {
       toast.show(errorMessage(e), "error");
       report(e);

@@ -146,7 +146,7 @@ export function registerRoutes(app: FastifyInstance, ctx: AppContext, svc: { aut
     api.post("/profile/avatar", async (req) => {
       const a = requireAuth(req);
       await limit(ctx, `avatar:${a.user.id}`, 10, HOUR);
-      if (!req.isMultipart()) throw new AppError("unsupported_media", "Upload a JPEG, PNG or WebP image.");
+      if (!req.isMultipart()) throw new AppError("unsupported_media", "Upload a JPEG, PNG, GIF or WebP image.");
       const file = await req.file();
       if (!file) throw E.validation("Choose an image to upload.");
       const buf = await file.toBuffer();

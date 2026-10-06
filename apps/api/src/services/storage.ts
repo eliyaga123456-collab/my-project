@@ -68,24 +68,40 @@ export function createStorage(config: Config): StorageProvider {
   return new LocalStorage(config.MEDIA_DIR);
 }
 
-function sniff(buf: Buffer): "jpeg" | "png" | "webp" | null {
+function sniff(buf: Buffer): "jpeg" | "png" | "webp" | "gif" | null {
   if (buf.length > 12 && buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return "jpeg";
   if (buf.length > 8 && buf.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "png";
+  if (buf.length > 10 && (buf.subarray(0, 6).toString("ascii") === "GIF87a" || buf.subarray(0, 6).toString("ascii") === "GIF89a")) return "gif";
   if (buf.length > 12 && buf.subarray(0, 4).toString("ascii") === "RIFF" && buf.subarray(8, 12).toString("ascii") === "WEBP") return "webp";
   return null;
 }
 
-/** Validates (magic bytes + size + decodability), strips ALL metadata (EXIF/GPS) by re-encoding, returns a 512px WebP. */
+const MAX_AVATAR_FRAMES = 100;
+const MAX_AVATAR_TOTAL_PIXELS = 120_000_000;
+
+/** Validates (magic bytes + size + decodability), strips ALL metadata (EXIF/GPS) by re-encoding, returns a 512px WebP (animated when the upload is an animated GIF/WebP). */
 export async function processAvatar(input: Buffer): Promise<Buffer> {
   if (input.length > LIMITS.avatarMaxBytes) throw new AppError("payload_too_large", "Image is too large (max 10 MB).");
-  if (!sniff(input)) throw new AppError("unsupported_media", "Use a JPEG, PNG or WebP image.");
+  const kind = sniff(input);
+  if (!kind) throw new AppError("unsupported_media", "Use a JPEG, PNG, GIF or WebP image.");
+  const animated = kind === "gif" || kind === "webp";
+  const opts = { animated, limitInputPixels: 40_000_000, failOn: "error" as const };
   try {
-    return await sharp(input, { limitInputPixels: 40_000_000, failOn: "error" })
-      .rotate()
-      .resize(512, 512, { fit: "cover", position: "attention" })
-      .webp({ quality: 82 })
+    if (animated) {
+      // Bound the decode cost of animations: frame count and total pixels across frames.
+      const meta = await sharp(input, opts).metadata();
+      const frames = meta.pages ?? 1;
+      const w = meta.width ?? 0;
+      const h = meta.pageHeight ?? meta.height ?? 0;
+      if (frames > MAX_AVATAR_FRAMES || w * h * frames > MAX_AVATAR_TOTAL_PIXELS) throw new AppError("payload_too_large", "That animation is too long or too big. Try a shorter GIF.");
+    }
+    const img = sharp(input, opts);
+    return await (animated ? img : img.rotate())
+      .resize(512, 512, { fit: "cover", position: animated ? "centre" : "attention" })
+      .webp({ quality: animated ? 78 : 82, effort: animated ? 3 : 4 })
       .toBuffer();
-  } catch {
+  } catch (e) {
+    if (e instanceof AppError) throw e;
     throw new AppError("unsupported_media", "We couldn't read that image. Try another file.");
   }
 }

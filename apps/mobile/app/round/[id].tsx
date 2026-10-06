@@ -1,5 +1,5 @@
 export { ErrorBoundary } from "@/components/RouteErrorBoundary";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -30,7 +30,7 @@ type Duration = "none" | "1" | "24" | "72" | "168";
 
 /** A single round: its link front and centre, one-tap copy and share, optional edits below. */
 export default function RoundScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, fresh } = useLocalSearchParams<{ id: string; fresh?: string }>();
   const router = useRouter();
   const { t } = useT();
   const toast = useToast();
@@ -42,6 +42,13 @@ export default function RoundScreen() {
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  // A just-created round opens the system share sheet once, so the link goes out immediately.
+  const autoShared = useRef(false);
+  useEffect(() => {
+    if (!data || fresh !== "1" || autoShared.current) return;
+    autoShared.current = true;
+    void safely(() => Share.share({ message: linkShareMessage(data.prompt, linkUrl(WEB_URL, data, undefined)) }));
+  }, [data, fresh]);
   useEffect(() => { if (data) { setLabel(data.label); setQuestion(data.prompt ?? ""); } }, [data?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const guard = async (fn: () => Promise<void>) => { setBusy(true); try { await fn(); } catch (e) { toast.show(errorMessage(e), "error"); report(e); } setBusy(false); };

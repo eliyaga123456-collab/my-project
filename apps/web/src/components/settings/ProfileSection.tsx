@@ -10,7 +10,7 @@ import { Avatar, Button, InputField, TextareaField, useToast } from "@/component
 import { useMe } from "@/components/app/MeProvider";
 import { SettingsCard } from "./parts";
 
-const TYPES = ["image/jpeg", "image/png", "image/webp"];
+const TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 
 export function ProfileSection() {
   const { t } = useT();

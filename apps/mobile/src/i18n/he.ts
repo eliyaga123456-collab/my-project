@@ -152,6 +152,8 @@ export const he: Dict = {
     formatLabel: "פורמט הכרטיס",
     formatSquare: "פוסט מרובע",
     formatStory: "סטורי",
+    storyLinkHint: "הקישור הועתק. הוסיפו אותו לסטורי עם סטיקר הקישור.",
+    linkStickerHint: "אינסטגרם לא מאפשרת לאפליקציות לצרף קישור לחיץ. אנחנו מעתיקים את שלך: הוסיפו אותו עם סטיקר הקישור.",
     shareStory: "שיתוף כתמונה לסטורי",
     copyMyLink: "העתקת הקישור שלי",
     linkCopied: "הקישור הועתק",

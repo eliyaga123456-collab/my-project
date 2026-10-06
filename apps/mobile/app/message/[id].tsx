@@ -45,6 +45,9 @@ export default function MessageScreen() {
   const copyLink = () => safely(() => Clipboard.setStringAsync(myUrl), () => toast.show(t("errors.generic"), "error")).then((ok) => { if (ok) toast.show(t("message.linkCopied"), "success"); });
   const shareStory = async () => {
     setBusy(true);
+    // Instagram/TikTok cannot attach a clickable link for us, so copy it first: paste it with the Link sticker after sharing.
+    await safely(() => Clipboard.setStringAsync(myUrl));
+    toast.show(t("message.storyLinkHint"), "info");
     await safely(async () => {
       const uri = await captureRef(cardRef, { format: "png", quality: 1, result: "tmpfile", width: format === "square" ? 1080 : STORY_SIZE.width * 4, height: format === "square" ? 1080 : STORY_SIZE.height * 4 });
       if (!(await Sharing.isAvailableAsync())) { toast.show(t("actions.sharingUnavailable"), "error"); return; }
@@ -73,6 +76,7 @@ export default function MessageScreen() {
           <View style={{ alignItems: "center" }}>
             {format === "square" ? <MessageSquareCard ref={cardRef} body={data.body} handleUrl={myUrl} /> : <MessageStoryCard ref={cardRef} body={data.body} handleUrl={myUrl} />}
           </View>
+          <Text variant="caption" tone="muted" style={{ textAlign: "center" }}>{t("message.linkStickerHint")}</Text>
           <Button title={t("message.shareStory")} onPress={() => void shareStory()} loading={busy} />
           <Button title={t("message.copyMyLink")} variant="secondary" onPress={() => void copyLink()} />
           {data.reply ? (

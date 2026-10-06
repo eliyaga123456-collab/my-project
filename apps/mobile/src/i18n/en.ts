@@ -152,6 +152,8 @@ export const en = {
     formatLabel: "Card format",
     formatSquare: "Square post",
     formatStory: "Story",
+    storyLinkHint: "Link copied. Add it to your story with the Link sticker.",
+    linkStickerHint: "Instagram does not let apps attach a clickable link. We copy yours for you: add it with the Link sticker.",
     shareStory: "Share as a story image",
     copyMyLink: "Copy my link",
     linkCopied: "Link copied",
