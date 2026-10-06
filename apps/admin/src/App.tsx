@@ -10,12 +10,14 @@ import { ReportsPage } from "./pages/Reports";
 import { ModerationPage } from "./pages/Moderation";
 import { AuditPage } from "./pages/Audit";
 import { AbusePage } from "./pages/Abuse";
+import { ActivityPage } from "./pages/ActivityPage";
 import { HealthPage } from "./pages/Health";
 import { useT, type Key } from "./i18n";
 import { Badge, IconButton, LanguageSwitcher, Ltr, Skeleton } from "./ui";
 
 const NAV: { to: string; label: Key; icon: typeof Users; end?: boolean }[] = [
   { to: "/", label: "nav.overview", icon: LayoutDashboard, end: true },
+  { to: "/activity", label: "nav.activity", icon: Activity },
   { to: "/users", label: "nav.users", icon: Users },
   { to: "/reports", label: "nav.reports", icon: Flag },
   { to: "/moderation", label: "nav.moderation", icon: ShieldCheck },
@@ -81,6 +83,7 @@ function Shell() {
       <main id="main" className="main" tabIndex={-1}>
         <Routes>
           <Route path="/" element={<Overview />} />
+          <Route path="/activity" element={<ActivityPage />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/moderation" element={<ModerationPage />} />

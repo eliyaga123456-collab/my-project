@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Ban, EyeOff, ShieldOff, X } from "lucide-react";
 import type { AdminReportDto, ReportStatus } from "@unsaid/shared";
 import type { ReportAction } from "@unsaid/api-client";
+import { Evidence } from "../ui/Evidence";
 import { useAuth } from "../auth";
 import { client, errorMessage } from "../lib/client";
 import { usePaged } from "../lib/hooks";
@@ -63,6 +64,7 @@ export function ReportsPage() {
                 </div>
                 <blockquote className="msg-body" dir="auto">{r.message.body}</blockquote>
                 {r.message.filteredCategories.length > 0 && <p className="small muted">{t("reports.autoFilter", { categories: r.message.filteredCategories.map((c) => te("category", c)).join(", ") })}</p>}
+                {user?.role === "admin" && <Evidence messageId={r.message.id} />}
                 {r.details && <p className="report-details" dir="auto"><span className="muted small">{t("reports.details")}</span><br />{r.details}</p>}
                 <p className="small muted">{t("reports.recipient")} <strong><Ltr>@{r.recipient.username}</Ltr></strong> <StatusBadge status={r.recipient.status} />{r.resolution && <> · {t("reports.resolution", { resolution: resolutionLabel(r.resolution) })}</>}{r.resolvedAt && <> · {fmt.relative(r.resolvedAt)}</>}</p>
                 {r.status === "open" && (

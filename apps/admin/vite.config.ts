@@ -12,6 +12,8 @@ export default defineConfig(({ mode }) => {
   const proxy = { "/api/v1": { target, changeOrigin: false }, "/media": { target, changeOrigin: false } };
   return {
     // Vite 8 compiles JSX natively via oxc, so no React plugin is needed (plugin-react@6 requires vite 8 and resolved the hoisted vite 7).
+    base: "/admin-ui/",
+    build: { outDir: "dist", emptyOutDir: true },
     oxc: { jsx: { runtime: "automatic" } },
     resolve: { alias: { react: pkgDir("react"), "react-dom": pkgDir("react-dom") } },
     server: { port: 3100, proxy },

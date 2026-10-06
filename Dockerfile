@@ -6,20 +6,24 @@ WORKDIR /repo
 COPY package.json package-lock.json .npmrc ./
 COPY apps/api/package.json apps/api/
 COPY apps/web/package.json apps/web/
+COPY apps/admin/package.json apps/admin/
 COPY packages/shared/package.json packages/shared/
 COPY packages/api-client/package.json packages/api-client/
 COPY packages/tokens/package.json packages/tokens/
 # Only the website, the API and the shared packages belong in this image (no mobile/admin toolchains).
 # Dropping the other workspaces keeps the lockfile's versions but lets npm hoist shared deps (react, next) to the root.
 # react/react-dom are added at the root so they hoist next to Next.js (otherwise `next build` cannot find them).
-RUN node -e "const fs=require('fs');const p=require('./package.json');p.workspaces=['apps/api','apps/web','packages/*'];p.dependencies={...(p.dependencies||{}),react:'19.2.3','react-dom':'19.2.3'};fs.writeFileSync('package.json',JSON.stringify(p,null,2))" \
+RUN node -e "const fs=require('fs');const p=require('./package.json');p.workspaces=['apps/api','apps/web','apps/admin','packages/*'];p.dependencies={...(p.dependencies||{}),react:'19.2.3','react-dom':'19.2.3'};fs.writeFileSync('package.json',JSON.stringify(p,null,2))" \
  && npm install --no-audit --no-fund
 COPY tsconfig.base.json ./
 COPY packages packages
 COPY apps/api apps/api
 COPY apps/web apps/web
+COPY apps/admin apps/admin
 # The API is always reachable at localhost inside this container (baked into the Next.js rewrites).
 ENV NEXT_TELEMETRY_DISABLED=1 API_URL=http://localhost:4000
+# The admin dashboard is a static SPA served by the website at /admin-ui/.
+RUN npm run build -w @unsaid/admin && mkdir -p apps/web/public/admin-ui && cp -r apps/admin/dist/. apps/web/public/admin-ui/
 RUN npm run build -w @unsaid/api && npm run build -w @unsaid/web
 
 FROM node:22-bookworm-slim

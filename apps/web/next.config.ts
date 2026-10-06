@@ -24,6 +24,8 @@ const config: NextConfig = {
   transpilePackages: ["@unsaid/shared", "@unsaid/api-client", "@unsaid/tokens"],
   async rewrites() {
     return [
+      { source: "/admin-ui", destination: "/admin-ui/index.html" },
+      { source: "/admin-ui/", destination: "/admin-ui/index.html" },
       { source: "/api/v1/:path*", destination: `${API_URL}/api/v1/:path*` },
       { source: "/media/:path*", destination: `${API_URL}/media/:path*` }
     ];

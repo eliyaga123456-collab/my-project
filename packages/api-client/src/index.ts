@@ -175,6 +175,7 @@ export function createApiClient(opts: ClientOptions) {
       moderationEvents: (cursor?: string) => get<Page<AdminModerationEventDto>>("/admin/moderation-events", { cursor }),
       auditLogs: (cursor?: string) => get<Page<AdminAuditLogDto>>("/admin/audit-logs", { cursor }),
       abuse: () => get<AdminAbuseDto>("/admin/abuse"),
+      evidence: (messageId: string) => get<{ messageId: string; networkAddress: string; channel: string; userAgent: string | null; sentAt: string; keepUntil: string }>(`/admin/messages/${messageId}/evidence`),
       activity: () => get<AdminActivityDto>("/admin/activity"),
       health: () => get<AdminHealthDto>("/admin/health")
     }

@@ -1,0 +1,20 @@
+module.exports = {
+  expo: {
+    name: "EAR Admin",
+    slug: "ear-admin",
+    version: "0.1.0",
+    orientation: "portrait",
+    userInterfaceStyle: "dark",
+    backgroundColor: "#0b0a14",
+    newArchEnabled: true,
+    icon: "./assets/icon.png",
+    splash: { image: "./assets/splash-icon.png", backgroundColor: "#0b0a14", resizeMode: "contain" },
+    android: {
+      package: "app.ear.admin",
+      versionCode: Number(process.env.EAR_VERSION_CODE) || 1,
+      adaptiveIcon: { foregroundImage: "./assets/adaptive-icon.png", backgroundColor: "#0b0a14" },
+      permissions: ["INTERNET"]
+    },
+    plugins: ["./withReleaseSigning"]
+  }
+};
