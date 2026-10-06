@@ -22,7 +22,7 @@ export const pub = {
     shareText: "{name} on EAR: “{question}”",
     askPrompt: "Want to ask {name} something?",
     sendButton: "Send an anonymous message",
-    note: "Questions are anonymous. <link>How we keep it kind</link>."
+    note: "Questions are anonymous. <link>How we keep it kind</link>. For safety, the site operator can see limited technical details (not your name) of reported messages for 14 days."
   },
   send: {
     ideasLabel: "Need an idea?",

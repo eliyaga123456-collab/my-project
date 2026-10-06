@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { CheckCircle2, Loader2, PauseCircle, RefreshCw, ShieldCheck, Sparkles } from "lucide-react";
-import type { ChallengeDto } from "@unsaid/shared";
+import type { ChallengeDto, ShareChannel } from "@unsaid/shared";
+
+const CHANNELS = ["wa", "ig", "tt", "tg", "sms", "more", "copy", "direct"];
 import { LIMITS } from "@/lib/limits";
 import { Button, ButtonLink, TextareaField } from "@/components/ui";
 import { useT } from "@/i18n/client";
@@ -49,7 +51,9 @@ export function SendForm({ target, displayName: rawName, initiallyPaused, initia
     const [{ messageBodySchema }, { solveChallenge, webSha256 }, { api }, { classifySendError, isApiError }] = await loadSender();
     const parsed = messageBodySchema.safeParse(body);
     if (!parsed.success) { setError(Array.from(body.trim()).length > LIMITS.messageMax ? t("public.send.tooLong", { max: LIMITS.messageMax }) : t("public.send.tooShort")); area.current?.focus(); return; }
-    const base = { ...target, body: parsed.data };
+    const srcParam = typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("src");
+    const src = CHANNELS.includes(srcParam ?? "") ? (srcParam as ShareChannel) : undefined;
+    const base = { ...target, body: parsed.data, ...(src ? { src } : {}) };
     setPhase("sending");
     try {
       try {

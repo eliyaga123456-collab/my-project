@@ -18,6 +18,7 @@ export default async function Privacy() {
       <p>{rich(t("site.privacy.howP1"))}</p>
       <p>{rich(t("site.privacy.howP2"))}</p>
       <p>{rich(t("site.privacy.howP3"))}</p>
+      <p>{rich(t("site.privacy.howP4"))}</p>
       <h2>{t("site.privacy.notH")}</h2>
       <ul>
         <li>{t("site.privacy.not1")}</li>
