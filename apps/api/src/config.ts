@@ -24,9 +24,11 @@ const schema = z.object({
   EVIDENCE_DAYS: z.coerce.number().int().min(1).max(60).default(14),
   EVIDENCE_REPORTED_DAYS: z.coerce.number().int().min(1).max(365).default(90),
   SOURCE_HASH_RETENTION_DAYS: z.coerce.number().default(30),
-  EMAIL_TRANSPORT: z.enum(["outbox", "log", "smtp"]).default("outbox"),
+  EMAIL_TRANSPORT: z.enum(["outbox", "log", "smtp", "brevo", "resend"]).default("outbox"),
   EMAIL_FROM: z.string().default("EAR <no-reply@ear.local>"),
   SMTP_URL: z.string().optional(),
+  /** HTTPS email APIs (Render's free tier blocks SMTP ports). */
+  EMAIL_API_KEY: z.string().optional(),
   STORAGE_DRIVER: z.enum(["local", "s3"]).default("local"),
   MEDIA_DIR: z.string().default(".data/media"),
   S3_BUCKET: z.string().optional(),

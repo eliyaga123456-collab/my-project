@@ -155,7 +155,7 @@ export class ProfileService {
     if (n >= LIMITS.linksPerUser) throw E.conflict(`You can have up to ${LIMITS.linksPerUser} links.`);
     const [l] = await this.ctx.db.insert(links).values({ userId: user.id, slug: generateSlug(10), label, prompt: input.prompt ?? null, closesAt: this.parseClose(input.closesAt) }).returning();
     const alertTo = this.ctx.config.ADMIN_ALERT_EMAIL;
-    if (alertTo) void this.ctx.email.send({ to: alertTo, subject: `EAR: new round "${label.slice(0, 40)}" by @${user.username}`, text: `@${user.username} opened a new round "${label}"${input.prompt ? `\nQuestion: ${input.prompt}` : ""}\nLink: ${this.ctx.config.WEB_URL.replace(/\/$/, "")}/l/${l!.slug}\nAdmin: ${this.ctx.config.WEB_URL.replace(/\/$/, "")}/admin-ui/` }).catch(() => undefined);
+    if (alertTo) void this.ctx.email.send({ to: alertTo, subject: `EAR: new round "${label.slice(0, 40)}" by @${user.username}`, text: `@${user.username} opened a new round "${label}"${input.prompt ? `\nQuestion: ${input.prompt}` : ""}\nLink: ${this.ctx.config.WEB_URL.replace(/\/$/, "")}/l/${l!.slug}\nAdmin: ${this.ctx.config.WEB_URL.replace(/\/$/, "")}/admin-ui/` }).catch((e) => console.error("[email] send failed:", e instanceof Error ? e.message : e));
     return this.linkDto(l!, user.username);
   }
   async updateLink(user: User, id: string, input: { label?: string; paused?: boolean; prompt?: string | null; closesAt?: string | null }) {

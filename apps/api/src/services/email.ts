@@ -20,10 +20,30 @@ class SmtpTransport implements EmailTransport {
   async send(m: EmailMessage) { await this.t.sendMail({ from: this.from, to: m.to, subject: m.subject, text: m.text }); }
 }
 
+/** Sends through an HTTPS email API; throws on any non-2xx so callers/logs see delivery failures. */
+class HttpApiTransport implements EmailTransport {
+  constructor(private kind: "brevo" | "resend", private key: string, private from: string) {}
+  private parsedFrom() {
+    const m = /^(.*?)\s*<(.+)>$/.exec(this.from);
+    return { name: (m?.[1] ?? "").replace(/^"|"$/g, "") || "EAR", email: m?.[2] ?? this.from };
+  }
+  async send(m: EmailMessage) {
+    const f = this.parsedFrom();
+    const res = this.kind === "brevo"
+      ? await fetch("https://api.brevo.com/v3/smtp/email", { method: "POST", headers: { "api-key": this.key, "content-type": "application/json", accept: "application/json" }, body: JSON.stringify({ sender: f, to: [{ email: m.to }], subject: m.subject, textContent: m.text }) })
+      : await fetch("https://api.resend.com/emails", { method: "POST", headers: { authorization: `Bearer ${this.key}`, "content-type": "application/json" }, body: JSON.stringify({ from: this.from, to: [m.to], subject: m.subject, text: m.text }) });
+    if (!res.ok) throw new Error(`email ${this.kind} failed: ${res.status} ${(await res.text()).slice(0, 300)}`);
+  }
+}
+
 export function createEmailTransport(config: Config, db: Db): EmailTransport {
   if (config.EMAIL_TRANSPORT === "smtp") {
     if (!config.SMTP_URL) throw new Error("SMTP_URL is required when EMAIL_TRANSPORT=smtp");
     return new SmtpTransport(config.SMTP_URL, config.EMAIL_FROM);
+  }
+  if (config.EMAIL_TRANSPORT === "brevo" || config.EMAIL_TRANSPORT === "resend") {
+    if (!config.EMAIL_API_KEY) throw new Error("EMAIL_API_KEY is required when EMAIL_TRANSPORT=brevo|resend");
+    return new HttpApiTransport(config.EMAIL_TRANSPORT, config.EMAIL_API_KEY, config.EMAIL_FROM);
   }
   return config.EMAIL_TRANSPORT === "log" ? new LogTransport() : new OutboxTransport(db);
 }

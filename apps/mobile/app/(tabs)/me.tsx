@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { LIMITS } from "@unsaid/shared";
 import { ApiError } from "@unsaid/api-client";
+import { uploadAvatar } from "@/lib/uploadAvatar";
 import { Avatar } from "@/components/Avatar";
 import { BottomSheet } from "@/components/BottomSheet";
 import { Button } from "@/components/Button";
@@ -90,9 +91,7 @@ export default function Me() {
     const ext = type === "image/png" ? "png" : type === "image/webp" ? "webp" : type === "image/gif" ? "gif" : "jpg";
     setBusy(true);
     try {
-      const form = new FormData();
-      form.append("file", { uri: a.uri, name: `avatar.${ext}`, type } as unknown as Blob);
-      const next = await api.profile.uploadAvatar(form);
+      const next = await uploadAvatar(a.uri, `avatar.${ext}`, type);
       patchMe((m) => ({ ...m, profile: next })); toast.show(t("me.photoUpdated"), "success");
     } catch (e) {
       toast.show(t("me.photoUploadFailed", { reason: errorMessage(e) }), "error"); report(e);

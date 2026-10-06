@@ -99,7 +99,7 @@ export class AuthService {
     if (user.emailVerifiedAt) return;
     const token = await this.issueEmailToken(user.id, "verify", DAY);
     const mail = emails.verify(`${this.ctx.config.WEB_URL}/verify-email?token=${token}`, user.locale);
-    await this.ctx.email.send({ to: user.email, ...mail }).catch(() => undefined);
+    await this.ctx.email.send({ to: user.email, ...mail }).catch((e) => console.error("[email] send failed:", e instanceof Error ? e.message : e));
   }
   private async consumeToken(token: string, kind: "verify" | "reset") {
     const rows = await this.ctx.db.update(emailTokens).set({ usedAt: new Date() })
@@ -115,7 +115,7 @@ export class AuthService {
     const [user] = await this.ctx.db.select().from(users).where(eq(users.email, email)).limit(1);
     if (!user || user.status === "banned") return;
     const token = await this.issueEmailToken(user.id, "reset", 3_600_000);
-    await this.ctx.email.send({ to: user.email, ...emails.reset(`${this.ctx.config.WEB_URL}/reset-password?token=${token}`, user.locale) }).catch(() => undefined);
+    await this.ctx.email.send({ to: user.email, ...emails.reset(`${this.ctx.config.WEB_URL}/reset-password?token=${token}`, user.locale) }).catch((e) => console.error("[email] send failed:", e instanceof Error ? e.message : e));
   }
   async resetPassword(token: string, password: string) {
     const userId = await this.consumeToken(token, "reset");
@@ -127,7 +127,7 @@ export class AuthService {
     if (!(await verifyPassword(current, user.passwordHash))) throw new AppError("validation_error", "Your current password is incorrect.", { currentPassword: ["Incorrect password"] });
     await this.ctx.db.update(users).set({ passwordHash: await hashPassword(next), updatedAt: new Date() }).where(eq(users.id, user.id));
     await this.revokeAll(user.id, sessionId);
-    await this.ctx.email.send({ to: user.email, ...emails.passwordChanged(user.locale) }).catch(() => undefined);
+    await this.ctx.email.send({ to: user.email, ...emails.passwordChanged(user.locale) }).catch((e) => console.error("[email] send failed:", e instanceof Error ? e.message : e));
     await this.ctx.notifier.notify({ userId: user.id, type: "safety", title: "Password changed", body: "Your password was changed and other devices were signed out." });
   }
 
@@ -142,7 +142,7 @@ export class AuthService {
       await tx.delete(users).where(eq(users.id, user.id)); // FK cascades remove all owned data; reports keep their evidence snapshot
     });
     if (p?.k) await this.ctx.storage.delete(p.k).catch(() => undefined);
-    await this.ctx.email.send({ to: user.email, ...emails.accountDeleted(user.locale) }).catch(() => undefined);
+    await this.ctx.email.send({ to: user.email, ...emails.accountDeleted(user.locale) }).catch((e) => console.error("[email] send failed:", e instanceof Error ? e.message : e));
   }
 
   async me(user: User): Promise<MeDto> {
