@@ -1,5 +1,6 @@
 import { View } from "react-native";
 import { useRouter } from "expo-router";
+import { AuroraBackground } from "@/components/AuroraBackground";
 import { WordmarkLogo } from "@/components/WordmarkLogo";
 import { Button } from "@/components/Button";
 import { LanguagePicker } from "@/components/LanguagePicker";
@@ -17,6 +18,7 @@ export default function Welcome() {
   const tagline = `${taglineLines.slice(0, mid).join(" ")}\n${taglineLines.slice(mid).join(" ")}`;
   return (
     <Screen scroll={false} contentStyle={{ justifyContent: "space-between" }}>
+      <AuroraBackground />
       <View>
         <LanguagePicker align="end" />
         <InkIn style={{ marginTop: 28, gap: 20 }}>
