@@ -95,11 +95,14 @@ export class AuthService {
     await this.ctx.db.insert(emailTokens).values({ userId, kind, tokenHash: sha256Hex(token), expiresAt: new Date(Date.now() + ttlMs) });
     return token;
   }
-  async sendVerification(user: User) {
+  async sendVerification(user: User, strict = false) {
     if (user.emailVerifiedAt) return;
     const token = await this.issueEmailToken(user.id, "verify", DAY);
     const mail = emails.verify(`${this.ctx.config.WEB_URL}/verify-email?token=${token}`, user.locale);
-    await this.ctx.email.send({ to: user.email, ...mail }).catch((e) => console.error("[email] send failed:", e instanceof Error ? e.message : e));
+    await this.ctx.email.send({ to: user.email, ...mail }).catch((e) => {
+      console.error("[email] send failed:", e instanceof Error ? e.message : e);
+      if (strict) throw new AppError("server_error", "We couldn't send the email right now. Check the address and try again in a few minutes.");
+    });
   }
   private async consumeToken(token: string, kind: "verify" | "reset") {
     const rows = await this.ctx.db.update(emailTokens).set({ usedAt: new Date() })

@@ -79,7 +79,7 @@ export function registerRoutes(app: FastifyInstance, ctx: AppContext, svc: { aut
     api.post("/auth/resend-verification", async (req, reply) => {
       const a = requireAuth(req);
       await limit(ctx, `resend:${a.user.id}`, 3, HOUR);
-      await auth.sendVerification(a.user);
+      await auth.sendVerification(a.user, true);
       return reply.status(204).send();
     });
     api.post("/auth/forgot-password", async (req, reply) => {
