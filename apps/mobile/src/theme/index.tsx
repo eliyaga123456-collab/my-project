@@ -1,6 +1,13 @@
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { useColorScheme } from "react-native";
-import { themes, radii, space, brand, palette, type ThemeName } from "@unsaid/tokens";
+import { themes as baseThemes, radii, space, brand as baseBrand, palette, type ThemeName } from "@unsaid/tokens";
+
+/** Mobile palette aligned with the glossy wordmark. Dark: deep purple-black with hot-pink and orange glow. Light: soft white-pink with lavender -> pink -> amber. */
+const themes: { [N in ThemeName]: { [K in keyof (typeof baseThemes)["dark"]]: string } } = {
+  dark: { ...baseThemes.dark, background: "#0b0614", surface: "#170c27", surfaceRaised: "#241238", border: "rgba(255,170,230,0.14)", text: "#faf5ff", muted: "#b3a6cf", primary: "#ff4fa3", primaryText: "#1c0612", secondary: "#ff8a3d" },
+  light: { ...baseThemes.light, background: "#fff7fb", surface: "#ffffff", surfaceRaised: "#f6ecff", border: "rgba(110,60,170,0.16)", text: "#1d1230", muted: "#6a5a85", primary: "#c0278f", primaryText: "#ffffff", secondary: "#6b46d6" }
+};
+const brand = { ...baseBrand, gradient: ["#ff8a3d", "#ff4fa3", "#8a3dff"] as const, gradientLight: ["#8b6cf0", "#ff5fa8", "#ffb347"] as const };
 
 export type Colors = { [K in keyof (typeof themes)["dark"]]: string };
 let hebrewFonts = false;

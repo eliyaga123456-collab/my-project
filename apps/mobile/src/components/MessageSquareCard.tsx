@@ -5,6 +5,7 @@ import { brand, palette } from "@unsaid/tokens";
 import { fontFamily } from "@/theme";
 import { useT } from "@/i18n";
 import { EarMark } from "./EarMark";
+import { QrCode } from "./QrCode";
 import { Text } from "./Text";
 import { WordmarkLogo } from "./WordmarkLogo";
 
@@ -29,9 +30,9 @@ export const MessageSquareCard = forwardRef<View, { body: string; handleUrl: str
         <Text key={i} style={{ position: "absolute", top: s.top, start: s.start, color: "#fff", opacity: s.o, fontSize: s.size, lineHeight: s.size + 2 }}>✦</Text>
       ))}
       <View style={{ position: "absolute", top: 10, start: 0, end: 0, alignItems: "center" }}>
-        <WordmarkLogo width={86} />
+        <WordmarkLogo width={86} theme="dark" />
       </View>
-      <View style={{ position: "absolute", top: 70, bottom: 52, start: 22, end: 22, justifyContent: "center" }}>
+      <View style={{ position: "absolute", top: 70, bottom: 66, start: 22, end: 22, justifyContent: "center" }}>
         <View style={{ backgroundColor: "#fff", borderRadius: 20, overflow: "hidden", shadowColor: "#000", shadowOpacity: 0.35, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 10 }}>
           <View style={{ backgroundColor: palette.ink[950], paddingVertical: 7, paddingHorizontal: 14, flexDirection: "row", alignItems: "center", gap: 7 }}>
             <EarMark size={18} />
@@ -41,6 +42,9 @@ export const MessageSquareCard = forwardRef<View, { body: string; handleUrl: str
             <Text numberOfLines={7} style={{ color: palette.ink[900], fontFamily: fontFamily.displaySemi, fontSize: size, lineHeight: size * 1.28, textAlign: "center" }}>{body}</Text>
           </View>
         </View>
+      </View>
+      <View style={{ position: "absolute", bottom: 8, end: 12 }}>
+        <QrCode value={handleUrl} size={54} radius={8} />
       </View>
       <View style={{ position: "absolute", bottom: 12, start: 0, end: 0, alignItems: "center", gap: 4 }}>
         <Text style={{ color: "#fff", fontFamily: fontFamily.displaySemi, fontSize: 13 }}>{t("storyCard.cta")}</Text>

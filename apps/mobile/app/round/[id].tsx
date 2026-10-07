@@ -12,6 +12,8 @@ import { ErrorState } from "@/components/ErrorState";
 import { IconButton } from "@/components/IconButton";
 import { Input } from "@/components/Input";
 import { Screen } from "@/components/Screen";
+import { QrCode } from "@/components/QrCode";
+import { QrSheet } from "@/components/QrSheet";
 import { ShareTargets } from "@/components/ShareTargets";
 import { SkeletonList } from "@/components/Skeleton";
 import { Text } from "@/components/Text";
@@ -41,6 +43,7 @@ export default function RoundScreen() {
   const [duration, setDuration] = useState<Duration>("none");
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [qr, setQr] = useState(false);
 
   // A just-created round opens the system share sheet once, so the link goes out immediately.
   const autoShared = useRef(false);
@@ -80,7 +83,14 @@ export default function RoundScreen() {
           <Card glow style={{ gap: 12 }}>
             <Text variant="label" tone="muted">{t("round.yourLink")}</Text>
             <Text selectable tone="primary" style={{ fontSize: 17, textAlign: "left", writingDirection: "ltr" }}>{url}</Text>
-            <Button title={t("round.copyLink")} onPress={() => void copy()} />
+            <View style={{ alignItems: "center", paddingVertical: 4 }}>
+              <QrCode value={url} size={170} radius={16} />
+              <Text variant="caption" tone="muted" style={{ marginTop: 8 }}>{t("qr.hint")}</Text>
+            </View>
+            <View style={{ flexDirection: "row", gap: 8 }}>
+              <Button title={t("round.copyLink")} onPress={() => void copy()} style={{ flex: 1 }} />
+              <Button title={t("qr.show")} variant="secondary" onPress={() => setQr(true)} />
+            </View>
           </Card>
           <ShareTargets text={text} url={url} onMore={() => void safely(() => Share.share({ message: text }), () => toast.show(t("errors.generic"), "error"))} />
           <Button title={t("share.seeResponses")} variant="secondary" onPress={() => router.navigate({ pathname: "/inbox", params: { round: link.id } })} />
@@ -94,6 +104,7 @@ export default function RoundScreen() {
           {!link.isPrimary ? <Button title={t("share.deleteLink")} variant="ghost" onPress={() => setConfirmDelete(true)} /> : null}
         </>
       )}
+      <QrSheet visible={qr} url={url} onClose={() => setQr(false)} title={link?.label} />
       <ConfirmSheet visible={confirmDelete} title={t("share.deleteTitle")} message={t("share.deleteBody", { label: link?.label ?? "" })} confirmLabel={t("common.delete")} destructive loading={busy} onConfirm={() => { setConfirmDelete(false); void remove(); }} onCancel={() => setConfirmDelete(false)} />
     </Screen>
   );

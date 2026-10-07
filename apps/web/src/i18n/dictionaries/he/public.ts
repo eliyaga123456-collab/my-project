@@ -5,6 +5,7 @@ export const pub: DeepString<typeof en> = {
   layout: { makeLink: "יוצרים קישור משלכם" },
   profile: {
     defaultPrompt: "שלחו לי הודעות אנונימיות!",
+    whatsapp: "דברו איתי בוואטסאפ",
     roundClosed: "הסבב נסגר",
     round: "סבב אנונימי",
     answers: "תשובות",

@@ -226,6 +226,12 @@ export const en = {
       other: "Something else"
     }
   },
+  qr: {
+    show: "Show QR",
+    title: "Scan to message me",
+    hint: "Point a camera at this code to open the link.",
+    scanLabel: "SCAN ME"
+  },
   storyCard: {
     label: "ANONYMOUS MESSAGE",
     cta: "Send me anonymous messages"
@@ -318,6 +324,55 @@ export const en = {
     changePhoto: "Change photo",
     photoCrop: "Photo (crop it your way)",
     photoGif: "GIF / animated (no crop)",
+    photoVideo: "Video (trim to 5 s)",
+    photoVideoTitle: "Choose a video",
+    crop: {
+      title: "Crop your photo",
+      hint: "Drag and pinch to place your face inside the circle.",
+      zoomIn: "Zoom in",
+      zoomOut: "Zoom out",
+      use: "Use this photo",
+      failed: "Couldn't crop the photo. Try again."
+    },
+    video: {
+      title: "Animated avatar",
+      body: "Pick where it starts and how long it plays (up to {max} seconds). It loops as your profile picture.",
+      total: "Video length: {time}",
+      start: "Start at",
+      length: "Length",
+      upload: "Make my animated avatar",
+      pickFailed: "Couldn't open your videos: {reason}",
+      uploadFailed: "Couldn't process the video: {reason}",
+      updated: "Animated avatar updated"
+    },
+    email: {
+      label: "Email",
+      verified: "Verified",
+      unverified: "Not verified",
+      change: "Change email",
+      title: "Change email",
+      body: "We'll send a verification link to the new address. Confirm with your current password.",
+      newEmail: "New email",
+      password: "Current password",
+      submit: "Change email",
+      changed: "Email changed. Check {email} to verify it.",
+      same: "That's already your email."
+    },
+    frames: {
+      title: "Profile frame",
+      body: "A decorative ring around your picture, visible to everyone who opens your page.",
+      none: "None",
+      saved: "Frame updated",
+      names: { neon: "Neon", aurora: "Aurora", gold: "Gold", candy: "Candy", ice: "Ice", fire: "Fire", galaxy: "Galaxy", rainbow: "Rainbow", hearts: "Hearts", crown: "Crown" }
+    },
+    whatsapp: {
+      label: "WhatsApp number (optional)",
+      placeholder: "972501234567",
+      note: "Shown on your public page as a chat button. Digits only, with country code, no + or spaces. Leave empty to hide it.",
+      saved: "WhatsApp saved",
+      removed: "WhatsApp removed from your page",
+      invalid: "Enter 7 to 15 digits with the country code."
+    },
     removePhoto: "Remove photo",
     emailNotVerified: "Email not verified",
     verifyBody: "Verify {email} to publish public answers.",
@@ -429,6 +484,7 @@ export const en = {
     }
   },
   publicProfile: {
+    whatsappChat: "Chat on WhatsApp",
     linkNotFoundTitle: "Link not found",
     linkNotFoundBody: "This link doesn't exist, was renamed, or the account is gone.",
     getOwn: "Get your own EAR",

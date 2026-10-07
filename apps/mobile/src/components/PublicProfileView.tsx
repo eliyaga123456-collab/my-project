@@ -1,6 +1,6 @@
 import { Badge } from "@/components/Badge";
 import { useState } from "react";
-import { View } from "react-native";
+import { Linking, View } from "react-native";
 import { useRouter } from "expo-router";
 import { ApiError } from "@unsaid/api-client";
 import { LIMITS, type ChallengeDto, type PublicProfileDto } from "@unsaid/shared";
@@ -104,11 +104,14 @@ export function PublicProfileView({ target }: { target: Target }) {
     <Screen>
       {header}
       <View style={{ alignItems: "center", gap: 8 }}>
-        <Avatar name={p.displayName || p.username} uri={p.avatarUrl} size={84} />
+        <Avatar name={p.displayName || p.username} uri={p.avatarUrl} size={84} frame={p.avatarFrame} />
         <Text variant="title">{p.displayName || p.username}</Text>
         <Text tone="muted">{isolate(`@${p.username}`)}</Text>
         {p.linkLabel ? <Badge label={t("publicProfile.roundBadge", { kind: closed ? t("publicProfile.roundClosed") : t("publicProfile.anonymousRound"), label: p.linkLabel })} tone="secondary" /> : null}
         {p.bio ? <Text style={{ textAlign: "center" }}>{p.bio}</Text> : null}
+        {p.whatsapp && /^[0-9]{7,15}$/.test(p.whatsapp) ? (
+          <Button title={t("publicProfile.whatsappChat")} small variant="secondary" icon={<Icon name="chat" size={18} tone="success" />} onPress={() => { void Linking.openURL(`https://wa.me/${p.whatsapp}`).catch(() => undefined); }} />
+        ) : null}
       </View>
 
       {outcome === "sent" ? (

@@ -60,7 +60,7 @@ function Shell({ children }: { children: ReactNode }) {
             <Dropdown
               label={t("app.nav.account")}
               triggerClassName="rounded-full"
-              trigger={<Avatar name={me.profile.displayName} src={me.profile.avatarUrl} size={40} />}
+              trigger={<Avatar name={me.profile.displayName} src={me.profile.avatarUrl} size={40} frame={me.profile.avatarFrame} />}
               items={[
                 { id: "profile", label: t("app.nav.viewPublic"), icon: <Link2 className="size-4" />, onSelect: () => window.open(`/u/${me.profile.username}`, "_blank", "noopener") },
                 { id: "settings", label: t("app.nav.settings"), icon: <Settings className="size-4" />, onSelect: () => router.push("/settings") },

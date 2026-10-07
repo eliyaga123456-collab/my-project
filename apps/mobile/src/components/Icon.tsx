@@ -4,7 +4,7 @@ import { useT } from "@/i18n";
 
 export type IconName =
   | "inbox" | "share" | "bell" | "user" | "reply" | "trash" | "flag" | "block" | "copy" | "plus" | "close" | "check"
-  | "chevron" | "lock" | "pause" | "link" | "send" | "eye" | "shield" | "refresh" | "more" | "camera" | "wifi-off";
+  | "chevron" | "lock" | "pause" | "link" | "send" | "eye" | "shield" | "refresh" | "more" | "camera" | "wifi-off" | "minus" | "qr" | "mail" | "chat";
 
 const paths: Record<IconName, (c: string) => React.ReactNode> = {
   inbox: (c) => <Path d="M3 13l2.5-7.5A2 2 0 017.4 4h9.2a2 2 0 011.9 1.5L21 13v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5zm0 0h5l1.5 2.5h5L16 13h5" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" fill="none" />,
@@ -29,6 +29,10 @@ const paths: Record<IconName, (c: string) => React.ReactNode> = {
   refresh: (c) => <Path d="M20 11a8 8 0 10-2.3 5.7M20 5v6h-6" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" fill="none" />,
   more: (c) => <><Circle cx={5} cy={12} r={1.6} fill={c} /><Circle cx={12} cy={12} r={1.6} fill={c} /><Circle cx={19} cy={12} r={1.6} fill={c} /></>,
   camera: (c) => <><Path d="M4 8h3l1.5-2h7L17 8h3v11H4V8z" stroke={c} strokeWidth={1.8} strokeLinejoin="round" fill="none" /><Circle cx={12} cy={13} r={3.5} stroke={c} strokeWidth={1.8} fill="none" /></>,
+  minus: (c) => <Path d="M5 12h14" stroke={c} strokeWidth={2} strokeLinecap="round" />,
+  qr: (c) => <><Rect x={4} y={4} width={6} height={6} rx={1} stroke={c} strokeWidth={1.8} fill="none" /><Rect x={14} y={4} width={6} height={6} rx={1} stroke={c} strokeWidth={1.8} fill="none" /><Rect x={4} y={14} width={6} height={6} rx={1} stroke={c} strokeWidth={1.8} fill="none" /><Path d="M14 14h3v3m3 0v3h-3m-3 0v-3" stroke={c} strokeWidth={1.8} strokeLinecap="round" fill="none" /></>,
+  mail: (c) => <><Rect x={3} y={5} width={18} height={14} rx={3} stroke={c} strokeWidth={1.8} fill="none" /><Path d="M4 7l8 6 8-6" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" fill="none" /></>,
+  chat: (c) => <Path d="M4 5h16v11H9l-5 4V5z" stroke={c} strokeWidth={1.8} strokeLinejoin="round" fill="none" />,
   "wifi-off": (c) => <Path d="M3 3l18 18M5 10a10 10 0 015-2.5M19 10a10 10 0 00-4-2.2M8.5 13.5a6 6 0 013-1.4m4 .6a6 6 0 011 .8M12 18h.01" stroke={c} strokeWidth={1.8} strokeLinecap="round" fill="none" />
 };
 

@@ -9,6 +9,7 @@ import type { MessageDto } from "@unsaid/shared";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { MessageStoryCard, STORY_SIZE } from "@/components/MessageStoryCard";
+import { QrSheet } from "@/components/QrSheet";
 import { MessageSquareCard } from "@/components/MessageSquareCard";
 import { Chips } from "@/components/Chips";
 import { useToast } from "@/components/Toast";
@@ -35,6 +36,7 @@ export default function MessageScreen() {
   const toast = useToast();
   const cardRef = useRef<View>(null);
   const [busy, setBusy] = useState(false);
+  const [qr, setQr] = useState(false);
   const [format, setFormat] = useState<"square" | "story" | "video">("square");
   const myUrl = linkUrl(WEB_URL, { isPrimary: true, slug: "" }, me?.profile.username);
   const { data, setData, error, loading, reload } = useRequest(() => api.messages.get(String(id)), [id]);
@@ -88,7 +90,11 @@ export default function MessageScreen() {
           </View>
           <Text variant="caption" tone="muted" style={{ textAlign: "center" }}>{t("message.linkStickerHint")}</Text>
           <Button title={format === "video" ? t("message.shareVideo") : t("message.shareStory")} onPress={() => void shareStory()} loading={busy} />
-          <Button title={t("message.copyMyLink")} variant="secondary" onPress={() => void copyLink()} />
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            <Button title={t("message.copyMyLink")} variant="secondary" onPress={() => void copyLink()} style={{ flex: 1 }} />
+            <Button title={t("qr.show")} variant="ghost" onPress={() => setQr(true)} />
+          </View>
+          <QrSheet visible={qr} url={myUrl} onClose={() => setQr(false)} />
           {data.reply ? (
             <Card style={{ gap: 8 }}>
               <Text variant="label" tone="secondary">{data.reply.public ? t("message.yourPublicAnswer") : t("message.yourPrivateReply")}</Text>

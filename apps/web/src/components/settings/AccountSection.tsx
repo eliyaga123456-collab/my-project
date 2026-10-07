@@ -2,12 +2,13 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
-import { LIMITS, passwordSchema } from "@unsaid/shared";
+import { BadgeCheck, LogOut, MailWarning } from "lucide-react";
+import { LIMITS, emailSchema, passwordSchema } from "@unsaid/shared";
 import { useT } from "@/i18n/client";
 import { api } from "@/lib/api";
 import { errorMessage, fieldErrors, isApiError } from "@/lib/errors";
-import { Button, useToast } from "@/components/ui";
+import { Badge, Button, InputField, useToast } from "@/components/ui";
+import { useMe } from "@/components/app/MeProvider";
 import { PasswordField } from "@/components/auth/PasswordField";
 import { SettingsCard } from "./parts";
 
@@ -46,6 +47,61 @@ export function PasswordSection() {
         <PasswordField label={t("app.settings.password.current")} autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} error={errors.current} />
         <PasswordField label={t("app.settings.password.next")} autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} error={errors.next} showRules />
         <Button type="submit" loading={busy}>{t("app.settings.password.update")}</Button>
+      </form>
+    </SettingsCard>
+  );
+}
+
+export function EmailSection() {
+  const { t } = useT();
+  const toast = useToast();
+  const { me, setMe } = useMe();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false);
+  const [resending, setResending] = useState(false);
+
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    const n: Record<string, string> = {};
+    const parsed = emailSchema.safeParse(email);
+    if (!parsed.success) n.email = t("auth.login.emailInvalid");
+    else if (parsed.data === me.user.email.toLowerCase()) n.email = t("app.settings.email.same");
+    if (!password) n.password = t("app.settings.password.enterCurrent");
+    setErrors(n);
+    if (Object.keys(n).length || !parsed.success) return;
+    setBusy(true);
+    try {
+      const user = await api.auth.changeEmail({ password, email: parsed.data });
+      setMe({ ...me, user });
+      setEmail(""); setPassword("");
+      toast.success(t("app.settings.email.changed"));
+    } catch (err) {
+      const fe = fieldErrors(err);
+      if (isApiError(err) && (err.status === 401 || err.status === 403)) setErrors({ password: t("app.settings.password.wrongCurrent") });
+      else if (isApiError(err) && err.status === 409) setErrors({ email: t("app.settings.email.taken") });
+      else if (fe.email) setErrors({ email: fe.email });
+      else toast.error(errorMessage(err, t("public.errors.generic")));
+    } finally { setBusy(false); }
+  }
+  async function resend() {
+    setResending(true);
+    try { await api.auth.resendVerification(); toast.success(t("app.verify.toast")); } catch (err) { toast.error(errorMessage(err, t("public.errors.generic"))); } finally { setResending(false); }
+  }
+
+  return (
+    <SettingsCard id="s-email" title={t("app.settings.email.title")} description={t("app.settings.email.body")}>
+      <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md bg-raised/60 px-4 py-3">
+        <span dir="ltr" className="font-mono text-sm [overflow-wrap:anywhere]">{me.user.email}</span>
+        {me.user.emailVerified
+          ? <Badge tone="success"><BadgeCheck className="size-3" aria-hidden />{t("app.settings.email.verified")}</Badge>
+          : <><Badge tone="warning"><MailWarning className="size-3" aria-hidden />{t("app.settings.email.unverified")}</Badge><Button size="sm" variant="outline" loading={resending} onClick={resend}>{t("app.verify.resend")}</Button></>}
+      </div>
+      <form onSubmit={submit} noValidate className="space-y-4">
+        <InputField label={t("app.settings.email.new")} type="email" dir="ltr" autoComplete="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} hint={t("app.settings.email.hint")} className="[&_input]:text-start" />
+        <PasswordField label={t("app.settings.password.current")} autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} error={errors.password} />
+        <Button type="submit" loading={busy}>{t("app.settings.email.change")}</Button>
       </form>
     </SettingsCard>
   );

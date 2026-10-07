@@ -1,4 +1,5 @@
 export * from "./Avatar";
+export * from "./AvatarFrame";
 export * from "./Badge";
 export * from "./Button";
 export * from "./Dropdown";

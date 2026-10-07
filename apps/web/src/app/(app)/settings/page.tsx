@@ -6,7 +6,7 @@ import { SafetySection } from "@/components/settings/SafetySection";
 import { BlockedSection } from "@/components/settings/BlockedSection";
 import { NotificationPrefsSection } from "@/components/settings/NotificationPrefsSection";
 import { SessionsSection } from "@/components/settings/SessionsSection";
-import { PasswordSection, LogoutSection } from "@/components/settings/AccountSection";
+import { EmailSection, PasswordSection, LogoutSection } from "@/components/settings/AccountSection";
 import { GetAppSection } from "@/components/settings/GetAppSection";
 import { getT } from "@/i18n/server";
 
@@ -28,6 +28,7 @@ export default async function SettingsPage() {
         <BlockedSection />
         <NotificationPrefsSection />
         <SessionsSection />
+        <EmailSection />
         <PasswordSection />
         <LogoutSection />
       </div>

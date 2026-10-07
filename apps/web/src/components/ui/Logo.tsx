@@ -40,15 +40,27 @@ export function Wordmark({ className }: { className?: string }) {
   );
 }
 
+/** Theme-aware wordmark: both files render, CSS shows the one matching the active theme (no flash). */
+export function BrandImage({ width, height, className, priority, style }: { width: number; height: number; className?: string; priority?: boolean; style?: React.CSSProperties }) {
+  const common = { alt: "", width, height, decoding: "async" as const, style, ...(priority ? { fetchPriority: "high" as const } : {}) };
+  return (
+    <>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/brand/ear-wordmark.webp" {...common} className={cx("brand-img brand-img-dark", className)} />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/brand/ear-wordmark-light.webp" {...common} loading={priority ? undefined : "lazy"} className={cx("brand-img brand-img-light", className)} />
+    </>
+  );
+}
+
 export function Logo({ className, size = 30, wordmark = true }: { className?: string; size?: number; wordmark?: boolean }) {
   const { t } = useT();
   if (!wordmark) return <span className={cx("ear-logo inline-flex items-center", className)}><LogoMark size={size} /></span>;
   const h = Math.round(size * 1.45);
   return (
     <span className={cx("ear-logo inline-flex items-center", className)}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/brand/ear-wordmark.webp" alt="EAR" width={Math.round(h * 1.47)} height={h} decoding="async" className="select-none object-contain transition-transform duration-300 hover:scale-105" />
-      <span className="sr-only"> ({t("common.brand.dedicationSr")})</span>
+      <BrandImage width={Math.round(h * 1.47)} height={h} className="select-none object-contain transition-transform duration-300 hover:scale-105" />
+      <span className="sr-only">EAR ({t("common.brand.dedicationSr")})</span>
     </span>
   );
 }

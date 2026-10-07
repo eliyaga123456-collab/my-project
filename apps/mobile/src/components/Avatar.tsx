@@ -6,17 +6,18 @@ import { initials } from "@/lib/format";
 import { API_URL } from "@/lib/env";
 import { useT } from "@/i18n";
 import { Text } from "./Text";
+import { AvatarFrame } from "./AvatarFrame";
 
 export function resolveMediaUrl(url: string | null): string | null {
   if (!url) return null;
   return /^https?:\/\//.test(url) ? url : `${API_URL}${url.startsWith("/") ? "" : "/"}${url}`;
 }
 
-export function Avatar({ name, uri, size = 44 }: { name: string; uri?: string | null; size?: number }) {
+export function Avatar({ name, uri, size = 44, frame }: { name: string; uri?: string | null; size?: number; frame?: string | null }) {
   const { brand } = useTheme();
   const { t } = useT();
   const src = resolveMediaUrl(uri ?? null);
-  return (
+  const core = (
     <View accessible accessibilityRole="image" accessibilityLabel={t("me.avatarOf", { name })} style={{ width: size, height: size, borderRadius: size / 2, overflow: "hidden", alignItems: "center", justifyContent: "center" }}>
       {src ? (
         <Image source={{ uri: src }} style={{ width: size, height: size }} contentFit="cover" transition={150} />
@@ -27,4 +28,5 @@ export function Avatar({ name, uri, size = 44 }: { name: string; uri?: string | 
       )}
     </View>
   );
+  return frame ? <AvatarFrame frame={frame} size={size}>{core}</AvatarFrame> : core;
 }

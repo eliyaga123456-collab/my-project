@@ -3,6 +3,7 @@ export const pub = {
   layout: { makeLink: "Make your own link" },
   profile: {
     defaultPrompt: "Send me anonymous messages!",
+    whatsapp: "Chat on WhatsApp",
     roundClosed: "Round closed",
     round: "Anonymous round",
     answers: "Answers",

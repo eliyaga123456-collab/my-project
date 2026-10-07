@@ -11,6 +11,8 @@ import { api } from "@/lib/api";
 import { errorMessage } from "@/lib/errors";
 import { compactNumber } from "@/lib/format";
 import { Badge, Button, ConfirmDialog, EmptyState, ErrorState, IconButton, InputField, Modal, Skeleton, Switch, TextareaField, Tooltip, useToast } from "@/components/ui";
+import { useMe } from "./MeProvider";
+import { QrCard } from "./QrCard";
 import { ShareActions } from "@/components/public/ShareActions";
 
 const DURATIONS = [
@@ -39,6 +41,7 @@ function Stats({ link }: { link: LinkDto }) {
 }
 
 export function LinksView() {
+  const { me } = useMe();
   const { t, tp } = useT();
   const when = useWhen();
   const toast = useToast();
@@ -183,7 +186,8 @@ export function LinksView() {
             <p className="mt-1 text-muted">{t("app.links.primaryBody")}</p>
             <p data-testid="primary-link" dir="ltr" className="mt-3 break-all rounded-md text-start bg-raised px-4 py-3 font-mono text-sm sm:text-base">{primary.url}</p>
             <div className="mt-4"><ShareActions path={primary.url} text={t("app.links.shareDefault")} /></div>
-            <div className="mt-4 border-t border-line pt-2"><Stats link={primary} /></div>
+            <div className="mt-5 border-t border-line pt-5"><QrCard path={primary.url} name={`ear-${me.profile.username}`} /></div>
+            <div className="mt-5 border-t border-line pt-2"><Stats link={primary} /></div>
             <Switch checked={!primary.paused} onChange={(on) => togglePause(primary, !on)} label={t("app.links.accepting")} description={t("app.links.acceptingBody")} />
           </div>
         </section>

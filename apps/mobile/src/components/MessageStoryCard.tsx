@@ -5,6 +5,7 @@ import { brand, palette } from "@unsaid/tokens";
 import { fontFamily } from "@/theme";
 import { ltrIsolate, useT } from "@/i18n";
 import { EarMark } from "./EarMark";
+import { QrCode } from "./QrCode";
 import { Text } from "./Text";
 
 /** 9:16 story canvas (rendered at 270x480 and captured at 4x = 1080x1920). */
@@ -24,7 +25,7 @@ export const MessageStoryCard = forwardRef<View, { body: string; handleUrl: stri
         <EarMark size={30} />
         <Text style={{ color: "#fff", fontFamily: fontFamily.displaySemi, fontSize: 17, letterSpacing: 1.5 }}>{ltrIsolate("EAR*")}</Text>
       </View>
-      <View style={{ flex: 1, justifyContent: "center", paddingHorizontal: 18, paddingTop: 36 }}>
+      <View style={{ flex: 1, justifyContent: "center", paddingHorizontal: 18, paddingTop: 30, paddingBottom: 14 }}>
         <View style={{ backgroundColor: "#fff", borderRadius: 22, overflow: "hidden", shadowColor: "#000", shadowOpacity: 0.35, shadowRadius: 18, shadowOffset: { width: 0, height: 10 }, elevation: 10 }}>
           <View style={{ backgroundColor: palette.ink[950], paddingVertical: 9, paddingHorizontal: 16, flexDirection: "row", alignItems: "center", gap: 8 }}>
             <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: "#ff7440" }} />
@@ -37,6 +38,10 @@ export const MessageStoryCard = forwardRef<View, { body: string; handleUrl: stri
         <Text style={{ color: "#fff", fontFamily: fontFamily.displaySemi, fontSize: 19, textAlign: "center", marginTop: 26 }}>{t("storyCard.cta")}</Text>
         <View style={{ alignSelf: "center", marginTop: 10, backgroundColor: "rgba(0,0,0,0.28)", borderRadius: 999, paddingVertical: 7, paddingHorizontal: 14 }}>
           <Text numberOfLines={1} style={{ color: "#fff", fontFamily: fontFamily.bodySemi, fontSize: 13, writingDirection: "ltr" }}>{handleUrl.replace(/^https?:\/\//, "")}</Text>
+        </View>
+        <View style={{ alignSelf: "center", marginTop: 14, alignItems: "center", gap: 6 }}>
+          <QrCode value={handleUrl} size={92} radius={14} />
+          <Text style={{ color: "#fff", fontFamily: fontFamily.bodySemi, fontSize: 10, letterSpacing: 2 }}>{t("qr.scanLabel")}</Text>
         </View>
       </View>
     </View>

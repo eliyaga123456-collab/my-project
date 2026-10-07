@@ -143,6 +143,10 @@ export const app = {
     resume: "Resume",
     pause: "Pause",
     primaryTitle: "Your always-on link",
+    qrTitle: "QR code",
+    qrBody: "Print it or show it on a screen. Scanning opens your link.",
+    qrDownload: "Download PNG",
+    qrAlt: "QR code for {url}",
     primaryBody: "Your main profile link, great for your bio. Rounds above are for one-off questions.",
     accepting: "Accepting messages",
     acceptingBody: "Turn off to pause this link. Visitors see a friendly paused message and nothing is stored.",
@@ -208,7 +212,27 @@ export const app = {
       badType: "Use a JPEG, PNG or WebP image.",
       tooBig: "That image is over 10 MB. Try a smaller one.",
       avatarUpdated: "Avatar updated",
-      avatarRemoved: "Avatar removed"
+      avatarRemoved: "Avatar removed",
+      whatsapp: "WhatsApp number (optional)",
+      whatsappHint: "Shown publicly on your page as a “Chat on WhatsApp” button, so anyone can message you. Leave empty to keep it private. Include the country code.",
+      whatsappBad: "Enter a valid number with country code, 7 to 15 digits."
+    },
+    frames: {
+      title: "Avatar frame", hint: "A ring around your photo on your public page.", none: "None",
+      neon: "Neon", aurora: "Aurora", gold: "Gold", candy: "Candy", ice: "Ice", fire: "Fire", galaxy: "Galaxy", rainbow: "Rainbow", hearts: "Hearts", crown: "Crown"
+    },
+    crop: {
+      title: "Crop your photo", hint: "Drag to move, zoom to fit. Only the circle is shown.", apply: "Use photo", aria: "Photo crop area. Arrow keys move, plus and minus zoom.",
+      drag: "Drag the photo to reposition", zoom: "Zoom", zoomIn: "Zoom in", zoomOut: "Zoom out"
+    },
+    video: {
+      title: "Animated avatar", hint: "Pick up to 5 seconds of a video to loop as your photo.", choose: "Use a video", aria: "Choose a video for your avatar", use: "Use this clip",
+      start: "Start (seconds)", length: "Length (seconds)", max: "Up to 5 seconds.", preview: "Video preview", bad: "We can't read that video. Try an MP4 or WebM.", tooBig: "That video is over {mb} MB. Try a shorter one."
+    },
+    email: {
+      title: "Email", body: "Used to sign in and to recover your account. Changing it asks you to verify the new address.",
+      verified: "Verified", unverified: "Not verified", new: "New email", hint: "We'll send a verification link to the new address.",
+      change: "Change email", changed: "Email changed. Check your inbox to verify it.", same: "That's already your email.", taken: "That email is already in use."
     },
     username: {
       title: "Username",
