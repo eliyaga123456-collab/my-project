@@ -812,7 +812,7 @@ describe("information disclosure", () => {
     const m = (await inbox(t, A.cookie)).items[0];
     const ans = json(await api(t, "POST", `/messages/${m.id}/reply`, { cookie: A.cookie, body: { text: "an answer", public: true } }));
     const bodies = [json(await api(t, "GET", "/profiles/alice")), json(await api(t, "GET", `/links/public/${round.slug}`)), json(await api(t, "GET", "/profiles/alice/answers")), json(await api(t, "GET", `/answers/${ans.reply.answerId}`))];
-    const allowedProfile = new Set(["username", "displayName", "bio", "prompt", "avatarUrl", "acceptingMessages", "linkState", "linkLabel"]);
+    const allowedProfile = new Set(["username", "displayName", "bio", "prompt", "avatarUrl", "avatarFrame", "whatsapp", "acceptingMessages", "linkState", "linkLabel"]);
     for (const k of Object.keys(bodies[0])) expect(allowedProfile.has(k), k).toBe(true);
     for (const k of Object.keys(bodies[1])) expect(allowedProfile.has(k), k).toBe(true);
     const flat = JSON.stringify(bodies);
