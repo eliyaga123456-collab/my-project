@@ -486,3 +486,16 @@ html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after { transit
 @keyframes float-y { 50% { transform: translateY(-4px); } }
 .state { border-radius: var(--radius-lg); padding: 44px 20px; }
 @media (prefers-reduced-motion: reduce) { .act-row, .state > svg:first-child { animation: none; } .act-row:hover { transform: none; } }
+.btn-primary:disabled { background: var(--surface-raised); color: var(--muted); box-shadow: none; text-shadow: none; border: 1px dashed var(--border); opacity: 1; }
+
+/* staggered entrances for lists */
+.round-list > li, .msg-list > li, .stack > *, .stat-grid > * { animation: rise-in .45s var(--ease) both; }
+.round-list > li:nth-child(2), .msg-list > li:nth-child(2), .stack > :nth-child(2), .stat-grid > :nth-child(2) { animation-delay: 60ms; }
+.round-list > li:nth-child(3), .msg-list > li:nth-child(3), .stack > :nth-child(3), .stat-grid > :nth-child(3) { animation-delay: 120ms; }
+.round-list > li:nth-child(4), .msg-list > li:nth-child(4), .stack > :nth-child(4), .stat-grid > :nth-child(4) { animation-delay: 180ms; }
+.round-list > li:nth-child(n+5), .msg-list > li:nth-child(n+5), .stack > :nth-child(n+5), .stat-grid > :nth-child(n+5) { animation-delay: 240ms; }
+.login-card { animation: rise-in .6s .1s var(--ease) both; }
+.login-logo { filter: drop-shadow(0 10px 30px var(--glow)); }
+@media (prefers-reduced-motion: reduce) { .round-list > li, .msg-list > li, .stack > *, .stat-grid > *, .login-card { animation: none !important; } .state > svg:first-child { animation: none; } }
+.card a:not(.btn):not(.card-link):not(.link), .report-details a { color: var(--primary); font-weight: 700; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.report > .btn-ghost { align-self: flex-start; border: 1px dashed var(--border); }

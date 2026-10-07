@@ -23,7 +23,7 @@ export function AbusePage() {
       <PageHeader title={t("abuse.title")} subtitle={t("abuse.subtitle")} actions={<Button size="sm" icon={<RefreshCw size={14} aria-hidden />} onClick={() => reload()}>{t("common.refresh")}</Button>} />
       {loading && !data ? <SkeletonRows rows={4} label={t("abuse.loading")} /> : error && !data ? <ErrorState message={error} onRetry={() => reload()} /> : data && (
         <div className="stack">
-          <div className="stat-grid two"><StatCard label={t("abuse.flooding")} value={fmt.number(data.floodingLast24h)} hint={t("abuse.floodingHint")} tone={data.floodingLast24h > 0 ? "warning" : undefined} /></div>
+          <div className="stat-grid two"><StatCard label={t("abuse.flooding")} count={data.floodingLast24h} format={fmt.number} hint={t("abuse.floodingHint")} tone={data.floodingLast24h > 0 ? "warning" : undefined} /></div>
           <Card title={t("abuse.byCategory")}>
             {data.rejectedByCategory.length === 0 ? <p className="muted">{t("abuse.nothingRejected")}</p> : (
               <ul className="bars">

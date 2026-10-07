@@ -38,9 +38,9 @@ export function HealthPage() {
             <StatCard label={t("health.database")} value={data.db.ok ? t("health.healthy") : t("health.down")} hint={t("health.latency", { n: fmt.number(data.db.latencyMs) })} tone={data.db.ok ? undefined : "danger"} />
             <StatCard label={t("health.uptime")} value={fmt.uptime(data.uptimeSeconds)} />
             <StatCard label={t("health.memory")} value={<Ltr>{fmt.number(data.memoryMb)} MB</Ltr>} />
-            <StatCard label={t("health.requests")} value={fmt.number(data.counters.requests)} />
-            <StatCard label={t("health.errors5xx")} value={fmt.number(data.counters.errors5xx)} tone={data.counters.errors5xx > 0 ? "danger" : undefined} />
-            <StatCard label={t("health.rateLimited")} value={fmt.number(data.counters.rateLimited)} />
+            <StatCard label={t("health.requests")} count={data.counters.requests} format={fmt.number} />
+            <StatCard label={t("health.errors5xx")} count={data.counters.errors5xx} format={fmt.number} tone={data.counters.errors5xx > 0 ? "danger" : undefined} />
+            <StatCard label={t("health.rateLimited")} count={data.counters.rateLimited} format={fmt.number} />
           </div>
         </>
       )}

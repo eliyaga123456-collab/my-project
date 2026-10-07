@@ -29,8 +29,8 @@ export function UserDetail() {
             </div>
           </section>
           <div className="stat-grid">
-            <StatCard label={t("users.drawer.messages")} value={fmt.number(user.messagesReceived)} />
-            <StatCard label={t("users.drawer.reportsFiled")} value={fmt.number(user.reportsFiled)} />
+            <StatCard label={t("users.drawer.messages")} count={user.messagesReceived} format={fmt.number} />
+            <StatCard label={t("users.drawer.reportsFiled")} count={user.reportsFiled} format={fmt.number} />
           </div>
           <div className="two-col">
             <Card title={t("user.contact")}><OwnerBlock owner={user} profileLink={false} /></Card>

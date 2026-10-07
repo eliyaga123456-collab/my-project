@@ -39,17 +39,17 @@ export function RoundDetail() {
             <p className="field-label">{t("round.link")}</p>
             <div className="link-row">
               <Ltr className="mono link-url">{r.url}</Ltr>
-              <Button size="sm" icon={<Copy size={14} aria-hidden />} onClick={() => void copy(r.url)}>{t("round.copy")}</Button>
+              <Button variant="primary" size="sm" icon={<Copy size={14} aria-hidden />} onClick={() => void copy(r.url)}>{t("round.copy")}</Button>
               <a className="btn btn-sm btn-secondary" href={r.url} target="_blank" rel="noopener noreferrer"><ExternalLink size={14} aria-hidden />{t("round.openLink")}</a>
             </div>
           </section>
 
           <div className="stat-grid five">
-            <StatCard label={t("round.stat.views")} value={fmt.number(r.stats.views)} hint={t("round.stat.viewsHint")} />
-            <StatCard label={t("round.stat.messages")} value={fmt.number(r.stats.messages)} hint={t("round.stat.messagesHint")} />
-            <StatCard label={t("round.stat.replied")} value={fmt.number(r.stats.replied)} hint={t("round.stat.repliedHint")} />
-            <StatCard label={t("round.stat.reported")} value={fmt.number(r.stats.reported)} hint={t("round.stat.reportedHint")} tone={r.stats.reported > 0 ? "warning" : undefined} />
-            <StatCard label={t("round.stat.filtered")} value={fmt.number(r.stats.filtered)} hint={t("round.stat.filteredHint")} />
+            <StatCard label={t("round.stat.views")} count={r.stats.views} format={fmt.number} hint={t("round.stat.viewsHint")} />
+            <StatCard label={t("round.stat.messages")} count={r.stats.messages} format={fmt.number} hint={t("round.stat.messagesHint")} />
+            <StatCard label={t("round.stat.replied")} count={r.stats.replied} format={fmt.number} hint={t("round.stat.repliedHint")} />
+            <StatCard label={t("round.stat.reported")} count={r.stats.reported} format={fmt.number} hint={t("round.stat.reportedHint")} tone={r.stats.reported > 0 ? "warning" : undefined} />
+            <StatCard label={t("round.stat.filtered")} count={r.stats.filtered} format={fmt.number} hint={t("round.stat.filteredHint")} />
           </div>
 
           <div className="two-col">
