@@ -1,10 +1,8 @@
 # Builds the EAR Admin Android app (a secure shell around the hosted admin console) and attaches it to release tag `admin-apk`.
+# Manual only: the console itself lives on the server (/admin-ui/), so website-side changes reach the app without a new APK.
 name: Admin APK
 on:
   workflow_dispatch:
-  push:
-    branches: [claude/elegant-volta-5foywr]
-    paths: ["admin-app/**", ".github/workflows/admin-apk.yml"]
 permissions:
   contents: write
 concurrency: { group: admin-apk, cancel-in-progress: true }
