@@ -19,6 +19,7 @@ import { Input, Textarea } from "@/components/Input";
 import { NavRow } from "@/components/SettingRow";
 import { Screen } from "@/components/Screen";
 import { Text } from "@/components/Text";
+import { InkIn } from "@/theme/motion";
 import { useToast } from "@/components/Toast";
 import { api } from "@/lib/api";
 import { errorMessage } from "@/lib/errors";
@@ -99,7 +100,7 @@ export default function Me() {
     <Screen tabs>
       <Text variant="title">{t("me.title")}</Text>
       <UpdateCard />
-      <Card style={{ alignItems: "center", gap: 10, overflow: "hidden", paddingTop: 22 }}>
+      <InkIn><Card glow animated style={{ alignItems: "center", gap: 10, paddingTop: 22 }}>
         <LinearGradient colors={[withAlpha(brand.gradient[0], 0.22), withAlpha(brand.gradient[1], 0.12), "transparent"]} style={{ position: "absolute", top: 0, start: 0, end: 0, height: 130 }} />
         <PressableScale accessibilityRole="button" accessibilityLabel={t("me.editPhoto")} onPress={() => setAvatarEditor(true)}>
           <Avatar name={p.displayName || p.username} uri={p.avatarUrl} size={104} frame={p.avatarFrame} animated />
@@ -111,7 +112,7 @@ export default function Me() {
           <Button title={t("me.editProfile")} small variant="secondary" onPress={openEdit} />
           <Button title={t("me.editPhoto")} small variant="ghost" onPress={() => setAvatarEditor(true)} />
         </View>
-      </Card>
+      </Card></InkIn>
 
       <Card style={{ gap: 8 }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>

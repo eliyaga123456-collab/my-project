@@ -13,10 +13,19 @@ const GRADS: Record<string, string[]> = {
   fire: ["#ffe45e", "#ff8a1a", "#e3201b", "#ff8a1a", "#ffe45e"],
   rainbow: ["#ff3b3b", "#ff9f1a", "#ffe53b", "#3bd16f", "#3ba5ff", "#8a3dff", "#ff3bd0", "#ff3b3b"],
   galaxy: ["#12063a", "#5b2bd6", "#ff4fd2", "#3aa8ff", "#12063a"],
-  ice: ["#f2fdff", "#7fd6ff", "#c9efff", "#4aa8ff", "#f2fdff"]
+  ice: ["#f2fdff", "#7fd6ff", "#c9efff", "#4aa8ff", "#f2fdff"],
+  sakura: ["#ffe3ee", "#ff9cc2", "#ffc9de", "#ff7fb0", "#ffe3ee"],
+  lightning: ["#fff7a8", "#ffd21f", "#3fb6ff", "#7a5cff", "#ffd21f", "#fff7a8"],
+  diamond: ["#ffffff", "#9fe8ff", "#e6f9ff", "#7fb8ff", "#ffffff", "#c8f1ff", "#ffffff"],
+  sunset: ["#ffd25e", "#ff8a3d", "#ff4f7a", "#b44cff", "#5a3cff", "#ff8a3d", "#ffd25e"],
+  snow: ["#ffffff", "#d3ecff", "#ffffff", "#a9d4ff", "#ffffff"]
 };
-const SPIN: Partial<Record<FrameId, number>> = { aurora: 5000, rainbow: 4200, fire: 3200, galaxy: 9000, gold: 7000, ice: 12000, hearts: 16000 };
+const SPIN: Partial<Record<FrameId, number>> = { aurora: 5000, rainbow: 4200, fire: 3200, galaxy: 9000, gold: 7000, ice: 12000, hearts: 16000, sakura: 18000, diamond: 10000, sunset: 8000, snow: 20000, bubbles: 24000 };
 const STAR = "M12 0 C12.8 7.2 16.8 11.2 24 12 C16.8 12.8 12.8 16.8 12 24 C11.2 16.8 7.2 12.8 0 12 C7.2 11.2 11.2 7.2 12 0Z";
+const PETAL = "M12 1 C18 6 18 15 12 23 C6 15 6 6 12 1Z";
+const BOLT = "M14 0 L3 14 H10.5 L8 24 L21 9 H13.5 Z";
+const THIN_STAR = "M12 0 L13.8 10.2 L24 12 L13.8 13.8 L12 24 L10.2 13.8 L0 12 L10.2 10.2Z";
+const GEM = "M6 2 H18 L23 9 L12 23 L1 9 Z";
 const HEART = "M12 21 C4 14.5 2 10.5 2 7.5 A4.5 4.5 0 0 1 12 6 A4.5 4.5 0 0 1 22 7.5 C22 10.5 20 14.5 12 21Z";
 
 /** Ring thickness for an avatar of this size. */
@@ -74,12 +83,47 @@ function buildArt(id: FrameId, size: number, gid: string) {
             <Circle cx={c} cy={c} r={r} stroke="#fff3b0" strokeWidth={ring * 0.2} strokeOpacity={0.9} fill="none" />
           </Svg>
         );
+      case "bubbles":
+        return (
+          <Svg width={D} height={D}>
+            <Circle cx={c} cy={c} r={r} stroke="#8fe3ff" strokeOpacity={0.22} strokeWidth={ring * 1.5} fill="none" />
+            <Circle cx={c} cy={c} r={r} stroke="#d9f6ff" strokeOpacity={0.55} strokeWidth={ring * 0.55} fill="none" />
+            <Circle cx={c} cy={c} r={r + ring * 0.3} stroke="#ffffff" strokeOpacity={0.7} strokeWidth={1} fill="none" />
+          </Svg>
+        );
+      case "matrix":
+        return (
+          <Svg width={D} height={D}>
+            <Circle cx={c} cy={c} r={r} stroke="#00ff6a" strokeOpacity={0.2} strokeWidth={ring * 1.8} fill="none" />
+            <Circle cx={c} cy={c} r={r} stroke="#0b3d1f" strokeWidth={ring} fill="none" />
+            <Circle cx={c} cy={c} r={r} stroke="#27ff7b" strokeWidth={ring * 0.8} strokeDasharray={`${ring * 0.5} ${ring * 0.7} ${ring * 1.4} ${ring * 0.7}`} fill="none" />
+            <Circle cx={c} cy={c} r={r} stroke="#d6ffe5" strokeWidth={ring * 0.18} strokeOpacity={0.8} fill="none" />
+          </Svg>
+        );
+      case "glitch":
+        return (
+          <Svg width={D} height={D}>
+            <Circle cx={c - ring * 0.3} cy={c} r={r} stroke="#00f0ff" strokeOpacity={0.85} strokeWidth={ring * 0.75} fill="none" strokeDasharray={`${circ * 0.34} ${circ * 0.04} ${circ * 0.5} ${circ * 0.04}`} />
+            <Circle cx={c + ring * 0.3} cy={c} r={r} stroke="#ff2bd6" strokeOpacity={0.85} strokeWidth={ring * 0.75} fill="none" strokeDasharray={`${circ * 0.5} ${circ * 0.06} ${circ * 0.3} ${circ * 0.06}`} />
+            <Circle cx={c} cy={c} r={r} stroke="#ffffff" strokeOpacity={0.9} strokeWidth={ring * 0.22} fill="none" strokeDasharray={`${circ * 0.12} ${circ * 0.08}`} />
+          </Svg>
+        );
+      case "lightning":
+        return (
+          <Svg width={D} height={D}>
+            {gradientDefs}
+            <Circle cx={c} cy={c} r={r} stroke="#4aa8ff" strokeOpacity={0.3} strokeWidth={ring * 2} fill="none" />
+            <Circle cx={c} cy={c} r={r} stroke={`url(#${gid})`} strokeWidth={ring * 0.85} fill="none" />
+            <Circle cx={c} cy={c} r={r} stroke="#ffffff" strokeOpacity={0.9} strokeWidth={ring * 0.2} fill="none" />
+          </Svg>
+        );
       default:
         return (
           <Svg width={D} height={D}>
             {gradientDefs}
             <Circle cx={c} cy={c} r={r} stroke={`url(#${gid})`} strokeWidth={ring} fill="none" />
-            {id === "gold" || id === "ice" ? <Circle cx={c} cy={c} r={r + ring * 0.42} stroke="#ffffff" strokeOpacity={0.55} strokeWidth={1} fill="none" /> : null}
+            {id === "gold" || id === "ice" || id === "diamond" || id === "snow" || id === "sakura" ? <Circle cx={c} cy={c} r={r + ring * 0.42} stroke="#ffffff" strokeOpacity={0.55} strokeWidth={1} fill="none" /> : null}
+            {id === "sunset" ? <Circle cx={c} cy={c} r={r} stroke="#ff4f7a" strokeOpacity={0.25} strokeWidth={ring * 1.9} fill="none" /> : null}
             {id === "fire" ? <Circle cx={c} cy={c} r={r} stroke="#ff5a1a" strokeOpacity={0.3} strokeWidth={ring * 1.8} fill="none" /> : null}
             {id === "aurora" ? <Circle cx={c} cy={c} r={r} stroke="#5dffd2" strokeOpacity={0.22} strokeWidth={ring * 1.9} fill="none" /> : null}
           </Svg>
@@ -100,6 +144,20 @@ function buildArt(id: FrameId, size: number, gid: string) {
       case "galaxy": return around(9, (x, y, i) => glyph(STAR, x, y, ring * (i % 3 === 0 ? 1.5 : 0.9), i % 2 ? "#ffffff" : "#ffe9a8", i));
       case "ice": return around(8, (x, y, i) => glyph("M12 0 L22 12 L12 24 L2 12Z", x, y, ring * 1.1, "#ffffff", i));
       case "gold": return around(4, (x, y, i) => glyph(STAR, x, y, ring * 1.5, "#fffbe0", i));
+      case "sakura": return around(8, (x, y, i) => glyph(PETAL, x, y, ring * 1.9, i % 2 ? "#ff8fb8" : "#ffc2d9", i, (i / 8) * 360 + 20));
+      case "lightning": return around(4, (x, y, i) => glyph(BOLT, x, y, ring * 2.3, "#fff36b", i, i * 12 - 10));
+      case "diamond": return around(6, (x, y, i) => glyph(i % 2 ? THIN_STAR : GEM, x, y, ring * (i % 2 ? 1.5 : 1.3), i % 2 ? "#ffffff" : "#bdf1ff", i));
+      case "snow": return around(8, (x, y, i) => glyph(THIN_STAR, x, y, ring * (i % 2 ? 1.1 : 1.7), "#ffffff", i, i % 2 ? 45 : 0));
+      case "bubbles": return around(7, (x, y, i) => {
+        const br = ring * (0.55 + (i % 3) * 0.3);
+        return (
+          <G key={i}>
+            <Circle cx={x} cy={y} r={br} fill="#aeeaff" fillOpacity={0.35} stroke="#ffffff" strokeOpacity={0.85} strokeWidth={0.8} />
+            <Circle cx={x - br * 0.35} cy={y - br * 0.35} r={br * 0.25} fill="#ffffff" fillOpacity={0.95} />
+          </G>
+        );
+      });
+      case "matrix": return around(10, (x, y, i) => glyph("M9 2 H15 V8 H9Z M9 10 H15 V16 H9Z M9 18 H15 V22 H9Z", x, y, ring * (i % 2 ? 1.0 : 1.5), i % 3 ? "#27ff7b" : "#d6ffe5", i));
       default: return null;
     }
   })();
@@ -147,14 +205,20 @@ function AnimatedFrame({ id, size, children }: { id: FrameId; size: number; chil
   }, [reduce, id, spin, pulse]);
   const spinStyle = useAnimatedStyle(() => ({ transform: [{ rotate: `${spin.value * 360}deg` }] }));
   const pulseStyle = useAnimatedStyle(() => ({ opacity: 0.55 + pulse.value * 0.45 }));
+  const jitter = useSharedValue(0);
+  useEffect(() => {
+    if (reduce || id !== "glitch") return;
+    jitter.value = withRepeat(withSequence(withTiming(0, { duration: 900 }), withTiming(2.5, { duration: 50 }), withTiming(-2, { duration: 50 }), withTiming(0, { duration: 50 }), withTiming(-3, { duration: 1300 }), withTiming(3, { duration: 40 }), withTiming(0, { duration: 40 })), -1);
+  }, [reduce, id, jitter]);
+  const jitterStyle = useAnimatedStyle(() => ({ transform: [{ translateX: jitter.value }] }));
   const twinkle = useAnimatedStyle(() => ({ opacity: 0.6 + pulse.value * 0.4 }));
   const { D, ringArt, deco, crownArt } = buildArt(id, size, gid);
   const rotates = !!SPIN[id] && !reduce;
   return (
     <View style={{ width: D, height: D, alignItems: "center", justifyContent: "center" }}>
-      <Animated.View {...hidden} style={[{ position: "absolute", width: D, height: D }, rotates ? spinStyle : null, id === "neon" ? pulseStyle : null]}>{ringArt}</Animated.View>
+      <Animated.View {...hidden} style={[{ position: "absolute", width: D, height: D }, rotates ? spinStyle : null, id === "neon" || id === "lightning" || id === "matrix" ? pulseStyle : null, id === "glitch" && !reduce ? jitterStyle : null]}>{ringArt}</Animated.View>
       {deco ? (
-        <Animated.View {...hidden} style={[{ position: "absolute", width: D, height: D }, rotates && id !== "galaxy" && id !== "gold" ? spinStyle : null, id === "galaxy" || id === "gold" ? twinkle : null]}>
+        <Animated.View {...hidden} style={[{ position: "absolute", width: D, height: D }, rotates && id !== "galaxy" && id !== "gold" ? spinStyle : null, id === "galaxy" || id === "gold" || id === "lightning" || id === "diamond" || id === "matrix" ? twinkle : null]}>
           <Svg width={D} height={D}>{deco}</Svg>
         </Animated.View>
       ) : null}

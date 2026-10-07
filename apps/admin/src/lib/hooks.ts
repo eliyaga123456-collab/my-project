@@ -82,6 +82,9 @@ export function useTheme(): [string, () => void] {
   });
   useEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
   const toggle = useCallback(() => setTheme((t) => {
+    const root = document.documentElement;
+    root.classList.add("theme-anim");
+    window.setTimeout(() => root.classList.remove("theme-anim"), 600);
     const n = t === "dark" ? "light" : "dark";
     try { localStorage.setItem("unsaid-admin-theme", n); } catch { /* ignore */ }
     return n;

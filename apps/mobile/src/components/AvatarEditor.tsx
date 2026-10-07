@@ -6,6 +6,7 @@ import { AVATAR_FRAMES, LIMITS } from "@unsaid/shared";
 import { useT } from "@/i18n";
 import { useTheme, withAlpha } from "@/theme";
 import { api } from "@/lib/api";
+import { haptic } from "@/lib/haptics";
 import { errorMessage } from "@/lib/errors";
 import { uploadAvatar } from "@/lib/uploadAvatar";
 import { uploadAvatarVideo } from "@/lib/uploadAvatarVideo";
@@ -108,13 +109,13 @@ export function AvatarEditor({ visible, onClose }: { visible: boolean; onClose: 
           </View>
           <View style={{ gap: 8 }}>
             <Text variant="bodyStrong">{t("me.frames.title")}</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingVertical: 4 }}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4, paddingHorizontal: 2 }} decelerationRate="fast" snapToInterval={82} snapToAlignment="start">
               {[null, ...AVATAR_FRAMES].map((f) => {
                 const on = frame === f;
                 const label = f ? t(`me.frames.names.${f}`) : t("me.frames.none");
                 return (
-                  <PressableScale key={f ?? "none"} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ selected: on }} onPress={() => setFrame(f)}
-                    style={{ width: 78, alignItems: "center", gap: 4, paddingVertical: 8, borderRadius: radii.md, borderWidth: on ? 2 : 1, borderColor: on ? colors.primary : colors.border, backgroundColor: on ? withAlpha(colors.primary, 0.1) : colors.surfaceRaised }}>
+                  <PressableScale key={f ?? "none"} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ selected: on }} onPress={() => { if (!on) haptic.select(); setFrame(f); }}
+                    style={{ width: 74, minHeight: 92, alignItems: "center", gap: 4, paddingVertical: 8, borderRadius: radii.md, borderWidth: on ? 2 : 1, borderColor: on ? colors.primary : colors.border, backgroundColor: on ? withAlpha(colors.primary, 0.1) : colors.surfaceRaised }}>
                     <Avatar name={name} uri={shownUri} size={56} frame={f} />
                     <Text variant="caption" tone={on ? "primary" : "muted"} numberOfLines={1}>{label}</Text>
                   </PressableScale>

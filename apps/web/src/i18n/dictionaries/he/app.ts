@@ -221,7 +221,7 @@ export const app: DeepString<typeof en> = {
     },
     frames: {
       title: "מסגרת לתמונה", hint: "טבעת סביב התמונה שלכם בעמוד הציבורי.", none: "ללא",
-      neon: "ניאון", aurora: "זוהר צפוני", gold: "זהב", candy: "סוכריות", ice: "קרח", fire: "אש", galaxy: "גלקסיה", rainbow: "קשת", hearts: "לבבות", crown: "כתר"
+      neon: "ניאון", aurora: "זוהר צפוני", gold: "זהב", candy: "סוכריות", ice: "קרח", fire: "אש", galaxy: "גלקסיה", rainbow: "קשת", hearts: "לבבות", crown: "כתר", sakura: "סקורה", lightning: "ברק", bubbles: "בועות", diamond: "יהלום", sunset: "שקיעה", matrix: "מטריקס", glitch: "גליץ׳", snow: "שלג"
     },
     crop: {
       reset: "איפוס",

@@ -13,3 +13,4 @@ export * from "./Tabs";
 export * from "./Toast";
 export * from "./Tooltip";
 export { cx } from "./cx";
+export * from "./Sparkles";

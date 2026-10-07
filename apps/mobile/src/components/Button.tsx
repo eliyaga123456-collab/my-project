@@ -34,7 +34,11 @@ export function Button({ title, onPress, variant = "primary", loading, disabled,
       style={[{ minHeight: small ? 44 : 52, flexGrow: 0, borderRadius: radii.pill, overflow: "hidden", opacity: inactive ? 0.55 : 1, backgroundColor: bg }, variant === "ghost" && { borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border }, style]}
     >
       {variant === "primary" && (
-        <LinearGradient colors={[brand.gradient[0], brand.gradient[1], brand.gradient[2]]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+        <>
+          <LinearGradient colors={[brand.gradient[0], brand.gradient[1], brand.gradient[2]]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+          {/* glossy bubble highlight */}
+          <LinearGradient pointerEvents="none" colors={["rgba(255,255,255,0.38)", "rgba(255,255,255,0.06)", "transparent"]} locations={[0, 0.5, 1]} style={{ position: "absolute", top: 0, start: 0, end: 0, height: "60%" }} />
+        </>
       )}
       <View style={{ minHeight: small ? 44 : 52, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingHorizontal: small ? 16 : 24, paddingVertical: 10 }}>
         {loading ? <ActivityIndicator color={fg} /> : icon}

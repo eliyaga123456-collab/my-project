@@ -23,6 +23,8 @@ import { useMessageActions } from "@/components/MessageActions";
 import { Screen } from "@/components/Screen";
 import { SkeletonList } from "@/components/Skeleton";
 import { Text } from "@/components/Text";
+import { SparkleBurst } from "@/components/Sparkles";
+import { InkIn } from "@/theme/motion";
 import { api } from "@/lib/api";
 import { useT } from "@/i18n";
 import { useRequest } from "@/lib/hooks";
@@ -37,6 +39,7 @@ export default function MessageScreen() {
   const cardRef = useRef<View>(null);
   const [busy, setBusy] = useState(false);
   const [qr, setQr] = useState(false);
+  const [burst, setBurst] = useState(0);
   const [format, setFormat] = useState<"square" | "story" | "video">("square");
   const myUrl = linkUrl(WEB_URL, { isPrimary: true, slug: "" }, me?.profile.username);
   const { data, setData, error, loading, reload } = useRequest(() => api.messages.get(String(id)), [id]);
@@ -46,7 +49,7 @@ export default function MessageScreen() {
     onRemoved: () => { void refreshMe().catch(() => undefined); router.back(); }
   });
 
-  const copyLink = () => safely(() => Clipboard.setStringAsync(myUrl), () => toast.show(t("errors.generic"), "error")).then((ok) => { if (ok) toast.show(t("message.linkCopied"), "success"); });
+  const copyLink = () => safely(() => Clipboard.setStringAsync(myUrl), () => toast.show(t("errors.generic"), "error")).then((ok) => { if (ok) { setBurst((n) => n + 1); toast.show(t("message.linkCopied"), "success"); } });
   const shareStory = async () => {
     setBusy(true);
     // Instagram/TikTok cannot attach a clickable link for us, so copy it first: paste it with the Link sticker after sharing.
@@ -76,7 +79,7 @@ export default function MessageScreen() {
   }, [data?.id]);
 
   return (
-    <Screen>
+    <Screen overlay={<SparkleBurst trigger={burst} top="55%" />}>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
         <Text variant="title" style={{ flex: 1 }}>{t("message.title")}</Text>
         <IconButton icon="close" label={t("message.close")} filled onPress={() => (router.canGoBack() ? router.back() : router.replace("/inbox"))} />
@@ -85,9 +88,9 @@ export default function MessageScreen() {
         <>
           <Text variant="label" tone="muted">{t("message.anonymousAgo", { time: formatRelative(data.createdAt) })}</Text>
           <Chips label={t("message.formatLabel")} value={format} onChange={setFormat} options={[{ value: "square", label: t("message.formatSquare") }, { value: "story", label: t("message.formatStory") }, { value: "video", label: t("message.formatVideo") }]} />
-          <View style={{ alignItems: "center" }}>
+          <InkIn style={{ alignItems: "center" }}>
             {format === "square" ? <MessageSquareCard ref={cardRef} body={data.body} handleUrl={myUrl} /> : <MessageStoryCard ref={cardRef} body={data.body} handleUrl={myUrl} />}
-          </View>
+          </InkIn>
           <Text variant="caption" tone="muted" style={{ textAlign: "center" }}>{t("message.linkStickerHint")}</Text>
           <Button title={format === "video" ? t("message.shareVideo") : t("message.shareStory")} onPress={() => void shareStory()} loading={busy} />
           <View style={{ flexDirection: "row", gap: 8 }}>

@@ -374,7 +374,7 @@ export const en = {
       body: "A decorative ring around your picture, visible to everyone who opens your page.",
       none: "None",
       saved: "Frame updated",
-      names: { neon: "Neon", aurora: "Aurora", gold: "Gold", candy: "Candy", ice: "Ice", fire: "Fire", galaxy: "Galaxy", rainbow: "Rainbow", hearts: "Hearts", crown: "Crown" }
+      names: { neon: "Neon", aurora: "Aurora", gold: "Gold", candy: "Candy", ice: "Ice", fire: "Fire", galaxy: "Galaxy", rainbow: "Rainbow", hearts: "Hearts", crown: "Crown", sakura: "Sakura", lightning: "Lightning", bubbles: "Bubbles", diamond: "Diamond", sunset: "Sunset", matrix: "Matrix", glitch: "Glitch", snow: "Snow" }
     },
     whatsapp: {
       label: "WhatsApp number (optional)",

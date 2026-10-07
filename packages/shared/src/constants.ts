@@ -102,5 +102,5 @@ export const RTL_LOCALES: readonly Locale[] = ["he"];
 export const LOCALE_NAMES: Record<Locale, string> = { en: "English", he: "עברית" };
 
 /** Decorative rings drawn around profile pictures (rendered by each client). */
-export const AVATAR_FRAMES = ["neon", "aurora", "gold", "candy", "ice", "fire", "galaxy", "rainbow", "hearts", "crown"] as const;
+export const AVATAR_FRAMES = ["neon", "aurora", "gold", "candy", "ice", "fire", "galaxy", "rainbow", "hearts", "crown", "sakura", "lightning", "bubbles", "diamond", "sunset", "matrix", "glitch", "snow"] as const;
 export type AvatarFrame = (typeof AVATAR_FRAMES)[number];

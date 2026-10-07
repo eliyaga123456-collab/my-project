@@ -374,7 +374,7 @@ export const he: Dict = {
       body: "טבעת מעוצבת סביב התמונה, שכל מי שנכנס לדף שלכם יראה.",
       none: "ללא",
       saved: "המסגרת עודכנה",
-      names: { neon: "ניאון", aurora: "אורורה", gold: "זהב", candy: "סוכריה", ice: "קרח", fire: "אש", galaxy: "גלקסיה", rainbow: "קשת", hearts: "לבבות", crown: "כתר" }
+      names: { neon: "ניאון", aurora: "אורורה", gold: "זהב", candy: "סוכריה", ice: "קרח", fire: "אש", galaxy: "גלקסיה", rainbow: "קשת", hearts: "לבבות", crown: "כתר", sakura: "פריחה", lightning: "ברק", bubbles: "בועות", diamond: "יהלום", sunset: "שקיעה", matrix: "מטריקס", glitch: "גליץ׳", snow: "שלג" }
     },
     whatsapp: {
       label: "מספר וואטסאפ (אופציונלי)",

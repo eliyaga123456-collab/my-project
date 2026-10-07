@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useMemo, useRef, useState, type
 import { View } from "react-native";
 import Animated, { FadeInDown, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useTheme } from "@/theme";
+import { useTheme, withAlpha } from "@/theme";
 import { haptic } from "@/lib/haptics";
 import { Icon } from "./Icon";
 import { Text } from "./Text";
@@ -31,14 +31,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {toast ? (
         <Animated.View
           key={toast.id}
-          entering={FadeInDown.duration(220)}
+          entering={FadeInDown.springify().damping(14).stiffness(180)}
           exiting={FadeOut.duration(160)}
           pointerEvents="none"
           accessibilityLiveRegion="polite"
           style={{ position: "absolute", start: 16, end: 16, top: insets.top + 8 }}
         >
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 10, padding: 14, borderRadius: radii.md, backgroundColor: colors.surfaceRaised, borderWidth: 1, borderColor: tint }}>
-            <Icon name={toast.kind === "error" ? "flag" : "check"} size={18} color={tint} />
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 10, padding: 12, borderRadius: radii.lg, backgroundColor: colors.surfaceRaised, borderWidth: 1, borderColor: tint, shadowColor: tint, shadowOpacity: 0.4, shadowRadius: 14, shadowOffset: { width: 0, height: 4 }, elevation: 8 }}>
+            <View style={{ width: 30, height: 30, borderRadius: 15, alignItems: "center", justifyContent: "center", backgroundColor: withAlpha(tint, 0.2) }}>
+              <Icon name={toast.kind === "error" ? "flag" : "check"} size={16} color={tint} />
+            </View>
             <Text variant="bodyStrong" style={{ flex: 1, fontSize: 14 }}>{toast.message}</Text>
           </View>
         </Animated.View>

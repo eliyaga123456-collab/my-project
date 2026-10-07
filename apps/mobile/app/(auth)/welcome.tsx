@@ -6,6 +6,7 @@ import { Button } from "@/components/Button";
 import { LanguagePicker } from "@/components/LanguagePicker";
 import { Screen } from "@/components/Screen";
 import { Text } from "@/components/Text";
+import { FloatingSparkles } from "@/components/Sparkles";
 import { InkIn } from "@/theme/motion";
 import { useT } from "@/i18n";
 
@@ -17,13 +18,16 @@ export default function Welcome() {
   const mid = Math.ceil(taglineLines.length / 2);
   const tagline = `${taglineLines.slice(0, mid).join(" ")}\n${taglineLines.slice(mid).join(" ")}`;
   return (
-    <Screen scroll={false} contentStyle={{ justifyContent: "space-between" }}>
+    <Screen scroll={false} aurora={false} contentStyle={{ justifyContent: "space-between" }}>
       <AuroraBackground />
       <View>
         <LanguagePicker align="end" />
         <InkIn style={{ marginTop: 28, gap: 20 }}>
         <View accessible accessibilityLabel={t("brand.wordmarkLabel")} style={{ gap: 6 }}>
-          <WordmarkLogo width={250} style={{ marginStart: -10 }} />
+          <View style={{ alignSelf: "flex-start" }}>
+            <WordmarkLogo width={250} style={{ marginStart: -10 }} />
+            <FloatingSparkles />
+          </View>
           <Text tone="muted" style={{ fontSize: 14, letterSpacing: 0.3 }}>{t("brand.fullName")}</Text>
         </View>
         <Text variant="display" style={{ fontSize: 40, lineHeight: 44 }}>{tagline}</Text>

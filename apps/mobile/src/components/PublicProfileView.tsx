@@ -21,7 +21,9 @@ import { Icon } from "./Icon";
 import { IconButton } from "./IconButton";
 import { Screen } from "./Screen";
 import { SkeletonList } from "./Skeleton";
+import { SparkleBurst } from "./Sparkles";
 import { Text } from "./Text";
+import { InkIn } from "@/theme/motion";
 import { Textarea } from "./Input";
 import { useRequest } from "@/lib/hooks";
 import { isolate, useT } from "@/i18n";
@@ -41,6 +43,7 @@ export function PublicProfileView({ target }: { target: Target }) {
   const [retryIn, setRetryIn] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [rejectMsg, setRejectMsg] = useState<string | null>(null);
+  const [burst, setBurst] = useState(0);
 
   const back = () => (router.canGoBack() ? router.back() : router.replace(status === "authed" ? "/inbox" : "/welcome"));
 
@@ -61,7 +64,7 @@ export function PublicProfileView({ target }: { target: Target }) {
           await api.messages.send({ ...base, body: v.value, challenge: solution });
         } else throw e;
       }
-      haptic.success(); setText(""); setRejectMsg(null); setOutcome("sent");
+      haptic.success(); setText(""); setRejectMsg(null); setOutcome("sent"); setBurst((n) => n + 1);
     } catch (e) {
       report(e); haptic.error();
       if (e instanceof ApiError) {
@@ -101,9 +104,9 @@ export function PublicProfileView({ target }: { target: Target }) {
   const left = remainingChars(text, LIMITS.messageMax);
 
   return (
-    <Screen>
+    <Screen overlay={<SparkleBurst trigger={burst} top="45%" />}>
       {header}
-      <View style={{ alignItems: "center", gap: 8 }}>
+      <InkIn style={{ alignItems: "center", gap: 8 }}>
         <Avatar name={p.displayName || p.username} uri={p.avatarUrl} size={84} frame={p.avatarFrame} />
         <Text variant="title">{p.displayName || p.username}</Text>
         <Text tone="muted">{isolate(`@${p.username}`)}</Text>
@@ -112,10 +115,10 @@ export function PublicProfileView({ target }: { target: Target }) {
         {p.whatsapp && /^[0-9]{7,15}$/.test(p.whatsapp) ? (
           <Button title={t("publicProfile.whatsappChat")} small variant="secondary" icon={<Icon name="chat" size={18} tone="success" />} onPress={() => { void Linking.openURL(`https://wa.me/${p.whatsapp}`).catch(() => undefined); }} />
         ) : null}
-      </View>
+      </InkIn>
 
       {outcome === "sent" ? (
-        <Card style={{ alignItems: "center", gap: 10 }} accessibilityLiveRegion="polite">
+        <Card glow style={{ alignItems: "center", gap: 10 }} accessibilityLiveRegion="polite">
           <Icon name="check" size={36} tone="success" />
           <Text variant="heading">{t("publicProfile.sentTitle")}</Text>
           <Text tone="muted" style={{ textAlign: "center" }}>{t("publicProfile.sentBody", { username: `@${p.username}` })}</Text>

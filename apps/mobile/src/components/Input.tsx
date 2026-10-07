@@ -20,6 +20,7 @@ export const Input = forwardRef<TextInput, InputProps>(function Input({ label, e
   return (
     <View style={{ gap: 6 }}>
       <Text variant="label" tone="muted">{label}</Text>
+      <View style={{ borderRadius: radii.md, shadowColor: error ? colors.danger : colors.secondary, shadowOpacity: focused || error ? 0.35 : 0, shadowRadius: 10, shadowOffset: { width: 0, height: 0 }, elevation: focused ? 3 : 0 }}>
       <View style={[styles.row, { backgroundColor: colors.surface, borderColor: border, borderRadius: radii.md, borderWidth: focused || error ? 2 : 1, minHeight: multiline ? 112 : 52 }]}>
         <TextInput
           ref={ref}
@@ -34,6 +35,7 @@ export const Input = forwardRef<TextInput, InputProps>(function Input({ label, e
           style={[{ flex: 1, color: colors.text, fontFamily: fontFamily.body, fontSize: 16, paddingHorizontal: 14, paddingVertical: multiline ? 12 : 10, minHeight: 44, textAlign: ltr ? "left" : "auto", writingDirection: ltr ? "ltr" : "auto" }, style]}
         />
         {right}
+      </View>
       </View>
       {error ? <Text variant="caption" tone="danger" accessibilityLiveRegion="polite">{error}</Text> : hint ? <Text variant="caption" tone="muted">{hint}</Text> : null}
     </View>

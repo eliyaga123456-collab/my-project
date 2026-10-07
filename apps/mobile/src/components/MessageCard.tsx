@@ -57,6 +57,7 @@ function MessageCardBase({ message: m, index = 0, onPress, onLongPress, onReply,
       >
         <PressableScale
           depth={1}
+          pressScale={0.985}
           accessibilityRole="button"
           accessibilityLabel={summary}
           accessibilityHint={t("messageCard.hint")}

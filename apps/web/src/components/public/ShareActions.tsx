@@ -1,5 +1,6 @@
 "use client";
 
+import { burstConfetti } from "@/lib/confetti";
 import { useEffect, useState } from "react";
 import { Check, Copy, Download, Share2 } from "lucide-react";
 import { Button, useToast } from "@/components/ui";
@@ -34,6 +35,7 @@ export function ShareActions({ path, text, cardPath, compact }: { path: string; 
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
+      burstConfetti();
       toast.success(t("public.share.linkCopied"));
       window.setTimeout(() => setCopied(false), 2000);
     } catch {

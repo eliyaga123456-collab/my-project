@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
+import { useTheme } from "@/theme";
 import Svg, { Defs, RadialGradient, Rect, Stop } from "react-native-svg";
 
 const { width: W, height: H } = Dimensions.get("window");
@@ -23,11 +24,14 @@ function Glow({ color, size, x, y, drift, ms, opacity }: { color: string; size: 
 
 /** Slowly drifting pink / violet / ember light behind a screen (decorative, non-interactive). */
 export function AuroraBackground({ strength = 1 }: { strength?: number }) {
+  const { name } = useTheme();
+  // Light mode is white-pink: keep the same lavender / pink / amber but much softer so text keeps its contrast.
+  if (name === "light") strength *= 0.45;
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
       <Glow color="#9b5cff" size={W * 1.2} x={W * 0.1} y={H * 0.15} drift={80} ms={5200} opacity={0.55 * strength} />
       <Glow color="#ff4fa3" size={W * 1.1} x={W * 0.95} y={H * 0.45} drift={100} ms={6400} opacity={0.5 * strength} />
-      <Glow color="#ff7440" size={W * 0.9} x={W * 0.3} y={H * 0.95} drift={70} ms={7200} opacity={0.4 * strength} />
+      <Glow color={name === "light" ? "#ffb347" : "#ff7440"} size={W * 0.9} x={W * 0.3} y={H * 0.95} drift={70} ms={7200} opacity={0.4 * strength} />
     </View>
   );
 }

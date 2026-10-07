@@ -12,6 +12,8 @@ import { ErrorState } from "@/components/ErrorState";
 import { IconButton } from "@/components/IconButton";
 import { Input } from "@/components/Input";
 import { Screen } from "@/components/Screen";
+import { SparkleBurst } from "@/components/Sparkles";
+import { InkIn } from "@/theme/motion";
 import { QrCode } from "@/components/QrCode";
 import { QrSheet } from "@/components/QrSheet";
 import { ShareTargets } from "@/components/ShareTargets";
@@ -44,21 +46,26 @@ export default function RoundScreen() {
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [qr, setQr] = useState(false);
+  const [burst, setBurst] = useState(0);
 
   // A just-created round opens the system share sheet once, so the link goes out immediately.
   const autoShared = useRef(false);
+  const shareTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (!data || fresh !== "1" || autoShared.current) return;
     autoShared.current = true;
-    void safely(() => Share.share({ message: linkShareMessage(data.prompt, linkUrl(WEB_URL, data, undefined)) }));
+    setBurst((n) => n + 1); // a new round arrives with a little celebration, then the share sheet slides over it
+    const message = linkShareMessage(data.prompt, linkUrl(WEB_URL, data, undefined));
+    shareTimer.current = setTimeout(() => { void safely(() => Share.share({ message })); }, 900);
   }, [data, fresh]);
+  useEffect(() => () => { if (shareTimer.current) clearTimeout(shareTimer.current); }, []);
   useEffect(() => { if (data) { setLabel(data.label); setQuestion(data.prompt ?? ""); } }, [data?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const guard = async (fn: () => Promise<void>) => { setBusy(true); try { await fn(); } catch (e) { toast.show(errorMessage(e), "error"); report(e); } setBusy(false); };
   const link = data;
   const url = link ? linkUrl(WEB_URL, link, undefined) : "";
   const text = link ? linkShareMessage(link.prompt, url) : "";
-  const copy = () => safely(() => Clipboard.setStringAsync(url), () => toast.show(t("errors.generic"), "error")).then((ok) => { if (ok) { haptic.success(); toast.show(t("share.linkCopied"), "success"); } });
+  const copy = () => safely(() => Clipboard.setStringAsync(url), () => toast.show(t("errors.generic"), "error")).then((ok) => { if (ok) { haptic.success(); setBurst((n) => n + 1); toast.show(t("share.linkCopied"), "success"); } });
   const save = () => guard(async () => {
     if (!link) return;
     const hours = duration === "none" ? undefined : Number(duration);
@@ -73,14 +80,14 @@ export default function RoundScreen() {
   });
 
   return (
-    <Screen>
+    <Screen overlay={<SparkleBurst trigger={burst} top="30%" />}>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
         <Text variant="title" style={{ flex: 1 }} numberOfLines={1}>{link?.label ?? t("round.title")}</Text>
         <IconButton icon="close" label={t("message.close")} filled onPress={() => (router.canGoBack() ? router.back() : router.replace("/share"))} />
       </View>
       {loading ? <SkeletonList count={2} /> : error || !link ? <ErrorState message={error ?? t("round.notFound")} onRetry={reload} /> : (
         <>
-          <Card glow style={{ gap: 12 }}>
+          <InkIn><Card glow animated style={{ gap: 12 }}>
             <Text variant="label" tone="muted">{t("round.yourLink")}</Text>
             <Text selectable tone="primary" style={{ fontSize: 17, textAlign: "left", writingDirection: "ltr" }}>{url}</Text>
             <View style={{ alignItems: "center", paddingVertical: 4 }}>
@@ -91,7 +98,7 @@ export default function RoundScreen() {
               <Button title={t("round.copyLink")} onPress={() => void copy()} style={{ flex: 1 }} />
               <Button title={t("qr.show")} variant="secondary" onPress={() => setQr(true)} />
             </View>
-          </Card>
+          </Card></InkIn>
           <ShareTargets text={text} url={url} onMore={() => void safely(() => Share.share({ message: text }), () => toast.show(t("errors.generic"), "error"))} />
           <Button title={t("share.seeResponses")} variant="secondary" onPress={() => router.navigate({ pathname: "/inbox", params: { round: link.id } })} />
           <Card style={{ gap: 12 }}>

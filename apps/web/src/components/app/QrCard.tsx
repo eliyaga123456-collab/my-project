@@ -26,8 +26,8 @@ export function QrCard({ path, name = "ear-qr" }: { path: string; name?: string 
 
   return (
     <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center">
-      <div className="rounded-2xl p-1 shadow-[0_18px_44px_-20px_var(--grad-2)] transition-transform duration-300 hover:rotate-1 hover:scale-[1.03]" style={{ background: "var(--grad-brand)" }}>
-        <div className="grid size-44 place-items-center overflow-hidden rounded-[0.9rem] bg-white">
+      <div className="glow-border rounded-2xl p-1 shadow-[0_18px_44px_-20px_var(--grad-2)] transition-transform duration-300 hover:rotate-1 hover:scale-[1.03]" style={{ background: "linear-gradient(var(--surface), var(--surface)) padding-box, conic-gradient(from var(--spin), var(--grad-1), var(--grad-2), var(--grad-3), var(--grad-1)) border-box", borderWidth: 4 }}>
+        <div className="qr-frame grid size-44 place-items-center overflow-hidden rounded-[0.9rem] bg-white">
           {src ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={src} alt={t("app.links.qrAlt", { url })} width={176} height={176} className="animate-pop size-full" />

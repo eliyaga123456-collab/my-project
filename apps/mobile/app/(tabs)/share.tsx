@@ -12,6 +12,8 @@ import { ErrorState } from "@/components/ErrorState";
 import { Icon } from "@/components/Icon";
 import { IconButton } from "@/components/IconButton";
 import { Screen } from "@/components/Screen";
+import { SparkleBurst } from "@/components/Sparkles";
+import { InkIn } from "@/theme/motion";
 import { SkeletonList } from "@/components/Skeleton";
 import { Text } from "@/components/Text";
 import { useToast } from "@/components/Toast";
@@ -41,6 +43,7 @@ export default function SharePage() {
   const quick = useQuickRound();
   const router = useRouter();
   const [busy, setBusy] = useState(false);
+  const [burst, setBurst] = useState(0);
   const [toDelete, setToDelete] = useState<LinkDto | null>(null);
 
   useFocusEffect(useCallback(() => { void links.refresh(); // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -57,7 +60,7 @@ export default function SharePage() {
   const guard = async (fn: () => Promise<void>) => { setBusy(true); try { await fn(); } catch (e) { toast.show(errorMessage(e), "error"); report(e); } setBusy(false); };
 
   const copyText = (text: string, doneKey: "share.linkCopied" | "share.installCopied") =>
-    safely(() => Clipboard.setStringAsync(text), () => toast.show(t("errors.generic"), "error")).then((ok) => { if (ok) { haptic.success(); toast.show(t(doneKey), "success"); } });
+    safely(() => Clipboard.setStringAsync(text), () => toast.show(t("errors.generic"), "error")).then((ok) => { if (ok) { haptic.success(); setBurst((n) => n + 1); toast.show(t(doneKey), "success"); } });
   const copy = (l: LinkDto) => copyText(urlOf(l), "share.linkCopied");
   const sendShare = (message: string) => safely(() => Share.share({ message }), fail);
   const shareText = (l: LinkDto) => linkShareMessage(l.prompt, urlOf(l));
@@ -74,8 +77,9 @@ export default function SharePage() {
     links.setData((cur) => (cur ?? []).filter((x) => x.id !== toDelete.id)); setToDelete(null); toast.show(t("share.linkDeleted"), "success");
   });
 
-  const renderLink = (l: LinkDto) => (
-    <Card key={l.id} style={{ gap: 12 }}>
+  const renderLink = (l: LinkDto, i = 0) => (
+    <InkIn key={l.id} delay={Math.min(i, 6) * 70}>
+    <Card glow={!l.isPrimary && !l.closed && !l.paused} style={{ gap: 12 }}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
         <Icon name="link" size={18} tone="secondary" />
         <Text variant="bodyStrong" style={{ flex: 1 }} numberOfLines={1}>{l.isPrimary ? t("share.myLink") : l.label}</Text>
@@ -99,20 +103,21 @@ export default function SharePage() {
       </View>
       {!l.isPrimary ? <Button title={t("share.deleteLink")} small variant="danger" onPress={() => setToDelete(l)} /> : null}
     </Card>
+    </InkIn>
   );
 
   return (
-    <Screen tabs refreshing={links.refreshing} onRefresh={links.refresh}>
+    <Screen tabs overlay={<SparkleBurst trigger={burst} />} refreshing={links.refreshing} onRefresh={links.refresh}>
       <Text variant="title">{t("share.title")}</Text>
       <Text tone="muted">{t("share.intro")}</Text>
       {links.loading ? <SkeletonList count={2} /> : links.error && !links.data ? <ErrorState message={links.error} onRetry={links.reload} /> : (
         <>
           <Button title={t("share.startRound")} onPress={() => void quick.create()} loading={quick.busy} disabled={items.length >= LIMITS.linksPerUser} icon={<Icon name="plus" size={18} color="#fff" />} />
           <Text variant="heading" style={{ marginTop: 8 }}>{t("share.yourRounds")}</Text>
-          {extras.length === 0 ? <Text tone="muted">{t("share.noRounds")}</Text> : extras.map(renderLink)}
+          {extras.length === 0 ? <Text tone="muted">{t("share.noRounds")}</Text> : extras.map((l, i) => renderLink(l, i))}
           <Text variant="heading" style={{ marginTop: 8 }}>{t("share.alwaysOn")}</Text>
           {primary ? renderLink(primary) : <EmptyState icon="link" title={t("share.noLinkTitle")} body={t("share.noLinkBody")} />}
-          <Card style={{ gap: 10, marginTop: 8 }}>
+          <InkIn delay={200}><Card style={{ gap: 10, marginTop: 8 }}>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}><Icon name="send" size={18} tone="secondary" /><Text variant="bodyStrong">{t("share.downloadTitle")}</Text></View>
             <Text tone="muted">{t("share.downloadBody")}</Text>
             <Text selectable tone="primary" numberOfLines={1} style={{ textAlign: "left", writingDirection: "ltr" }}>{installUrl}</Text>
@@ -120,7 +125,7 @@ export default function SharePage() {
               <Button title={t("share.sendLink")} small onPress={inviteToApp} style={{ flex: 1 }} />
               <Button title={t("share.copy")} small variant="secondary" onPress={copyInstall} style={{ flex: 1 }} />
             </View>
-          </Card>
+          </Card></InkIn>
         </>
       )}
       <ConfirmSheet visible={!!toDelete} title={t("share.deleteTitle")} message={t("share.deleteBody", { label: toDelete?.label ?? "" })} confirmLabel={t("common.delete")} destructive loading={busy} onConfirm={remove} onCancel={() => setToDelete(null)} />

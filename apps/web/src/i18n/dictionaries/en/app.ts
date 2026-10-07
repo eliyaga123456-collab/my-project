@@ -219,7 +219,7 @@ export const app = {
     },
     frames: {
       title: "Avatar frame", hint: "A ring around your photo on your public page.", none: "None",
-      neon: "Neon", aurora: "Aurora", gold: "Gold", candy: "Candy", ice: "Ice", fire: "Fire", galaxy: "Galaxy", rainbow: "Rainbow", hearts: "Hearts", crown: "Crown"
+      neon: "Neon", aurora: "Aurora", gold: "Gold", candy: "Candy", ice: "Ice", fire: "Fire", galaxy: "Galaxy", rainbow: "Rainbow", hearts: "Hearts", crown: "Crown", sakura: "Sakura", lightning: "Lightning", bubbles: "Bubbles", diamond: "Diamond", sunset: "Sunset", matrix: "Matrix", glitch: "Glitch", snow: "Snow"
     },
     crop: {
       reset: "Reset",

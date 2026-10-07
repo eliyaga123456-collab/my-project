@@ -18,6 +18,7 @@ import { isolate, useT, type Key } from "@/i18n";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Chips } from "@/components/Chips";
 import { Button } from "@/components/Button";
+import { AuroraBackground } from "@/components/AuroraBackground";
 import { UpdateCard } from "@/components/UpdateCard";
 import { useQuickRound } from "@/lib/quickRound";
 import type { LinkDto } from "@unsaid/shared";
@@ -113,6 +114,7 @@ export default function Inbox() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <AuroraBackground strength={0.45} />
       <FlatList
         data={loading || (error && items.length === 0) ? [] : items}
         keyExtractor={(m) => m.id}

@@ -15,3 +15,5 @@ export { LanguageSwitcher } from "./LanguageSwitcher";
 export { Logo } from "./Logo";
 export { ThemeToggle } from "./ThemeToggle";
 export { OwnerBlock, type OwnerInfo } from "./OwnerBlock";
+export { CountUp, prefersReducedMotion } from "./CountUp";
+export { Sparkline } from "./Sparkline";

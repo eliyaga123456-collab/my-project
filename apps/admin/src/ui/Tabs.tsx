@@ -1,10 +1,11 @@
-import { useId, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import { useT } from "../i18n";
 
 export function Tabs<T extends string>({ tabs, value, onChange, label }: { tabs: { value: T; label: string; count?: number }[]; value: T; onChange: (v: T) => void; label: string }) {
   const { dir } = useT();
   const id = useId();
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  useEffect(() => { const i = tabs.findIndex((x) => x.value === value); refs.current[i]?.scrollIntoView?.({ inline: "center", block: "nearest", behavior: "smooth" }); }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
   const onKey = (e: React.KeyboardEvent, i: number) => {
     let n = i;
     const fwd = dir === "rtl" ? "ArrowLeft" : "ArrowRight", back = dir === "rtl" ? "ArrowRight" : "ArrowLeft";

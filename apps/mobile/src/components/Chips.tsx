@@ -19,7 +19,7 @@ export function Chips<T extends string>({ options, value, onChange, scroll = fal
         accessibilityLabel={o.label}
         accessibilityState={{ selected: active, checked: active }}
         onPress={() => { if (!active) { haptic.select(); onChange(o.value); } }}
-        style={{ minHeight: 44, paddingHorizontal: 16, borderRadius: radii.pill, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: active ? "transparent" : colors.border, backgroundColor: active ? withAlpha(colors.primary, 0.9) : "transparent" }}
+        style={{ minHeight: 44, paddingHorizontal: 16, borderRadius: radii.pill, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: active ? "transparent" : colors.border, backgroundColor: active ? withAlpha(colors.primary, 0.9) : "transparent", ...(active ? { shadowColor: colors.primary, shadowOpacity: 0.45, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 3 } : null) }}
       >
         <Text variant="bodyStrong" style={{ fontSize: 14, color: active ? colors.primaryText : colors.muted }}>{o.label}</Text>
       </PressableScale>

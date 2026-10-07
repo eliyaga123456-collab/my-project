@@ -1,5 +1,6 @@
 "use client";
 
+import { burstConfetti } from "@/lib/confetti";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -199,7 +200,7 @@ function ShareLinkButton({ path }: { path: string }) {
       <Button
         leading={<Copy className="size-4" aria-hidden />}
         onClick={async () => {
-          try { await navigator.clipboard.writeText(new URL(path, window.location.origin).toString()); toast.success(t("app.inbox.linkCopied")); } catch { toast.error(t("app.inbox.copyFailed")); }
+          try { await navigator.clipboard.writeText(new URL(path, window.location.origin).toString()); burstConfetti(); toast.success(t("app.inbox.linkCopied")); } catch { toast.error(t("app.inbox.copyFailed")); }
         }}
       >{t("app.inbox.copyMyLink")}</Button>
       <Link href="/links" className="text-sm font-semibold text-secondary underline-offset-4 hover:underline">{t("app.inbox.moreWays")}</Link>

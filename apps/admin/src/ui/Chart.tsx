@@ -48,12 +48,12 @@ export function TimeChart({ dates, series, mode }: { dates: string[]; series: Se
           {mode === "line"
             ? visible.map((s) => (
               <g key={s.key}>
-                <polyline fill="none" stroke={s.color} strokeWidth={2.25} strokeLinejoin="round" strokeLinecap="round" points={s.values.map((v, i) => `${x(i)},${y(v)}`).join(" ")} />
+                <polyline className="chart-line" pathLength={1} fill="none" stroke={s.color} strokeWidth={2.25} strokeLinejoin="round" strokeLinecap="round" points={s.values.map((v, i) => `${x(i)},${y(v)}`).join(" ")} />
                 {hover !== null && s.values[hover] !== undefined && <circle cx={x(hover)} cy={y(s.values[hover]!)} r={4} fill={s.color} stroke="var(--surface)" strokeWidth={2} />}
               </g>
             ))
             : visible.map((s, si) => s.values.map((v, i) => (
-              <rect key={`${s.key}${i}`} x={bx(i) + slot / 2 - (barW * visible.length) / 2 + si * barW} y={y(v)} width={Math.max(1, barW - 1)} height={Math.max(0, PT + ih - y(v))} rx={2} fill={s.color} opacity={hover === null || hover === i ? 1 : 0.45} />
+              <rect key={`${s.key}${i}`} x={bx(i) + slot / 2 - (barW * visible.length) / 2 + si * barW} y={y(v)} width={Math.max(1, barW - 1)} height={Math.max(0, PT + ih - y(v))} rx={2} className="chart-bar" style={{ animationDelay: `${i * 18}ms` }} fill={s.color} opacity={hover === null || hover === i ? 1 : 0.45} />
             )))}
           {dates.map((d, i) => (
             <rect
