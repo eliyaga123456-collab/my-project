@@ -3,6 +3,7 @@ import { NavLink, Navigate, Route, Routes, useLocation } from "react-router-dom"
 import { Activity, FileClock, Flag, LayoutDashboard, LogOut, Menu, Moon, ShieldAlert, ShieldCheck, Sun, Users, X } from "lucide-react";
 import { useAuth } from "./auth";
 import { useTheme } from "./lib/hooks";
+import { Splash } from "./ui/Splash";
 import { Login } from "./pages/Login";
 import { Overview } from "./pages/Overview";
 import { UsersPage } from "./pages/Users";
@@ -27,6 +28,10 @@ const NAV: { to: string; label: Key; icon: typeof Users; end?: boolean }[] = [
 ];
 
 export function App() {
+  return <><Splash /><AppInner /></>;
+}
+
+function AppInner() {
   const { phase } = useAuth();
   const { t } = useT();
   if (phase === "loading") return <div className="boot" role="status" aria-label={t("common.loading")}><Skeleton width={160} height={20} /></div>;

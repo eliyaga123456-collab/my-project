@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { RefreshCw } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowUpRight, Flag, MessageSquareText, RefreshCw, UserPlus } from "lucide-react";
 import { client } from "../lib/client";
 import { useAsync } from "../lib/hooks";
 import { useT } from "../i18n";
@@ -13,6 +14,17 @@ export function Overview() {
 
   return (
     <>
+      <section className="hero" aria-label={t("hero.kicker")}>
+        <div className="hero-top">
+          <div><span className="hero-kicker"><i className="pulse" aria-hidden />{t("hero.kicker")} · {t("hero.live")}</span><h2 className="hero-title">{t("hero.hello")}</h2></div>
+        </div>
+        <div className="hero-tiles">
+          <Link to="/reports" className={`hero-tile ${data && data.reports.open > 0 ? "alert" : ""}`}><Flag size={22} aria-hidden /><b>{data ? n(data.reports.open) : "–"}</b><span>{t("hero.reports")}</span><em>{t("hero.reportsGo")} <ArrowUpRight size={14} aria-hidden /></em></Link>
+          <Link to="/activity" className="hero-tile"><UserPlus size={22} aria-hidden /><b>{data ? n(data.users.newToday) : "–"}</b><span>{t("hero.users")}</span><em>{t("hero.usersGo")} <ArrowUpRight size={14} aria-hidden /></em></Link>
+          <Link to="/moderation" className="hero-tile"><MessageSquareText size={22} aria-hidden /><b>{data ? n(data.messages.today) : "–"}</b><span>{t("hero.msgs")}</span><em>{t("hero.msgsGo")} <ArrowUpRight size={14} aria-hidden /></em></Link>
+        </div>
+        <p className="hero-see"><strong>{t("see.title")}</strong><br />{t("see.yes")}<br /><span className="muted">{t("see.no")}</span></p>
+      </section>
       <PageHeader title={t("overview.title")} subtitle={t("overview.subtitle")} actions={<Button size="sm" icon={<RefreshCw size={14} aria-hidden />} onClick={() => reload()}>{t("common.refresh")}</Button>} />
       {error && !data ? <ErrorState message={error} onRetry={() => reload()} /> : (
         <>

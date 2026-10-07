@@ -78,7 +78,7 @@ export function useDebounced<T>(value: T, ms = 300): T {
 export function useTheme(): [string, () => void] {
   const [theme, setTheme] = useState<string>(() => {
     try { const t = localStorage.getItem("unsaid-admin-theme"); if (t === "light" || t === "dark") return t; } catch { /* storage unavailable */ }
-    return window.matchMedia?.("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    return "dark";
   });
   useEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
   const toggle = useCallback(() => setTheme((t) => {
