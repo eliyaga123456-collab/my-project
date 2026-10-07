@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { Link } from "react-router-dom";
 import { Ban, Search, ShieldCheck, ShieldOff, UserCheck } from "lucide-react";
 import type { AdminUserDto, UserStatus } from "@unsaid/shared";
 import { USER_STATUSES } from "@unsaid/shared";
@@ -115,6 +116,7 @@ function UserDrawer({ user, onClose, onUpdated }: { user: AdminUserDto; onClose:
         <dl className="kv">
           {rows.map((x) => <div key={x.k}><dt>{x.label}</dt><dd>{x.value}</dd></div>)}
         </dl>
+        <p><Link className="btn btn-sm btn-secondary" to={`/users/${u.id}`}>{t("user.fullProfile")}</Link></p>
         <p className="muted small"><ShieldCheck size={14} aria-hidden style={{ verticalAlign: "-2px" }} /> {t("users.drawer.audited")}</p>
       </Modal>
       {action && (

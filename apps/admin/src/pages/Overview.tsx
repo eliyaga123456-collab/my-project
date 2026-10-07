@@ -11,6 +11,7 @@ export function Overview() {
   const { data, error, loading, reload } = useAsync(() => client.admin.overview(), []);
   const [mode, setMode] = useState<"line" | "bar">("line");
   const n = fmt.number;
+  const act = useAsync(() => client.admin.activity(), []);
 
   return (
     <>
@@ -43,6 +44,16 @@ export function Overview() {
               <StatCard label={t("overview.moderationRate")} value={fmt.percent(data.rates.moderationRate)} />
             </>}
           </div>
+          <Card title={t("home.latest")} actions={<Link className="btn btn-sm btn-ghost" to="/rounds">{t("common.seeAll")}</Link>}>
+            <p className="muted small section-hint">{t("home.latestHint")}</p>
+            {!act.data ? <Skeleton height={60} radius={12} /> : act.data.rounds.length === 0 ? <p className="muted">{t("home.latestEmpty")}</p> : (
+              <ul className="mini-rounds">
+                {[...act.data.rounds].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)).slice(0, 5).map((r) => (
+                  <li key={r.id}><Link to={`/rounds/${r.id}`}><strong dir="auto">{r.label}</strong><span className="muted small">@{r.ownerUsername} · {n(r.views)} / {n(r.messages)}</span></Link></li>
+                ))}
+              </ul>
+            )}
+          </Card>
           <Card title={t("overview.daily")} actions={<Tabs label={t("overview.chartType")} value={mode} onChange={setMode} tabs={[{ value: "line", label: t("overview.lines") }, { value: "bar", label: t("overview.bars") }]} />}>
             {!data ? <Skeleton height={260} radius={12} /> : data.daily.length === 0 ? <p className="muted">{t("overview.noDaily")}</p> : (
               <TimeChart

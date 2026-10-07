@@ -11,6 +11,9 @@ import { AuthProvider } from "./auth";
 import { I18nProvider } from "./i18n";
 import { ToastProvider } from "./ui/Toast";
 
+// Apply the saved theme before the first paint so the splash and logo match it.
+try { const t = localStorage.getItem("unsaid-admin-theme"); document.documentElement.dataset.theme = t === "light" ? "light" : "dark"; } catch { document.documentElement.dataset.theme = "dark"; }
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <HashRouter>

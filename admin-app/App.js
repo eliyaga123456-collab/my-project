@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Animated, BackHandler, Easing, Linking, Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ActivityIndicator, Animated, BackHandler, Easing, Image, Linking, Pressable, SafeAreaView, StyleSheet, Text, View, useColorScheme } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
 import Constants from "expo-constants";
@@ -11,30 +11,55 @@ const URL = `${ORIGIN}/admin-ui/`;
 const REPO = Constants.expoConfig?.extra?.updateRepo || "eliyaga123456-collab/my-project";
 const BUILD = Number(Constants.expoConfig?.android?.versionCode) || 0;
 const APK = `https://github.com/${REPO}/releases/download/admin-apk/EAR-Admin.apk`;
-const PINK = "#ff4fa3", VIOLET = "#9b5cff", EMBER = "#ff7440", BG = "#0b0a14";
+// Palette taken from the logo art: dark = near-black purple + hot pink/orange glow, light = soft pink white + bubblegum pink/orange.
+const DARK = { bg: "#0c0612", surface: "#1a0e27", border: "#3a1d4d", text: "#fff3fa", muted: "#c9a9c4", pink: "#ff2fa8", orange: "#ff8a1f", glowTop: "#3a0f33", glowBottom: "#2a1208", btnText: "#2a0518" };
+const LIGHT = { bg: "#fff6fb", surface: "#ffffff", border: "#f3c3de", text: "#2b0f24", muted: "#7a4f70", pink: "#e8168f", orange: "#ff8a1f", glowTop: "#ffd6ec", glowBottom: "#ffe7c9", btnText: "#ffffff" };
+const LOGO_DARK = require("./assets/ear-admin.png");
+const LOGO_LIGHT = require("./assets/ear-admin-light.png");
 
-/** Animated brand splash: glowing rings + title, then it lifts away. */
-function Splash({ onDone }) {
+/** Animated brand splash: glow + rings + sparkles around the logo, then it zooms out and away. */
+function Splash({ onDone, light }) {
+  const p = light ? LIGHT : DARK;
   const a = useRef(new Animated.Value(0)).current;
   const ring = useRef(new Animated.Value(0)).current;
+  const float = useRef(new Animated.Value(0)).current;
   const out = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    Animated.loop(Animated.timing(ring, { toValue: 1, duration: 1600, easing: Easing.out(Easing.cubic), useNativeDriver: true })).start();
-    Animated.timing(a, { toValue: 1, duration: 800, easing: Easing.out(Easing.back(1.8)), useNativeDriver: true }).start();
-    const t = setTimeout(() => Animated.timing(out, { toValue: 1, duration: 450, useNativeDriver: true }).start(onDone), 1900);
-    return () => clearTimeout(t);
-  }, [a, ring, out, onDone]);
-  const R = (d) => ({ opacity: Animated.multiply(ring.interpolate({ inputRange: [0, 1], outputRange: [0.7, 0] }), 1), transform: [{ scale: ring.interpolate({ inputRange: [0, 1], outputRange: [0.4 + d, 2.2 + d] }) }] });
+    const loops = [
+      Animated.loop(Animated.timing(ring, { toValue: 1, duration: 1900, easing: Easing.out(Easing.cubic), useNativeDriver: true })),
+      Animated.loop(Animated.sequence([
+        Animated.timing(float, { toValue: 1, duration: 1300, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(float, { toValue: 0, duration: 1300, easing: Easing.inOut(Easing.sin), useNativeDriver: true })
+      ]))
+    ];
+    loops.forEach((l) => l.start());
+    Animated.timing(a, { toValue: 1, duration: 900, easing: Easing.out(Easing.back(1.6)), useNativeDriver: true }).start();
+    const t = setTimeout(() => Animated.timing(out, { toValue: 1, duration: 550, easing: Easing.in(Easing.cubic), useNativeDriver: true }).start(onDone), 2000);
+    return () => { clearTimeout(t); loops.forEach((l) => l.stop()); };
+  }, [a, ring, float, out, onDone]);
+  // each ring runs the same loop, shifted in phase so they trail one another
+  const R = (phase, color) => {
+    const v = Animated.modulo(Animated.add(ring, phase), 1);
+    return [s.ring, { borderColor: color, opacity: v.interpolate({ inputRange: [0, 1], outputRange: [0.85, 0] }), transform: [{ scale: v.interpolate({ inputRange: [0, 1], outputRange: [0.45, 2.4] }) }] }];
+  };
+  const spark = (x, y, color, phase) => {
+    const v = Animated.modulo(Animated.add(ring, phase), 1);
+    return (
+      <Animated.View key={`${x}${y}`} style={[s.spark, { backgroundColor: color, left: "50%", top: "50%", marginLeft: x, marginTop: y, opacity: v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 1, 0] }), transform: [{ rotate: "45deg" }, { scale: v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.3, 1.3, 0.3] }) }] }]} />
+    );
+  };
   return (
-    <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, s.splash, { opacity: out.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }), transform: [{ scale: out.interpolate({ inputRange: [0, 1], outputRange: [1, 1.4] }) }] }]}>
-      <LinearGradient colors={["#1a0f2e", BG, "#2a0f22"]} style={StyleSheet.absoluteFill} />
-      <Animated.View style={[s.ring, { borderColor: PINK }, R(0)]} />
-      <Animated.View style={[s.ring, { borderColor: VIOLET }, R(0.25)]} />
-      <Animated.View style={[s.ring, { borderColor: EMBER }, R(0.5)]} />
-      <Animated.View style={{ opacity: a, transform: [{ scale: a.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1] }) }] }}>
-        <Text style={s.logo}>EAR<Text style={{ color: EMBER }}>*</Text></Text>
-        <Text style={s.sub}>ADMIN</Text>
-      </Animated.View>
+    <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, s.splash, { backgroundColor: p.bg, opacity: out.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }), transform: [{ scale: out.interpolate({ inputRange: [0, 1], outputRange: [1, 1.6] }) }] }]}>
+      <LinearGradient colors={[p.glowTop, p.bg, p.glowBottom]} style={StyleSheet.absoluteFill} />
+      <Animated.View style={R(0, p.pink)} />
+      <Animated.View style={R(0.33, p.orange)} />
+      <Animated.View style={R(0.66, p.pink)} />
+      {spark(-120, -110, p.orange, 0.1)}{spark(130, -80, p.pink, 0.4)}{spark(-140, 80, p.pink, 0.7)}{spark(110, 110, p.orange, 0.25)}
+      <Animated.Image
+        source={light ? LOGO_LIGHT : LOGO_DARK}
+        resizeMode="contain"
+        style={[s.splashLogo, { opacity: a, transform: [{ scale: a.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1] }) }, { rotate: a.interpolate({ inputRange: [0, 1], outputRange: ["-10deg", "0deg"] }) }, { translateY: float.interpolate({ inputRange: [0, 1], outputRange: [0, -7] }) }] }]}
+      />
     </Animated.View>
   );
 }
@@ -65,6 +90,9 @@ async function installUpdate(setPct) {
 }
 
 export default function App() {
+  const light = useColorScheme() === "light";
+  const p = light ? LIGHT : DARK;
+  const s = useMemo(() => makeStyles(p), [p]);
   const ref = useRef(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -85,20 +113,21 @@ export default function App() {
   const hasUpdate = latest !== null && latest > BUILD;
   return (
     <SafeAreaView style={s.root}>
-      <StatusBar style="light" />
+      <StatusBar style={light ? "dark" : "light"} />
       <View style={s.bar}>
-        <Text style={s.barTitle}>EAR<Text style={{ color: EMBER }}>*</Text> <Text style={s.barSub}>admin</Text></Text>
-        <Pressable onPress={check} hitSlop={10}><Text style={s.ver}>v{BUILD} · {latest === null ? "↻" : hasUpdate ? "update" : "up to date"}</Text></Pressable>
+        <Image source={light ? LOGO_LIGHT : LOGO_DARK} resizeMode="contain" style={s.barLogo} accessibilityLabel="EAR admin" />
+        <Pressable onPress={check} hitSlop={10} style={s.verPill}><Text style={s.ver}>v{BUILD} · {latest === null ? "↻" : hasUpdate ? "update" : "up to date"}</Text></Pressable>
       </View>
       {hasUpdate ? (
         <Pressable style={s.update} onPress={() => void installUpdate(setPct)}>
-          <LinearGradient colors={[VIOLET, PINK, EMBER]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={s.updateIn}>
+          <LinearGradient colors={[p.pink, p.orange]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={s.updateIn}>
             <Text style={s.updateText}>{pct === null ? `New version available (build ${latest}) — tap to update` : `Downloading… ${Math.round(pct * 100)}%`}</Text>
           </LinearGradient>
         </Pressable>
       ) : null}
       {error ? (
         <View style={s.center}>
+          <Image source={light ? LOGO_LIGHT : LOGO_DARK} resizeMode="contain" style={s.errLogo} />
           <Text style={s.title}>Can't reach the server</Text>
           <Text style={s.msg}>Free hosting can take up to a minute to wake up.</Text>
           <Pressable style={s.btn} onPress={() => { setError(false); setLoading(true); setKey((k) => k + 1); }}><Text style={s.btnText}>Try again</Text></Pressable>
@@ -119,32 +148,36 @@ export default function App() {
           javaScriptCanOpenWindowsAutomatically={false}
           sharedCookiesEnabled
           thirdPartyCookiesEnabled={false}
-          style={{ backgroundColor: BG }}
+          style={{ backgroundColor: p.bg }}
         />
       )}
-      {loading && !error && !splash ? <View style={s.loading} pointerEvents="none"><ActivityIndicator color={PINK} size="large" /></View> : null}
-      {splash ? <Splash onDone={done} /> : null}
+      {loading && !error && !splash ? <View style={s.loading} pointerEvents="none"><ActivityIndicator color={p.pink} size="large" /></View> : null}
+      {splash ? <Splash onDone={done} light={light} /> : null}
     </SafeAreaView>
   );
 }
 
-const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: BG },
-  bar: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#2c2745" },
-  barTitle: { color: "#fff", fontSize: 18, fontWeight: "800", letterSpacing: 0.5 },
-  barSub: { color: PINK, fontSize: 13, fontWeight: "600", textTransform: "uppercase" },
-  ver: { color: "#a8a3c2", fontSize: 12 },
+const makeStyles = (p) => StyleSheet.create({
+  root: { flex: 1, backgroundColor: p.bg },
+  bar: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 14, paddingVertical: 4, backgroundColor: p.surface, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: p.border },
+  barLogo: { width: 92, height: 44 },
+  verPill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, borderWidth: 1, borderColor: p.border },
+  ver: { color: p.muted, fontSize: 12, fontWeight: "600" },
   update: { marginHorizontal: 12, marginTop: 8, borderRadius: 14, overflow: "hidden" },
   updateIn: { paddingVertical: 12, paddingHorizontal: 14 },
   updateText: { color: "#fff", fontWeight: "700", textAlign: "center" },
   center: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
-  title: { color: "#fff", fontSize: 22, fontWeight: "700", marginBottom: 10 },
-  msg: { color: "#c9c4e0", textAlign: "center", marginBottom: 20 },
-  btn: { backgroundColor: PINK, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 24 },
-  btnText: { color: "#fff", fontWeight: "700" },
-  loading: { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center" },
+  errLogo: { width: 180, height: 120, marginBottom: 8 },
+  title: { color: p.text, fontSize: 22, fontWeight: "700", marginBottom: 10 },
+  msg: { color: p.muted, textAlign: "center", marginBottom: 20 },
+  btn: { backgroundColor: p.pink, paddingHorizontal: 28, paddingVertical: 13, borderRadius: 24 },
+  btnText: { color: p.btnText, fontWeight: "800" },
+  loading: { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center" }
+});
+
+const s = StyleSheet.create({
   splash: { alignItems: "center", justifyContent: "center", zIndex: 99 },
   ring: { position: "absolute", width: 220, height: 220, borderRadius: 110, borderWidth: 2.5 },
-  logo: { color: "#fff", fontSize: 64, fontWeight: "900", letterSpacing: 2, textAlign: "center", textShadowColor: PINK, textShadowRadius: 24 },
-  sub: { color: PINK, fontSize: 16, letterSpacing: 10, textAlign: "center", marginTop: 4, fontWeight: "700" }
+  spark: { position: "absolute", width: 12, height: 12, borderRadius: 2 },
+  splashLogo: { width: 280, height: 210 }
 });

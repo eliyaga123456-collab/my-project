@@ -1,15 +1,13 @@
 import { useState, type FormEvent } from "react";
-import { Moon, ShieldOff, Sun } from "lucide-react";
+import { ShieldOff } from "lucide-react";
 import { useAuth } from "../auth";
 import { errorMessage } from "../lib/client";
-import { useTheme } from "../lib/hooks";
 import { useT } from "../i18n";
-import { Button, IconButton, LanguageSwitcher } from "../ui";
+import { Button, LanguageSwitcher, Logo, ThemeToggle } from "../ui";
 
 export function Login() {
   const { login, notAuthorised, dismissNotAuthorised } = useAuth();
   const { t } = useT();
-  const [theme, toggleTheme] = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -23,9 +21,9 @@ export function Login() {
 
   return (
     <div className="login">
-      <div className="login-theme"><LanguageSwitcher /><IconButton label={t("nav.themeToggle")} onClick={toggleTheme}>{theme === "dark" ? <Sun size={18} aria-hidden /> : <Moon size={18} aria-hidden />}</IconButton></div>
+      <div className="login-theme"><LanguageSwitcher /><ThemeToggle /></div>
       <form className="login-card" onSubmit={submit} noValidate>
-        <span className="brand-mark big" dir="ltr">EAR <em>admin</em></span>
+        <Logo className="login-logo" />
         <h1 className="login-title">{t("login.title")}</h1>
         <p className="muted">{t("login.subtitle")}</p>
         {notAuthorised && (

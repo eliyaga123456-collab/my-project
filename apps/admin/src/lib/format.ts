@@ -50,3 +50,9 @@ export function niceScale(max: number, ticks = 4): { max: number; ticks: number[
   return { max: top, ticks: Array.from({ length: ticks + 1 }, (_, i) => i * step) };
 }
 
+
+/** https://wa.me/<digits> for a stored WhatsApp number, or null when there is none (or too few digits). */
+export function whatsappLink(whatsapp: string | null | undefined): string | null {
+  const digits = (whatsapp ?? "").replace(/\D/g, "");
+  return digits.length >= 6 ? `https://wa.me/${digits}` : null;
+}

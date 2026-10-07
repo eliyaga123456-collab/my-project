@@ -12,3 +12,6 @@ export * from "./PageHeader";
 export * from "./Chart";
 export { Ltr } from "./Ltr";
 export { LanguageSwitcher } from "./LanguageSwitcher";
+export { Logo } from "./Logo";
+export { ThemeToggle } from "./ThemeToggle";
+export { OwnerBlock, type OwnerInfo } from "./OwnerBlock";
