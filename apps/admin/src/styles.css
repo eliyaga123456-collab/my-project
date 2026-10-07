@@ -463,3 +463,26 @@ html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after { transit
   .spark-path, .chart-line { animation: none; stroke-dashoffset: 0; } .spark-area, .spark-dot { animation: none; opacity: 1; }
   .today-tile:hover, .quick:hover { transform: none; }
 }
+.attn-line { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; } .attn-num { margin: 0; }
+.report .row-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding-top: 8px; border-top: 1px dashed var(--border); margin-top: 4px; }
+.report .row-actions .btn { min-height: 48px; width: 100%; font-size: 14px; }
+.report .row-actions .decide-label, .decide-label { grid-column: 1 / -1; font-size: 13px; font-weight: 700; color: var(--muted); margin: 0; }
+.report .act-dismiss { grid-column: 1 / -1; }
+.report .btn-ghost[type="button"]:not(.btn-sm) { min-height: 44px; }
+.report .msg-body { font-size: 16px; line-height: 1.55; }
+
+/* activity rows */
+.act-row { display: flex; align-items: center; gap: 12px; min-height: 68px; padding: 12px 14px; border-radius: 18px; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--text); animation: rise-in .45s var(--ease) both; animation-delay: calc(var(--i, 0) * 50ms); transition: border-color .15s, transform .15s var(--ease); }
+.act-row:hover { border-color: var(--pink); transform: translateY(-2px); }
+.act-icon { display: grid; place-items: center; flex: none; width: 42px; height: 42px; border-radius: 14px; background: color-mix(in srgb, var(--pink) 16%, transparent); color: var(--primary); }
+.act-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; } .act-main > strong { overflow-wrap: anywhere; }
+.act-prompt { color: var(--muted); font-size: 14px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.act-meta { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 13px; color: var(--muted); align-items: center; } .act-meta > span { display: inline-flex; align-items: center; gap: 4px; }
+.act-chev { color: var(--muted); flex: none; } [dir="rtl"] .act-chev { transform: scaleX(-1); }
+
+/* states: glowing icon medallion */
+.state > svg:first-child { box-sizing: content-box; padding: 14px; border-radius: 50%; color: var(--primary); background: radial-gradient(circle, color-mix(in srgb, var(--pink) 24%, transparent), transparent 72%); animation: float-y 3.2s ease-in-out infinite; }
+.state-error > svg:first-child { color: var(--danger); background: radial-gradient(circle, color-mix(in srgb, var(--danger) 22%, transparent), transparent 72%); }
+@keyframes float-y { 50% { transform: translateY(-4px); } }
+.state { border-radius: var(--radius-lg); padding: 44px 20px; }
+@media (prefers-reduced-motion: reduce) { .act-row, .state > svg:first-child { animation: none; } .act-row:hover { transform: none; } }

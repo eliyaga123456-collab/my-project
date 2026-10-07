@@ -89,6 +89,20 @@ async function installUpdate(setPct) {
   } catch { await Linking.openURL(APK).catch(() => undefined); }
 }
 
+/** Gentle breathing value 0..1 for the loading / error states. */
+function usePulse() {
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const l = Animated.loop(Animated.sequence([
+      Animated.timing(v, { toValue: 1, duration: 1100, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      Animated.timing(v, { toValue: 0, duration: 1100, easing: Easing.inOut(Easing.sin), useNativeDriver: true })
+    ]));
+    l.start();
+    return () => l.stop();
+  }, [v]);
+  return v;
+}
+
 export default function App() {
   const light = useColorScheme() === "light";
   const p = light ? LIGHT : DARK;
@@ -101,6 +115,7 @@ export default function App() {
   const [splash, setSplash] = useState(true);
   const [latest, setLatest] = useState(null);
   const [pct, setPct] = useState(null);
+  const pulse = usePulse();
   const done = useCallback(() => setSplash(false), []);
   const canBackRef = useRef(false);
   canBackRef.current = canBack;
@@ -116,21 +131,28 @@ export default function App() {
       <StatusBar style={light ? "dark" : "light"} />
       <View style={s.bar}>
         <Image source={light ? LOGO_LIGHT : LOGO_DARK} resizeMode="contain" style={s.barLogo} accessibilityLabel="EAR admin" />
-        <Pressable onPress={check} hitSlop={10} style={s.verPill}><Text style={s.ver}>v{BUILD} · {latest === null ? "↻" : hasUpdate ? "update" : "up to date"}</Text></Pressable>
+        <Pressable onPress={check} hitSlop={8} accessibilityRole="button" accessibilityLabel="Check for updates" style={s.verPill}>
+          <View style={[s.dot, { backgroundColor: latest === null ? p.muted : hasUpdate ? p.orange : "#3ddc97" }]} />
+          <Text style={s.ver}>v{BUILD} · {latest === null ? "Check for updates" : hasUpdate ? "Update available" : "Up to date"}</Text>
+        </Pressable>
       </View>
       {hasUpdate ? (
-        <Pressable style={s.update} onPress={() => void installUpdate(setPct)}>
+        <Pressable style={s.update} onPress={() => void installUpdate(setPct)} accessibilityRole="button" accessibilityLabel="Install the new version">
           <LinearGradient colors={[p.pink, p.orange]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={s.updateIn}>
-            <Text style={s.updateText}>{pct === null ? `New version available (build ${latest}) — tap to update` : `Downloading… ${Math.round(pct * 100)}%`}</Text>
+            <Text style={s.updateText}>{pct === null ? `A new version is ready (build ${latest}). Tap to install.` : `Downloading… ${Math.round(pct * 100)}%`}</Text>
+            {pct !== null ? <View style={s.track}><View style={[s.fill, { width: `${Math.round(pct * 100)}%` }]} /></View> : null}
           </LinearGradient>
         </Pressable>
       ) : null}
       {error ? (
         <View style={s.center}>
-          <Image source={light ? LOGO_LIGHT : LOGO_DARK} resizeMode="contain" style={s.errLogo} />
-          <Text style={s.title}>Can't reach the server</Text>
-          <Text style={s.msg}>Free hosting can take up to a minute to wake up.</Text>
-          <Pressable style={s.btn} onPress={() => { setError(false); setLoading(true); setKey((k) => k + 1); }}><Text style={s.btnText}>Try again</Text></Pressable>
+          <LinearGradient colors={[p.glowTop, p.bg, p.glowBottom]} style={StyleSheet.absoluteFill} />
+          <Animated.Image source={light ? LOGO_LIGHT : LOGO_DARK} resizeMode="contain" style={[s.errLogo, { opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.75, 1] }), transform: [{ scale: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.97, 1.03] }) }] }]} />
+          <Text style={s.title} accessibilityRole="header">Can't reach the server</Text>
+          <Text style={s.msg}>The server may be waking up, which can take up to a minute. Check your internet, wait a moment, then try again.</Text>
+          <Pressable style={s.btnWrap} accessibilityRole="button" onPress={() => { setError(false); setLoading(true); setKey((k) => k + 1); }}>
+            <LinearGradient colors={[p.pink, p.orange]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={s.btn}><Text style={s.btnText}>Try again</Text></LinearGradient>
+          </Pressable>
         </View>
       ) : (
         <WebView
@@ -151,7 +173,10 @@ export default function App() {
           style={{ backgroundColor: p.bg }}
         />
       )}
-      {loading && !error && !splash ? <View style={s.loading} pointerEvents="none"><ActivityIndicator color={p.pink} size="large" /></View> : null}
+      {loading && !error && !splash ? <View style={s.loading} pointerEvents="none">
+          <Animated.Image source={light ? LOGO_LIGHT : LOGO_DARK} resizeMode="contain" style={[s.loadLogo, { opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1] }), transform: [{ scale: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.94, 1.04] }) }] }]} />
+          <ActivityIndicator color={p.pink} />
+        </View> : null}
       {splash ? <Splash onDone={done} light={light} /> : null}
     </SafeAreaView>
   );
@@ -161,18 +186,23 @@ const makeStyles = (p) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.bg },
   bar: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 14, paddingVertical: 4, backgroundColor: p.surface, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: p.border },
   barLogo: { width: 92, height: 44 },
-  verPill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, borderWidth: 1, borderColor: p.border },
-  ver: { color: p.muted, fontSize: 12, fontWeight: "600" },
+  verPill: { flexDirection: "row", alignItems: "center", gap: 7, minHeight: 44, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: p.border },
+  dot: { width: 8, height: 8, borderRadius: 4 },
+  ver: { color: p.muted, fontSize: 13, fontWeight: "700" },
   update: { marginHorizontal: 12, marginTop: 8, borderRadius: 14, overflow: "hidden" },
-  updateIn: { paddingVertical: 12, paddingHorizontal: 14 },
-  updateText: { color: "#fff", fontWeight: "700", textAlign: "center" },
+  updateIn: { minHeight: 56, justifyContent: "center", paddingVertical: 12, paddingHorizontal: 16 },
+  updateText: { color: "#fff", fontWeight: "800", fontSize: 15, textAlign: "center", textShadowColor: "rgba(0,0,0,.25)", textShadowRadius: 2 },
+  track: { height: 5, borderRadius: 3, backgroundColor: "rgba(255,255,255,.35)", marginTop: 8, overflow: "hidden" },
+  fill: { height: 5, backgroundColor: "#fff" },
   center: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
-  errLogo: { width: 180, height: 120, marginBottom: 8 },
-  title: { color: p.text, fontSize: 22, fontWeight: "700", marginBottom: 10 },
-  msg: { color: p.muted, textAlign: "center", marginBottom: 20 },
-  btn: { backgroundColor: p.pink, paddingHorizontal: 28, paddingVertical: 13, borderRadius: 24 },
-  btnText: { color: p.btnText, fontWeight: "800" },
-  loading: { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center" }
+  errLogo: { width: 220, height: 150, marginBottom: 12 },
+  title: { color: p.text, fontSize: 24, fontWeight: "800", marginBottom: 10, textAlign: "center" },
+  msg: { color: p.muted, fontSize: 15, lineHeight: 22, textAlign: "center", marginBottom: 24, maxWidth: 320 },
+  btnWrap: { borderRadius: 28, overflow: "hidden", minWidth: 220 },
+  btn: { minHeight: 56, alignItems: "center", justifyContent: "center", paddingHorizontal: 32 },
+  btnText: { color: "#fff", fontWeight: "800", fontSize: 17, textShadowColor: "rgba(0,0,0,.25)", textShadowRadius: 2 },
+  loading: { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center", gap: 12, backgroundColor: p.bg },
+  loadLogo: { width: 180, height: 120 }
 });
 
 const s = StyleSheet.create({

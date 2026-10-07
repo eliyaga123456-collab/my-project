@@ -447,5 +447,6 @@ export const en = {
   "overview.allNumbers": "All numbers",
   "overview.allNumbersHint": "Totals and rates, for when you want the details.",
   "see.toggle": "What can I see about senders?",
-  "see.help": "Open the full guide"
+  "see.help": "Open the full guide",
+  "reports.decide": "What do you want to do?"
 } as const;

@@ -69,8 +69,9 @@ export function ReportsPage() {
                 {r.details && <p className="report-details" dir="auto"><span className="muted small">{t("reports.details")}</span><br />{r.details}</p>}
                 <p className="small muted">{t("reports.recipient")} <Link to={`/users/${r.recipient.id}`}><strong><Ltr>@{r.recipient.username}</Ltr></strong></Link> <StatusBadge status={r.recipient.status} />{r.resolution && <> · {t("reports.resolution", { resolution: resolutionLabel(r.resolution) })}</>}{r.resolvedAt && <> · {fmt.relative(r.resolvedAt)}</>}</p>
                 {r.status === "open" && (
-                  <div className="row-actions">
-                    {actions.map((a) => { const I = ICON[a]; return <Button key={a} size="sm" variant={a === "dismiss" ? "ghost" : DANGER[a] ? "danger" : "secondary"} icon={<I size={14} aria-hidden />} onClick={() => setPending({ report: r, action: a })}>{t(key(a, ""))}</Button>; })}
+                  <div className="row-actions" role="group" aria-label={t("reports.decide")}>
+                    <p className="decide-label">{t("reports.decide")}</p>
+                    {actions.map((a) => { const I = ICON[a]; return <Button key={a} size="sm" variant={a === "dismiss" ? "secondary" : DANGER[a] ? "danger" : "secondary"} className={a === "dismiss" ? "act-dismiss" : ""} icon={<I size={14} aria-hidden />} onClick={() => setPending({ report: r, action: a })}>{t(key(a, ""))}</Button>; })}
                   </div>
                 )}
               </Card>

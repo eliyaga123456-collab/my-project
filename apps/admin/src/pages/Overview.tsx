@@ -45,7 +45,7 @@ export function Overview() {
               <div className="attn attn-alert glow-border">
                 <span className="attn-icon" aria-hidden><TriangleAlert size={26} /></span>
                 <div className="attn-main">
-                  <p className="attn-title"><b className="attn-num"><CountUp value={open} format={n} /></b> {tn("att.reports", open)}</p>
+                  <p className="attn-title attn-line"><b className="attn-num"><CountUp value={open} format={n} /></b><span>{tn("att.reports", open)}</span></p>
                   <p className="attn-body">{t("att.reportsBody")}</p>
                 </div>
                 <Link to="/reports" className="btn btn-primary btn-lg attn-cta">{t("att.reportsGo")} <ArrowUpRight className="icon-dir" size={18} aria-hidden /></Link>

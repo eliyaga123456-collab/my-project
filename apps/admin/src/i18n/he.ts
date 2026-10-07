@@ -452,5 +452,6 @@ export const he: Dict = {
   "overview.allNumbers": "כל המספרים",
   "overview.allNumbersHint": "סכומים ואחוזים, למי שרוצה את הפרטים.",
   "see.toggle": "מה אפשר לראות על השולחים?",
-  "see.help": "למדריך המלא"
+  "see.help": "למדריך המלא",
+  "reports.decide": "מה לעשות עם הדיווח?"
 };
