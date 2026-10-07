@@ -1,7 +1,7 @@
 import { and, desc, eq, ilike, lt, or, sql } from "drizzle-orm";
-import type { AdminAbuseDto, AdminActivityDto, AdminAuditLogDto, AdminHealthDto, AdminModerationEventDto, AdminOverviewDto, AdminReportDto, AdminUserDto, ModerationCategory, Page, ReportAction } from "@unsaid/shared";
+import type { AdminRoundDetailDto, AdminAbuseDto, AdminActivityDto, AdminAuditLogDto, AdminHealthDto, AdminModerationEventDto, AdminOverviewDto, AdminReportDto, AdminUserDto, ModerationCategory, Page, ReportAction } from "@unsaid/shared";
 import type { AppContext } from "../context";
-import { auditLogs, bannedSources, messageEvidence, messages, moderationEvents, profiles, reports, sessions, users } from "../db/schema";
+import { auditLogs, bannedSources, links, messageEvidence, messages, moderationEvents, profiles, reports, sessions, users } from "../db/schema";
 import { decryptField } from "../lib/crypto";
 import { decodeCursor, encodeCursor } from "../lib/cursor";
 import { E } from "../lib/errors";
@@ -55,13 +55,13 @@ export class AdminService {
 
   private userSelect() {
     return this.ctx.db.select({
-      u: users, displayName: profiles.displayName,
+      u: users, displayName: profiles.displayName, whatsapp: profiles.whatsapp,
       received: sql<number>`(select count(*) from messages m where m.recipient_id = ${users.id})::int`,
       filed: sql<number>`(select count(*) from reports r where r.reporter_id = ${users.id})::int`
     }).from(users).innerJoin(profiles, eq(profiles.userId, users.id));
   }
-  private userDto(r: { u: User; displayName: string; received: number; filed: number }): AdminUserDto {
-    return { id: r.u.id, email: r.u.email, username: r.u.username, displayName: r.displayName, role: r.u.role, status: r.u.status, emailVerified: Boolean(r.u.emailVerifiedAt), messagesReceived: r.received, reportsFiled: r.filed, createdAt: r.u.createdAt.toISOString(), lastSeenAt: r.u.lastSeenAt?.toISOString() ?? null };
+  private userDto(r: { u: User; displayName: string; whatsapp: string | null; received: number; filed: number }): AdminUserDto {
+    return { id: r.u.id, email: r.u.email, username: r.u.username, displayName: r.displayName, role: r.u.role, status: r.u.status, emailVerified: Boolean(r.u.emailVerifiedAt), whatsapp: r.whatsapp ?? null, messagesReceived: r.received, reportsFiled: r.filed, createdAt: r.u.createdAt.toISOString(), lastSeenAt: r.u.lastSeenAt?.toISOString() ?? null };
   }
 
   async users(q: { q?: string; status?: string; cursor?: string; limit: number }): Promise<Page<AdminUserDto>> {
@@ -167,6 +167,32 @@ export class AdminService {
     return {
       messageId, networkAddress: decryptField(this.ctx.config.APP_SECRET, e.ipEnc), channel: e.channel, userAgent: e.userAgent,
       sentAt: e.createdAt.toISOString(), keepUntil: e.keepUntil.toISOString()
+    };
+  }
+
+  /** Everything about one round (or a primary link): owner, stats, every message with its reply, report flag and evidence availability. */
+  async round(id: string): Promise<AdminRoundDetailDto> {
+    if (!UUID.test(id)) throw E.notFound();
+    const { db } = this.ctx;
+    const [l] = await db.select().from(links).where(eq(links.id, id)).limit(1);
+    if (!l) throw E.notFound("Round not found.");
+    const [o] = await db.select({ u: users, p: profiles }).from(users).innerJoin(profiles, eq(profiles.userId, users.id)).where(eq(users.id, l.userId)).limit(1);
+    if (!o) throw E.notFound();
+    const msgs = await db.execute<{ id: string; body: string; status: string; created_at: Date; reply_text: string | null; reply_public: boolean; replied_at: Date | null; filtered_categories: string[]; reported: boolean; channel: string | null }>(sql`
+      select m.id, m.body, m.status, m.created_at, m.reply_text, m.reply_public, m.replied_at, m.filtered_categories,
+        exists(select 1 from reports r where r.message_id = m.id) as reported,
+        (select e.channel from message_evidence e where e.message_id = m.id) as channel
+      from messages m where m.link_id = ${id} order by m.created_at desc limit 500`);
+    const daily = await db.execute<{ day: string; views: number; messages: number }>(sql`select day::text as day, views, messages from link_daily_stats where link_id = ${id} order by day desc limit 30`);
+    const items = msgs.rows.map((m) => ({ id: m.id, body: m.body, status: m.status, createdAt: new Date(m.created_at).toISOString(), replyText: m.reply_text, replyPublic: m.reply_public, repliedAt: m.replied_at ? new Date(m.replied_at).toISOString() : null, filteredCategories: m.filtered_categories ?? [], reported: m.reported, hasEvidence: m.channel !== null, channel: m.channel }));
+    const base = this.ctx.config.WEB_URL.replace(/\/$/, "");
+    return {
+      id: l.id, label: l.label, prompt: l.prompt, isPrimary: l.isPrimary, paused: l.paused, createdAt: l.createdAt.toISOString(), closesAt: l.closesAt?.toISOString() ?? null,
+      url: l.isPrimary ? `${base}/u/${o.u.username}` : `${base}/l/${l.slug}`,
+      owner: { id: o.u.id, username: o.u.username, displayName: o.p.displayName, email: o.u.email, whatsapp: o.p.whatsapp ?? null, status: o.u.status },
+      stats: { views: daily.rows.reduce((s, d) => s + Number(d.views), 0), messages: items.length, replied: items.filter((m) => m.replyText).length, reported: items.filter((m) => m.reported).length, filtered: items.filter((m) => m.status === "filtered").length },
+      daily: daily.rows.map((d) => ({ day: d.day, views: Number(d.views), messages: Number(d.messages) })),
+      messages: items
     };
   }
 

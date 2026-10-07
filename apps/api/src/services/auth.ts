@@ -126,6 +126,21 @@ export class AuthService {
     await this.revokeAll(userId);
     await this.ctx.notifier.notify({ userId, type: "safety", title: "Your password was reset", body: "All devices were signed out. If this wasn't you, contact support." });
   }
+  /** Changes the sign-in email (password required); the new address starts unverified and gets a fresh verification email. */
+  async changeEmail(user: User, password: string, email: string) {
+    if (!(await verifyPassword(password, user.passwordHash))) throw new AppError("validation_error", "Your password is incorrect.", { password: ["Incorrect password"] });
+    if (email === user.email) throw E.validation("That's already your email.", { email: ["That's already your email."] });
+    try {
+      const [u] = await this.ctx.db.update(users).set({ email, emailVerifiedAt: null, updatedAt: new Date() }).where(eq(users.id, user.id)).returning();
+      await this.sendVerification(u!, true);
+      return userDto(u!);
+    } catch (e) {
+      if (e instanceof AppError) throw e;
+      if (pgError(e)?.code === "23505") throw E.conflict("That email is already registered.", { email: ["That email is already registered."] });
+      throw e;
+    }
+  }
+
   async changePassword(user: User, sessionId: string, current: string, next: string) {
     if (!(await verifyPassword(current, user.passwordHash))) throw new AppError("validation_error", "Your current password is incorrect.", { currentPassword: ["Incorrect password"] });
     await this.ctx.db.update(users).set({ passwordHash: await hashPassword(next), updatedAt: new Date() }).where(eq(users.id, user.id));

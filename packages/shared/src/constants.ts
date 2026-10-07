@@ -18,6 +18,7 @@ export const LIMITS = {
   linkLabelMax: 40,
   roundPromptMax: 120,
   avatarMaxBytes: 10 * 1024 * 1024,
+  videoMaxBytes: 60 * 1024 * 1024,
   pageSizeDefault: 20,
   pageSizeMax: 50
 } as const;
@@ -99,3 +100,7 @@ export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "en";
 export const RTL_LOCALES: readonly Locale[] = ["he"];
 export const LOCALE_NAMES: Record<Locale, string> = { en: "English", he: "עברית" };
+
+/** Decorative rings drawn around profile pictures (rendered by each client). */
+export const AVATAR_FRAMES = ["neon", "aurora", "gold", "candy", "ice", "fire", "galaxy", "rainbow", "hearts", "crown"] as const;
+export type AvatarFrame = (typeof AVATAR_FRAMES)[number];

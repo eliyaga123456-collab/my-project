@@ -18,7 +18,7 @@ export const avatarUrl = (ctx: AppContext, key: string | null) => {
 };
 
 export const profileDto = (ctx: AppContext, u: Pick<User, "username">, p: Profile): ProfileDto => ({
-  username: u.username, displayName: p.displayName, bio: p.bio, prompt: p.prompt, avatarUrl: avatarUrl(ctx, p.avatarKey)
+  username: u.username, displayName: p.displayName, bio: p.bio, prompt: p.prompt, avatarUrl: avatarUrl(ctx, p.avatarKey), avatarFrame: p.avatarFrame ?? null, whatsapp: p.whatsapp ?? null
 });
 
 export const settingsDto = (s: Settings, locale: "en" | "he" = "en"): SettingsDto => ({

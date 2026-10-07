@@ -36,6 +36,9 @@ export interface ProfileDto {
   bio: string;
   prompt: string;
   avatarUrl: string | null;
+  avatarFrame: string | null;
+  /** Owner-provided WhatsApp number (digits) or null. */
+  whatsapp: string | null;
 }
 
 export interface MeDto {
@@ -171,6 +174,7 @@ export interface AdminUserDto {
   role: UserRole;
   status: UserStatus;
   emailVerified: boolean;
+  whatsapp: string | null;
   messagesReceived: number;
   /** Reports this account filed from its own inbox. */
   reportsFiled: number;
@@ -233,4 +237,19 @@ export interface AdminHealthDto {
 export interface AdminActivityDto {
   rounds: { id: string; label: string; prompt: string | null; ownerUsername: string; ownerEmail: string; createdAt: string; closesAt: string | null; paused: boolean; views: number; messages: number }[];
   signups: { id: string; username: string; email: string; createdAt: string; status: UserStatus }[];
+}
+
+export interface AdminRoundDetailDto {
+  id: string;
+  label: string;
+  prompt: string | null;
+  isPrimary: boolean;
+  paused: boolean;
+  createdAt: string;
+  closesAt: string | null;
+  url: string;
+  owner: { id: string; username: string; displayName: string; email: string; whatsapp: string | null; status: UserStatus };
+  stats: { views: number; messages: number; replied: number; reported: number; filtered: number };
+  daily: { day: string; views: number; messages: number }[];
+  messages: { id: string; body: string; status: string; createdAt: string; replyText: string | null; replyPublic: boolean; repliedAt: string | null; filteredCategories: string[]; reported: boolean; hasEvidence: boolean; channel: string | null }[];
 }

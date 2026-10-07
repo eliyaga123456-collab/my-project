@@ -65,3 +65,24 @@ export async function readShareVideo(id: string): Promise<Buffer | null> {
   if (!VIDEO_ID_RE.test(id)) return null;
   try { return await readFile(join(DIR, `${id}.mp4`)); } catch { return null; }
 }
+
+/** Cuts [start, start+duration] out of a video and returns a small square animated GIF (profile picture). Input is never trusted: ffmpeg runs without network access to other files. */
+export async function videoToGif(video: Buffer, start: number, duration: number): Promise<Buffer> {
+  if (running >= 2) throw new AppError("rate_limited", "The video maker is busy. Try again in a minute.", undefined, 30);
+  running++;
+  const id = randomUUID();
+  const src = join(DIR, `${id}.in`);
+  const out = join(DIR, `${id}.gif`);
+  try {
+    await mkdir(DIR, { recursive: true });
+    await sweep();
+    await writeFile(src, video);
+    const vf = "fps=12,scale=320:320:force_original_aspect_ratio=increase,crop=320:320,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=bayer:bayer_scale=4";
+    await ffmpeg(["-y", "-loglevel", "error", "-protocol_whitelist", "file", "-ss", String(start), "-t", String(duration), "-i", src, "-an", "-vf", vf, "-loop", "0", out]);
+    return await readFile(out);
+  } catch (e) {
+    if (e instanceof AppError) throw e;
+    console.error("[video] gif failed:", e instanceof Error ? e.message : e);
+    throw new AppError("validation_error", "We couldn't read that video. Try a shorter MP4.");
+  } finally { running--; await rm(src, { force: true }); await rm(out, { force: true }); }
+}

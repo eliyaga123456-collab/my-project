@@ -24,6 +24,8 @@ export const profiles = pgTable("profiles", {
   bio: text("bio").notNull().default(""),
   prompt: text("prompt").notNull().default("Send me an anonymous message"),
   avatarKey: text("avatar_key"),
+  avatarFrame: text("avatar_frame"),
+  whatsapp: text("whatsapp"),
   updatedAt: ts("updated_at").notNull().defaultNow()
 });
 

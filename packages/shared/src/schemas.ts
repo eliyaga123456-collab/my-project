@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { AVATAR_FRAMES } from "./constants";
 import {
   LIMITS,
   LOCALES,
@@ -51,6 +52,7 @@ export const tokenInput = z.object({ token: z.string().min(16).max(256) });
 export const forgotPasswordInput = z.object({ email: emailSchema });
 export const resetPasswordInput = z.object({ token: z.string().min(16).max(256), password: passwordSchema });
 export const deleteAccountInput = z.object({ password: z.string().min(1).max(LIMITS.passwordMax), confirm: z.literal("DELETE").optional() });
+export const changeEmailInput = z.object({ password: z.string().min(1).max(LIMITS.passwordMax), email: z.string().trim().toLowerCase().email().max(254) });
 export const changePasswordInput = z.object({ currentPassword: z.string().min(1).max(LIMITS.passwordMax), newPassword: passwordSchema });
 
 // ---------- Profile ----------
@@ -58,7 +60,10 @@ export const updateProfileInput = z
   .object({
     displayName: trimmed(LIMITS.displayNameMax, 1),
     bio: trimmed(LIMITS.bioMax),
-    prompt: trimmed(LIMITS.promptMax)
+    prompt: trimmed(LIMITS.promptMax),
+    avatarFrame: z.enum(AVATAR_FRAMES).nullable(),
+    /** Optional, owner-provided number (digits, international format without +) used for a wa.me chat link; "" or null removes it. */
+    whatsapp: z.union([z.string().trim().regex(/^[0-9]{7,15}$/, "Enter the number with country code, digits only."), z.literal("").transform(() => null), z.null()])
   })
   .partial();
 export type UpdateProfileInput = z.infer<typeof updateProfileInput>;

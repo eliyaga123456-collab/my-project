@@ -1,9 +1,9 @@
-import { makeShareVideo, readShareVideo } from "../services/video";
+import { makeShareVideo, readShareVideo, videoToGif } from "../services/video";
 import multipart from "@fastify/multipart";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import {
-  adminReportsQuery, adminResolveReportInput, adminUserActionInput, adminUsersQuery, changePasswordInput, deleteAccountInput, createLinkInput, emailSchema,
+  adminReportsQuery, adminResolveReportInput, adminUserActionInput, adminUsersQuery, changeEmailInput, changePasswordInput, deleteAccountInput, createLinkInput, emailSchema,
   forgotPasswordInput, hiddenWordInput, listMessagesQuery, loginInput, markNotificationsReadInput, pauseLinkInput, pushTokenInput,
   registerInput, replyInput, reportInput, resetPasswordInput, sendMessageInput, tokenInput, updateLinkInput, updateMessageInput,
   updateProfileInput, updateSettingsInput, updateUsernameInput, usernameSchema, LIMITS
@@ -43,7 +43,7 @@ export function registerRoutes(app: FastifyInstance, ctx: AppContext, svc: { aut
   });
 
   app.register(async (api) => {
-    await api.register(multipart, { limits: { fileSize: LIMITS.avatarMaxBytes, files: 1, fields: 0 } });
+    await api.register(multipart, { limits: { fileSize: LIMITS.videoMaxBytes, files: 1, fields: 0 } });
 
     // ---------- auth ----------
     api.post("/auth/register", async (req, reply) => {
@@ -76,6 +76,12 @@ export function registerRoutes(app: FastifyInstance, ctx: AppContext, svc: { aut
       await limit(ctx, `verify:${req.ip}`, 20, HOUR);
       await auth.verifyEmail(parse(tokenInput, req.body).token);
       return reply.status(204).send();
+    });
+    api.patch("/auth/email", async (req) => {
+      const a = requireAuth(req);
+      await limit(ctx, `email-change:${a.user.id}`, 5, HOUR);
+      const i = parse(changeEmailInput, req.body);
+      return auth.changeEmail(a.user, i.password, i.email);
     });
     api.post("/auth/resend-verification", async (req, reply) => {
       const a = requireAuth(req);
@@ -167,8 +173,22 @@ export function registerRoutes(app: FastifyInstance, ctx: AppContext, svc: { aut
       const file = await req.file();
       if (!file) throw E.validation("Choose an image to upload.");
       const buf = await file.toBuffer();
-      if (file.file.truncated) throw new AppError("payload_too_large", "Image is too large (max 10 MB).");
+      if (file.file.truncated || buf.length > LIMITS.avatarMaxBytes) throw new AppError("payload_too_large", "Image is too large (max 10 MB).");
       return profiles.setAvatar(a.user, buf);
+    });
+    /** A short clip (trimmed with ?start=&duration=, max 5 s) becomes an animated profile picture. */
+    api.post("/profile/avatar-video", async (req) => {
+      const a = requireAuth(req);
+      await limit(ctx, `avatar-video:${a.user.id}`, 6, HOUR);
+      if (!req.isMultipart()) throw new AppError("unsupported_media", "Upload a video.");
+      const q = req.query as { start?: string; duration?: string };
+      const start = Math.min(Math.max(Number(q.start) || 0, 0), 3600);
+      const duration = Math.min(Math.max(Number(q.duration) || 3, 0.5), 5);
+      const file = await req.file();
+      if (!file) throw E.validation("Choose a video.");
+      const buf = await file.toBuffer();
+      if (file.file.truncated) throw new AppError("payload_too_large", "Video is too large (max 60 MB).");
+      return profiles.setAvatar(a.user, await videoToGif(buf, start, duration));
     });
     api.delete("/profile/avatar", async (req) => profiles.removeAvatar(requireAuth(req).user));
 
@@ -250,6 +270,7 @@ export function registerRoutes(app: FastifyInstance, ctx: AppContext, svc: { aut
     api.get("/admin/moderation-events", async (req) => { requireStaff(req); return admin.moderationEvents((req.query as { cursor?: string }).cursor); });
     api.get("/admin/audit-logs", async (req) => { requireStaff(req); return admin.auditLogs((req.query as { cursor?: string }).cursor); });
     api.get("/admin/messages/:id/evidence", async (req) => { const a = requireStaff(req, true); return admin.evidence(a.user, uuidParam((req.params as { id: string }).id)); });
+    api.get("/admin/rounds/:id", async (req) => { requireStaff(req); return admin.round((req.params as { id: string }).id); });
     api.get("/admin/activity", async (req) => { requireStaff(req); return admin.activity(); });
     api.get("/admin/abuse", async (req) => { requireStaff(req); return admin.abuse(); });
     api.get("/admin/health", async (req) => { requireStaff(req); return admin.health(VERSION); });
