@@ -109,7 +109,7 @@ export function ProfileSection() {
         </div>
         <div className="mt-4">
           <p className="mb-2 text-sm font-semibold">{t("app.settings.frames.title")}</p>
-          <div role="radiogroup" aria-label={t("app.settings.frames.title")} className="-mx-1 flex snap-x gap-2 overflow-x-auto px-1 pb-2 pt-1">
+          <div role="radiogroup" aria-label={t("app.settings.frames.title")} className="frame-strip -mx-1 flex snap-x gap-2 overflow-x-auto px-1 pb-2 pt-1">
             {[null, ...AVATAR_FRAMES].map((f) => {
               const on = frame === f;
               return (

@@ -329,7 +329,7 @@ svg.afr-gem { position: absolute; z-index: 2; left: 50%; top: calc(var(--s) * -.
 .afr-glitch .afr-ring { background: linear-gradient(90deg, #00f0ff, #ff2bd6 50%, #00f0ff); }
 .afr-glitch .afr-ring::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, #ff2bd6, #00f0ff); mix-blend-mode: screen; opacity: .6; animation: afr-glitch 2.8s steps(1, end) infinite; }
 .afr-glitch { filter: drop-shadow(2px 0 0 rgba(255, 43, 214, .55)) drop-shadow(-2px 0 0 rgba(0, 240, 255, .55)); }
-.afr-snow .afr-ring { background: conic-gradient(#ffffff, #bfe6ff, #ffffff, #d9f1ff, #9fd4ff, #ffffff); box-shadow: 0 0 var(--aft) rgba(200, 235, 255, .8); }
+.afr-snow .afr-ring { background: conic-gradient(#ffffff, #bfe6ff, #ffffff, #d9f1ff, #9fd4ff, #ffffff); box-shadow: 0 0 var(--aft) rgba(200, 235, 255, .8), 0 0 0 1px rgba(110, 165, 220, .6), inset 0 0 0 1px rgba(110, 165, 220, .45); }
 .afr-snow { filter: drop-shadow(0 0 calc(var(--aft) * 1.1) rgba(170, 220, 255, .6)); }
 .afr-snow .afr-flake { width: calc(var(--s) * .15); height: calc(var(--s) * .15); animation: afr-fall 5s linear infinite; }
 .afr-static .afr-petal, .afr-static .afr-bolt, .afr-static .afr-flake { opacity: .95; }
@@ -340,3 +340,7 @@ svg.afr-gem { position: absolute; z-index: 2; left: 50%; top: calc(var(--s) * -.
   .afr-sunset, .afr-glitch .afr-ring::before, .afr-rain i, .afr-bubble, svg.afr-gem, .afr-petal, .afr-bolt, .afr-flake { animation: none !important; }
 }
 .glow-border-soft { box-shadow: var(--shadow), 0 0 60px -20px color-mix(in srgb, var(--grad-2) 45%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 14%, transparent); }
+
+/* Frame picker: fade the scroll edges so it is obvious there are more frames (RTL-safe). */
+.frame-strip { -webkit-mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 28px), transparent 100%); mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 28px), transparent 100%); }
+[dir="rtl"] .frame-strip { -webkit-mask-image: linear-gradient(to left, transparent 0, #000 14px, #000 calc(100% - 28px), transparent 100%); mask-image: linear-gradient(to left, transparent 0, #000 14px, #000 calc(100% - 28px), transparent 100%); }
