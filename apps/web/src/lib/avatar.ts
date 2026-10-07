@@ -35,6 +35,15 @@ export function cropSource(c: CropState, w: number, h: number, view: number) {
   return { sx: (w * s / 2 - view / 2 - k.x) / s, sy: (h * s / 2 - view / 2 - k.y) / s, size: view / s };
 }
 
+/** Distance between two pointer positions (pinch gesture). */
+export const pointerDistance = (a: { x: number; y: number }, b: { x: number; y: number }) => Math.hypot(a.x - b.x, a.y - b.y);
+
+/** Zoom after a pinch: scales the starting zoom by the finger-distance ratio, clamped to the allowed range. */
+export function pinchZoom(startZoom: number, startDist: number, dist: number): number {
+  if (!(startDist > 0) || !(dist > 0)) return Math.min(MAX_ZOOM, Math.max(1, startZoom));
+  return Math.min(MAX_ZOOM, Math.max(1, startZoom * (dist / startDist)));
+}
+
 /** Trim window for the animated-avatar video: at most `max` seconds and inside the clip. */
 export function clampTrim(start: number, duration: number, total: number, max = 5) {
   const t = Math.max(0.1, total || 0);

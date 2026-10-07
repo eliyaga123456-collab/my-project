@@ -103,7 +103,7 @@ export function createApiClient(opts: ClientOptions) {
       login: (i: LoginInput) => post<AuthResultDto>("/auth/login", i),
       logout: () => post<void>("/auth/logout"),
       me: () => get<MeDto>("/auth/me"),
-      changeEmail: (i: { password: string; email: string }) => request<UserDto>("PATCH", "/auth/email", i),
+      changeEmail: (i: { email: string }) => request<UserDto>("PATCH", "/auth/email", i),
       verifyEmail: (token: string) => post<void>("/auth/verify-email", { token }),
       resendVerification: () => post<void>("/auth/resend-verification"),
       forgotPassword: (email: string) => post<void>("/auth/forgot-password", { email }),

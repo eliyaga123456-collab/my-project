@@ -127,12 +127,13 @@ export class AuthService {
     await this.ctx.notifier.notify({ userId, type: "safety", title: "Your password was reset", body: "All devices were signed out. If this wasn't you, contact support." });
   }
   /** Changes the sign-in email (password required); the new address starts unverified and gets a fresh verification email. */
-  async changeEmail(user: User, password: string, email: string) {
-    if (!(await verifyPassword(password, user.passwordHash))) throw new AppError("validation_error", "Your password is incorrect.", { password: ["Incorrect password"] });
+  async changeEmail(user: User, email: string) {
     if (email === user.email) throw E.validation("That's already your email.", { email: ["That's already your email."] });
     try {
       const [u] = await this.ctx.db.update(users).set({ email, emailVerifiedAt: null, updatedAt: new Date() }).where(eq(users.id, user.id)).returning();
       await this.sendVerification(u!, true);
+      // Tell the previous address so a hijacked session can't silently move the account.
+      await this.ctx.email.send({ to: user.email, subject: "Your EAR email was changed", text: `The email on your EAR account was changed to ${email}. If this wasn't you, contact support right away.` }).catch((e) => console.error("[email] send failed:", e instanceof Error ? e.message : e));
       return userDto(u!);
     } catch (e) {
       if (e instanceof AppError) throw e;

@@ -52,7 +52,7 @@ export const tokenInput = z.object({ token: z.string().min(16).max(256) });
 export const forgotPasswordInput = z.object({ email: emailSchema });
 export const resetPasswordInput = z.object({ token: z.string().min(16).max(256), password: passwordSchema });
 export const deleteAccountInput = z.object({ password: z.string().min(1).max(LIMITS.passwordMax), confirm: z.literal("DELETE").optional() });
-export const changeEmailInput = z.object({ password: z.string().min(1).max(LIMITS.passwordMax), email: z.string().trim().toLowerCase().email().max(254) });
+export const changeEmailInput = z.object({ email: z.string().trim().toLowerCase().email().max(254) });
 export const changePasswordInput = z.object({ currentPassword: z.string().min(1).max(LIMITS.passwordMax), newPassword: passwordSchema });
 
 // ---------- Profile ----------

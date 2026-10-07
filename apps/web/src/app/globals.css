@@ -203,6 +203,9 @@
 .afr-ring, .afr-deco { position: absolute; border-radius: 999px; pointer-events: none; z-index: 0; }
 .afr-ring { inset: calc(var(--aft) * -1.15); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--aft) * 1.15 - 1px), #000 calc(100% - var(--aft) * 1.15)); mask: radial-gradient(farthest-side, transparent calc(100% - var(--aft) * 1.15 - 1px), #000 calc(100% - var(--aft) * 1.15)); }
 .afr-deco { inset: 0; }
+.afr-box { display: inline-flex; flex-shrink: 0; max-width: 100%; }
+.afr-static, .afr-static *, .afr-static::before { animation: none !important; }
+.afr-static .afr-spark { transform: translate(-50%, -50%) scale(.8); opacity: .9; }
 @keyframes afr-spin { to { transform: rotate(360deg); } }
 @keyframes afr-pulse { 0%, 100% { opacity: .75; filter: brightness(.95); } 50% { opacity: 1; filter: brightness(1.25); } }
 @keyframes afr-twinkle { 0%, 100% { transform: translate(-50%, -50%) scale(.3); opacity: .2; } 50% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }

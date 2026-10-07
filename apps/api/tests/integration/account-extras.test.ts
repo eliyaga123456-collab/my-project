@@ -7,11 +7,9 @@ afterAll(() => t.close());
 beforeEach(() => t.reset());
 
 describe("email change, profile extras, round detail", () => {
-  it("changes the email only with the right password, unverifies it and sends a new verification", async () => {
+  it("changes the email while signed in, unverifies it and sends a new verification", async () => {
     const u = await verifiedUser(t, "alice");
-    const bad = await api(t, "PATCH", "/auth/email", { cookie: u.cookie, body: { password: "wrong-password-123", email: "new@example.com" } });
-    expect(bad.statusCode).toBe(400);
-    const ok = await api(t, "PATCH", "/auth/email", { cookie: u.cookie, body: { password: u.password, email: "New@Example.com" } });
+    const ok = await api(t, "PATCH", "/auth/email", { cookie: u.cookie, body: { email: "New@Example.com" } });
     expect(ok.statusCode).toBe(200);
     expect(json(ok)).toMatchObject({ email: "new@example.com", emailVerified: false });
     const mail = (await t.ctx.pool.query("select * from email_outbox where to_email='new@example.com'")).rows;

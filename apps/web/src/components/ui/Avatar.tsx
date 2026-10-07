@@ -5,7 +5,7 @@ import { cx } from "./cx";
 // Brand-colored fallbacks (ember -> pink -> violet) instead of arbitrary hues.
 const FALLBACKS = [["#ff7440", "#ff4f9a"], ["#ff4f9a", "#b24cff"], ["#b24cff", "#6d62f2"], ["#ff8a4c", "#e0446f"], ["#ff5d73", "#d9421a"]] as const;
 
-export function Avatar({ name, src, size = 48, className, frame }: { name: string; src?: string | null; size?: number; className?: string; frame?: string | null }) {
+export function Avatar({ name, src, size = 48, className, frame, animate }: { name: string; src?: string | null; size?: number; className?: string; frame?: string | null; animate?: boolean }) {
   const url = mediaSrc(src);
   const [from, to] = FALLBACKS[hueFor(name) % FALLBACKS.length] ?? FALLBACKS[0];
   const core = (
@@ -22,5 +22,5 @@ export function Avatar({ name, src, size = 48, className, frame }: { name: strin
       <span className="sr-only">{name}</span>
     </span>
   );
-  return frame ? <AvatarFrame frame={frame} size={size}>{core}</AvatarFrame> : core;
+  return frame ? <AvatarFrame frame={frame} size={size} animate={animate}>{core}</AvatarFrame> : core;
 }

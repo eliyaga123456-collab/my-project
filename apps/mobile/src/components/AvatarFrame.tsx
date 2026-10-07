@@ -20,32 +20,17 @@ const STAR = "M12 0 C12.8 7.2 16.8 11.2 24 12 C16.8 12.8 12.8 16.8 12 24 C11.2 1
 const HEART = "M12 21 C4 14.5 2 10.5 2 7.5 A4.5 4.5 0 0 1 12 6 A4.5 4.5 0 0 1 22 7.5 C22 10.5 20 14.5 12 21Z";
 
 /** Ring thickness for an avatar of this size. */
-export const frameRing = (size: number) => Math.max(4, Math.round(size * 0.13));
+export const frameRing = (size: number) => Math.max(3, Math.round(size * 0.1));
+/** Diameter of the picture itself inside a framed avatar whose whole layout box is `size` (the ring stays inside the box). */
+export const frameInner = (size: number, frame: string | null | undefined) => (isFrameId(frame) ? size - frameRing(size) * 2 : size);
 
-/** A decorative ring AROUND the avatar (the avatar itself is `children`, rendered at `size`). The crown frame also sits above the head. */
-export function AvatarFrame({ frame, size, children }: { frame: string | null | undefined; size: number; children: ReactNode }) {
-  const reduce = useReducedMotion();
-  const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
-  const spin = useSharedValue(0);
-  const pulse = useSharedValue(0);
-  const id = isFrameId(frame) ? frame : null;
-  useEffect(() => {
-    if (reduce || !id) return;
-    const ms = SPIN[id];
-    if (ms) spin.value = withRepeat(withTiming(1, { duration: ms, easing: Easing.linear }), -1, false);
-    pulse.value = withRepeat(withSequence(withTiming(1, { duration: 1100, easing: Easing.inOut(Easing.sin) }), withTiming(0, { duration: 1100, easing: Easing.inOut(Easing.sin) })), -1);
-  }, [reduce, id, spin, pulse]);
-  const spinStyle = useAnimatedStyle(() => ({ transform: [{ rotate: `${spin.value * 360}deg` }] }));
-  const pulseStyle = useAnimatedStyle(() => ({ opacity: 0.55 + pulse.value * 0.45 }));
-  const twinkle = useAnimatedStyle(() => ({ opacity: 0.6 + pulse.value * 0.4 }));
-
-  if (!id) return <>{children}</>;
+/** Static ring art: pure SVG, no animation. Everything is drawn inside a `size` x `size` box. */
+function buildArt(id: FrameId, size: number, gid: string) {
   const ring = frameRing(size);
-  const D = size + ring * 2;
+  const D = size;
   const c = D / 2;
   const r = c - ring / 2;
   const grad = GRADS[id];
-  const gid = `g${uid}`;
   const circ = 2 * Math.PI * r;
 
   const gradientDefs = grad ? (
@@ -119,27 +104,68 @@ export function AvatarFrame({ frame, size, children }: { frame: string | null | 
     }
   })();
 
+  const crownArt = id === "crown" ? (
+    <Svg width={D * 0.5} height={D * 0.375} viewBox="0 0 48 36" style={{ position: "absolute", top: -D * 0.02 }}>
+      <Defs>
+        <LinearGradient id={`${gid}c`} x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor="#fff3b0" /><Stop offset="0.6" stopColor="#ffc928" /><Stop offset="1" stopColor="#c98a00" /></LinearGradient>
+      </Defs>
+      <Path d="M4 30 L2 8 L14 18 L24 4 L34 18 L46 8 L44 30 Z" fill={`url(#${gid}c)`} stroke="#8a5a00" strokeWidth={1.2} strokeLinejoin="round" />
+      <Path d="M4 30 H44 V34 H4 Z" fill="#c98a00" />
+      <Circle cx={24} cy={4} r={2.6} fill="#ff4fa3" /><Circle cx={2} cy={8} r={2.2} fill="#4ad0ff" /><Circle cx={46} cy={8} r={2.2} fill="#4ad0ff" />
+      <Circle cx={24} cy={24} r={2.4} fill="#ff4fa3" />
+    </Svg>
+  ) : null;
+  return { D, ringArt, deco, crownArt };
+}
+
+const hidden = { accessibilityElementsHidden: true, importantForAccessibility: "no-hide-descendants" } as const;
+
+/** Cheap, non-animated frame for lists, headers of other users, etc. `size` is the whole layout box; the picture (`children`) must be `frameInner(size, frame)` wide. */
+function StaticFrame({ id, size, children }: { id: FrameId; size: number; children: ReactNode }) {
+  const gid = `g${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
+  const { D, ringArt, deco, crownArt } = buildArt(id, size, gid);
+  return (
+    <View style={{ width: D, height: D, alignItems: "center", justifyContent: "center" }}>
+      <View style={{ position: "absolute", width: D, height: D }} {...hidden}>{ringArt}</View>
+      {deco ? <View style={{ position: "absolute", width: D, height: D }} {...hidden}><Svg width={D} height={D}>{deco}</Svg></View> : null}
+      {children}
+      {crownArt ? <View {...hidden} style={{ position: "absolute", top: 0, alignItems: "center", width: D }}>{crownArt}</View> : null}
+    </View>
+  );
+}
+
+function AnimatedFrame({ id, size, children }: { id: FrameId; size: number; children: ReactNode }) {
+  const reduce = useReducedMotion();
+  const gid = `g${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
+  const spin = useSharedValue(0);
+  const pulse = useSharedValue(0);
+  useEffect(() => {
+    if (reduce) return;
+    const ms = SPIN[id];
+    if (ms) spin.value = withRepeat(withTiming(1, { duration: ms, easing: Easing.linear }), -1, false);
+    pulse.value = withRepeat(withSequence(withTiming(1, { duration: 1100, easing: Easing.inOut(Easing.sin) }), withTiming(0, { duration: 1100, easing: Easing.inOut(Easing.sin) })), -1);
+  }, [reduce, id, spin, pulse]);
+  const spinStyle = useAnimatedStyle(() => ({ transform: [{ rotate: `${spin.value * 360}deg` }] }));
+  const pulseStyle = useAnimatedStyle(() => ({ opacity: 0.55 + pulse.value * 0.45 }));
+  const twinkle = useAnimatedStyle(() => ({ opacity: 0.6 + pulse.value * 0.4 }));
+  const { D, ringArt, deco, crownArt } = buildArt(id, size, gid);
   const rotates = !!SPIN[id] && !reduce;
   return (
-    <View style={{ width: D, height: D, alignItems: "center", justifyContent: "center", overflow: "visible" }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-      <Animated.View style={[{ position: "absolute", width: D, height: D }, rotates ? spinStyle : null, id === "neon" ? pulseStyle : null]}>{ringArt}</Animated.View>
+    <View style={{ width: D, height: D, alignItems: "center", justifyContent: "center" }}>
+      <Animated.View {...hidden} style={[{ position: "absolute", width: D, height: D }, rotates ? spinStyle : null, id === "neon" ? pulseStyle : null]}>{ringArt}</Animated.View>
       {deco ? (
-        <Animated.View style={[{ position: "absolute", width: D, height: D }, rotates && id !== "galaxy" && id !== "gold" ? spinStyle : null, id === "galaxy" || id === "gold" ? twinkle : null]}>
+        <Animated.View {...hidden} style={[{ position: "absolute", width: D, height: D }, rotates && id !== "galaxy" && id !== "gold" ? spinStyle : null, id === "galaxy" || id === "gold" ? twinkle : null]}>
           <Svg width={D} height={D}>{deco}</Svg>
         </Animated.View>
       ) : null}
       {children}
-      {id === "crown" ? (
-        <Svg width={D * 0.62} height={D * 0.46} viewBox="0 0 48 36" style={{ position: "absolute", top: -D * 0.3 }}>
-          <Defs>
-            <LinearGradient id={`${gid}c`} x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor="#fff3b0" /><Stop offset="0.6" stopColor="#ffc928" /><Stop offset="1" stopColor="#c98a00" /></LinearGradient>
-          </Defs>
-          <Path d="M4 30 L2 8 L14 18 L24 4 L34 18 L46 8 L44 30 Z" fill={`url(#${gid}c)`} stroke="#8a5a00" strokeWidth={1.2} strokeLinejoin="round" />
-          <Path d="M4 30 H44 V34 H4 Z" fill="#c98a00" />
-          <Circle cx={24} cy={4} r={2.6} fill="#ff4fa3" /><Circle cx={2} cy={8} r={2.2} fill="#4ad0ff" /><Circle cx={46} cy={8} r={2.2} fill="#4ad0ff" />
-          <Circle cx={24} cy={24} r={2.4} fill="#ff4fa3" />
-        </Svg>
-      ) : null}
+      {crownArt ? <View {...hidden} style={{ position: "absolute", top: 0, alignItems: "center", width: D }}>{crownArt}</View> : null}
     </View>
   );
+}
+
+/** Ring AROUND the picture, drawn inside the `size` box (no overflow). Animate only in the editor and on your own header. */
+export function AvatarFrame({ frame, size, animated = false, children }: { frame: string | null | undefined; size: number; animated?: boolean; children: ReactNode }) {
+  if (!isFrameId(frame)) return <>{children}</>;
+  return animated ? <AnimatedFrame id={frame} size={size}>{children}</AnimatedFrame> : <StaticFrame id={frame} size={size}>{children}</StaticFrame>;
 }

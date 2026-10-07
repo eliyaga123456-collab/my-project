@@ -11,6 +11,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: blob: ${new URL(API_URL).origin}`,
   "font-src 'self' data:",
+  "media-src 'self' blob:",
   `connect-src 'self'${isDev ? " ws: wss:" : ""}`,
   "object-src 'none'",
   "base-uri 'self'",

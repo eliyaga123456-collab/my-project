@@ -1,27 +1,23 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { LIMITS, type ProfileDto } from "@unsaid/shared";
+import { LIMITS } from "@unsaid/shared";
 import { useT } from "@/i18n/client";
-import { api } from "@/lib/api";
-import { errorMessage } from "@/lib/errors";
 import { clampTrim } from "@/lib/avatar";
-import { Button, Modal, useToast } from "@/components/ui";
+import { Button, Modal } from "@/components/ui";
 
-/** Pick a video, choose start + length (max 5 s) with a live looping preview, upload as an animated avatar. */
-export function AvatarVideoDialog({ file, onClose, onUploaded }: { file: File | null; onClose: () => void; onUploaded: (p: ProfileDto) => void }) {
+/** Pick a video, choose start + length (max 5 s) with a live looping preview, returns the chosen window (uploaded on Save). */
+export function AvatarVideoDialog({ file, onClose, onPicked }: { file: File | null; onClose: () => void; onPicked: (file: File, start: number, duration: number) => void }) {
   const { t } = useT();
-  const toast = useToast();
   const video = useRef<HTMLVideoElement>(null);
   const [src, setSrc] = useState<string | null>(null);
   const [total, setTotal] = useState(0);
   const [start, setStart] = useState(0);
   const [len, setLen] = useState(5);
-  const [busy, setBusy] = useState(false);
   const [bad, setBad] = useState(false);
 
   useEffect(() => {
-    setTotal(0); setStart(0); setLen(5); setBad(false); setBusy(false);
+    setTotal(0); setStart(0); setLen(5); setBad(false);
     if (!file) { setSrc(null); return; }
     const u = URL.createObjectURL(file);
     setSrc(u);
@@ -41,23 +37,12 @@ export function AvatarVideoDialog({ file, onClose, onUploaded }: { file: File | 
     return () => v.removeEventListener("timeupdate", onTime);
   }, [trim.start, trim.duration, total]);
 
-  async function upload() {
-    if (!file) return;
-    setBusy(true);
-    try {
-      const form = new FormData();
-      form.append("file", file);
-      const profile = await api.request<ProfileDto>("POST", "/profile/avatar-video", undefined, { start: trim.start, duration: trim.duration }, { form });
-      onUploaded(profile);
-      toast.success(t("app.settings.profile.avatarUpdated"));
-      onClose();
-    } catch (err) { toast.error(errorMessage(err, t("public.errors.generic"))); setBusy(false); }
-  }
+  function use() { if (file && total && !bad) onPicked(file, trim.start, trim.duration); }
 
   const num = "h-11 w-24 rounded-md border border-line bg-raised/60 px-3 text-center";
   return (
     <Modal open={!!file} onClose={onClose} title={t("app.settings.video.title")} description={t("app.settings.video.hint")}
-      footer={<><Button variant="ghost" onClick={onClose}>{t("common.state.cancel")}</Button><Button onClick={upload} loading={busy} disabled={!total || bad}>{t("app.settings.video.use")}</Button></>}>
+      footer={<><Button size="lg" variant="ghost" onClick={onClose}>{t("common.state.cancel")}</Button><Button size="lg" onClick={use} disabled={!total || bad}>{t("app.settings.video.use")}</Button></>}>
       {file && file.size > LIMITS.videoMaxBytes ? <p role="alert" className="text-danger">{t("app.settings.video.tooBig", { mb: Math.round(LIMITS.videoMaxBytes / 1048576) })}</p> : (
         <div className="space-y-4">
           <div className="mx-auto w-fit rounded-full p-1.5" style={{ background: "var(--grad-brand)" }}>

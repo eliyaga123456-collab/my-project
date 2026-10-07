@@ -8,13 +8,17 @@ const HEARTS = Array.from({ length: 10 }, (_, i) => i);
 const SPARKS = [[8, 12], [88, 22], [14, 84], [84, 80]] as const;
 
 /** Decorative ring around an avatar. Pure CSS/SVG; the ring sits outside the avatar box so layout is unchanged. */
-export function AvatarFrame({ frame, size, children, className }: { frame?: string | null; size: number; children: ReactNode; className?: string }) {
+export function AvatarFrame({ frame, size, children, className, animate = false }: { frame?: string | null; size: number; children: ReactNode; className?: string; animate?: boolean }) {
   if (!isFrame(frame)) return <>{children}</>;
   const ring = Math.max(3, Math.round(size * 0.075));
+  // Reserve room for the ring, glow and crown so frames never overflow or get clipped by parents.
+  const pad = Math.ceil(ring * 1.9) + 1;
+  const padTop = pad + (frame === "crown" ? Math.round(size * 0.34) : 0);
   return (
+    <span className="afr-box" style={{ padding: `${padTop}px ${pad}px ${pad}px` }}>
     <span
-      className={cx("afr", `afr-${frame}`, className)}
-      style={{ "--afs": size, "--aft": `${ring}px`, marginTop: frame === "crown" ? Math.round(size * 0.3) : undefined } as React.CSSProperties}
+      className={cx("afr", `afr-${frame}`, !animate && "afr-static", className)}
+      style={{ "--afs": size, "--aft": `${ring}px` } as React.CSSProperties}
       data-frame={frame}
     >
       <span className="afr-ring" aria-hidden />
@@ -41,6 +45,7 @@ export function AvatarFrame({ frame, size, children, className }: { frame?: stri
         </svg>
       )}
       {children}
+    </span>
     </span>
   );
 }

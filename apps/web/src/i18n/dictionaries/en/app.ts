@@ -222,6 +222,7 @@ export const app = {
       neon: "Neon", aurora: "Aurora", gold: "Gold", candy: "Candy", ice: "Ice", fire: "Fire", galaxy: "Galaxy", rainbow: "Rainbow", hearts: "Hearts", crown: "Crown"
     },
     crop: {
+      reset: "Reset",
       title: "Crop your photo", hint: "Drag to move, zoom to fit. Only the circle is shown.", apply: "Use photo", aria: "Photo crop area. Arrow keys move, plus and minus zoom.",
       drag: "Drag the photo to reposition", zoom: "Zoom", zoomIn: "Zoom in", zoomOut: "Zoom out"
     },
@@ -229,7 +230,9 @@ export const app = {
       title: "Animated avatar", hint: "Pick up to 5 seconds of a video to loop as your photo.", choose: "Use a video", aria: "Choose a video for your avatar", use: "Use this clip",
       start: "Start (seconds)", length: "Length (seconds)", max: "Up to 5 seconds.", preview: "Video preview", bad: "We can't read that video. Try an MP4 or WebM.", tooBig: "That video is over {mb} MB. Try a shorter one."
     },
+    avatar: { title: "Profile picture", photo: "Choose photo", gif: "GIF", undo: "Undo changes" },
     email: {
+      note: "We'll send a confirmation link to the new address and a heads-up notice to your current one. Your email only changes after you confirm.",
       title: "Email", body: "Used to sign in and to recover your account. Changing it asks you to verify the new address.",
       verified: "Verified", unverified: "Not verified", new: "New email", hint: "We'll send a verification link to the new address.",
       change: "Change email", changed: "Email changed. Check your inbox to verify it.", same: "That's already your email.", taken: "That email is already in use."

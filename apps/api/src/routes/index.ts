@@ -81,7 +81,7 @@ export function registerRoutes(app: FastifyInstance, ctx: AppContext, svc: { aut
       const a = requireAuth(req);
       await limit(ctx, `email-change:${a.user.id}`, 5, HOUR);
       const i = parse(changeEmailInput, req.body);
-      return auth.changeEmail(a.user, i.password, i.email);
+      return auth.changeEmail(a.user, i.email);
     });
     api.post("/auth/resend-verification", async (req, reply) => {
       const a = requireAuth(req);

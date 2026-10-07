@@ -57,7 +57,6 @@ export function EmailSection() {
   const toast = useToast();
   const { me, setMe } = useMe();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [resending, setResending] = useState(false);
@@ -68,19 +67,17 @@ export function EmailSection() {
     const parsed = emailSchema.safeParse(email);
     if (!parsed.success) n.email = t("auth.login.emailInvalid");
     else if (parsed.data === me.user.email.toLowerCase()) n.email = t("app.settings.email.same");
-    if (!password) n.password = t("app.settings.password.enterCurrent");
     setErrors(n);
     if (Object.keys(n).length || !parsed.success) return;
     setBusy(true);
     try {
-      const user = await api.auth.changeEmail({ password, email: parsed.data });
+      const user = await api.auth.changeEmail({ email: parsed.data });
       setMe({ ...me, user });
-      setEmail(""); setPassword("");
+      setEmail("");
       toast.success(t("app.settings.email.changed"));
     } catch (err) {
       const fe = fieldErrors(err);
-      if (isApiError(err) && (err.status === 401 || err.status === 403)) setErrors({ password: t("app.settings.password.wrongCurrent") });
-      else if (isApiError(err) && err.status === 409) setErrors({ email: t("app.settings.email.taken") });
+      if (isApiError(err) && err.status === 409) setErrors({ email: t("app.settings.email.taken") });
       else if (fe.email) setErrors({ email: fe.email });
       else toast.error(errorMessage(err, t("public.errors.generic")));
     } finally { setBusy(false); }
@@ -100,7 +97,7 @@ export function EmailSection() {
       </div>
       <form onSubmit={submit} noValidate className="space-y-4">
         <InputField label={t("app.settings.email.new")} type="email" dir="ltr" autoComplete="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} hint={t("app.settings.email.hint")} className="[&_input]:text-start" />
-        <PasswordField label={t("app.settings.password.current")} autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} error={errors.password} />
+        <p className="rounded-md bg-raised/60 px-4 py-3 text-sm text-muted" role="note">{t("app.settings.email.note")}</p>
         <Button type="submit" loading={busy}>{t("app.settings.email.change")}</Button>
       </form>
     </SettingsCard>

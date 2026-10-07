@@ -6,17 +6,20 @@ import { initials } from "@/lib/format";
 import { API_URL } from "@/lib/env";
 import { useT } from "@/i18n";
 import { Text } from "./Text";
-import { AvatarFrame } from "./AvatarFrame";
+import { AvatarFrame, frameInner } from "./AvatarFrame";
 
 export function resolveMediaUrl(url: string | null): string | null {
   if (!url) return null;
+  if (/^(file|content|data|blob):/.test(url)) return url;
   return /^https?:\/\//.test(url) ? url : `${API_URL}${url.startsWith("/") ? "" : "/"}${url}`;
 }
 
-export function Avatar({ name, uri, size = 44, frame }: { name: string; uri?: string | null; size?: number; frame?: string | null }) {
+export function Avatar({ name, uri, size = 44, frame, animated = false }: { name: string; uri?: string | null; size?: number; frame?: string | null; animated?: boolean }) {
   const { brand } = useTheme();
   const { t } = useT();
   const src = resolveMediaUrl(uri ?? null);
+  const full = size;
+  size = frameInner(full, frame);
   const core = (
     <View accessible accessibilityRole="image" accessibilityLabel={t("me.avatarOf", { name })} style={{ width: size, height: size, borderRadius: size / 2, overflow: "hidden", alignItems: "center", justifyContent: "center" }}>
       {src ? (
@@ -28,5 +31,5 @@ export function Avatar({ name, uri, size = 44, frame }: { name: string; uri?: st
       )}
     </View>
   );
-  return frame ? <AvatarFrame frame={frame} size={size}>{core}</AvatarFrame> : core;
+  return frame ? <AvatarFrame frame={frame} size={full} animated={animated}>{core}</AvatarFrame> : core;
 }

@@ -27,7 +27,8 @@
       "backgroundColor": "#0b0a14",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0b0a14"
+        "backgroundColor": "#0b0a14",
+        "monochromeImage": "./assets/monochrome-icon.png"
       },
       "predictiveBackGestureEnabled": true,
       "permissions": [

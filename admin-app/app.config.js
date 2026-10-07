@@ -12,7 +12,7 @@ module.exports = {
     android: {
       package: "app.ear.admin",
       versionCode: Number(process.env.EAR_VERSION_CODE) || 1,
-      adaptiveIcon: { foregroundImage: "./assets/adaptive-icon.png", backgroundColor: "#0c0612" },
+      adaptiveIcon: { foregroundImage: "./assets/adaptive-icon.png", monochromeImage: "./assets/monochrome-icon.png", backgroundColor: "#0c0612" },
       permissions: ["INTERNET", "REQUEST_INSTALL_PACKAGES"]
     },
     plugins: ["./withReleaseSigning"],
