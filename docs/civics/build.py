@@ -78,13 +78,9 @@ def emit(fn,fs,start):
             c=COLS[ci%6]; p=para(0,SPA); run(p,'▪ ',bold=True,color=c); rich(p,line[2:],c)
         else:
             p=para(0,SPA); rich(p,line,COLS[ci%6])
-FSB=float(sys.argv[4]) if len(sys.argv)>4 else 9
 setsec(doc.sections[0],1)
-banner('אזרחות לבגרות · דף עזר מסכם','מגילת העצמאות · בלפור · בחירות · חוקי יסוד · פסקת ההגבלה · חוק השבות · זכויות · הגדרות')
+banner('אזרחות לבגרות · דף עזר מסכם','מגילת העצמאות · בלפור · בחירות · חוקי יסוד · פסקת ההגבלה · חוק השבות · זכויות · הגדרות · שיטות פתרון לכל סוג שאלה')
 setsec(doc.add_section(WD_SECTION.CONTINUOUS),3)
 emit('content.txt',FS,1)
-setsec(doc.add_section(WD_SECTION.NEW_PAGE),1)
-banner('איך עונים על שאלה באזרחות','שיטות הפתרון לכל סוג שאלה – אירוע · חצי-אירוע · ידע · קטע שלא נקרא · עמדה')
-setsec(doc.add_section(WD_SECTION.CONTINUOUS),3)
-emit('methods.txt',FSB,15)
+emit('methods.txt',FS,15)
 doc.save('civics_cheatsheet.docx')
