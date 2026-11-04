@@ -17,7 +17,7 @@ rf=st.element.get_or_add_rPr().find(qn('w:rFonts'))
 for a in ('w:ascii','w:hAnsi','w:cs','w:eastAsia'): rf.set(qn(a),FONT)
 def setsec(sec,cols):
     sec.page_width=Mm(210); sec.page_height=Mm(297)
-    sec.left_margin=sec.right_margin=Mm(7); sec.top_margin=sec.bottom_margin=Mm(7)
+    sec.left_margin=sec.right_margin=Mm(5); sec.top_margin=sec.bottom_margin=Mm(5)
     sp=sec._sectPr
     c=sp.find(qn('w:cols'))
     if c is None: c=OxmlElement('w:cols'); sp.append(c)
