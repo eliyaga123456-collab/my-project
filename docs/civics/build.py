@@ -5,6 +5,8 @@ from docx.enum.section import WD_SECTION
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 FS=float(sys.argv[1]) if len(sys.argv)>1 else 7
+LINE=sys.argv[2] if len(sys.argv)>2 else '230'
+SPA=sys.argv[3] if len(sys.argv)>3 else '40'
 FONT='Arial'
 doc=Document()
 st=doc.styles['Normal']; st.font.name=FONT; st.font.size=Pt(FS)
@@ -24,7 +26,7 @@ def setsec(sec,cols):
         b=OxmlElement('w:bidi')
         dg=sp.find(qn('w:docGrid'))
         (dg.addprevious(b) if dg is not None else sp.append(b))
-def para(spb=0,spa=0,shade=None,keep=False):
+def para(spb=0,spa=0,shade=None,keep=False,border=None):
     p=doc.add_paragraph()
     pPr=p._p.get_or_add_pPr()
     if keep:
@@ -32,7 +34,12 @@ def para(spb=0,spa=0,shade=None,keep=False):
     b=OxmlElement('w:bidi'); pPr.append(b)
     if shade:
         sh=OxmlElement('w:shd'); sh.set(qn('w:val'),'clear'); sh.set(qn('w:color'),'auto'); sh.set(qn('w:fill'),shade); pPr.append(sh)
-    sp=OxmlElement('w:spacing'); sp.set(qn('w:before'),str(spb)); sp.set(qn('w:after'),str(spa)); sp.set(qn('w:line'),'200'); sp.set(qn('w:lineRule'),'auto')
+    if border:
+        bd=OxmlElement('w:pBdr')
+        for side in ('top','left','bottom','right'):
+            e=OxmlElement('w:'+side); e.set(qn('w:val'),'single'); e.set(qn('w:sz'),'6'); e.set(qn('w:space'),'1'); e.set(qn('w:color'),border); bd.append(e)
+        pPr.insert(1,bd)
+    sp=OxmlElement('w:spacing'); sp.set(qn('w:before'),str(spb)); sp.set(qn('w:after'),str(spa)); sp.set(qn('w:line'),LINE); sp.set(qn('w:lineRule'),'auto')
     pPr.append(sp)
     return p
 def run(p,t,bold=False,hl=False,color=None,size=None):
@@ -58,13 +65,18 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 p.alignment=WD_ALIGN_PARAGRAPH.CENTER
 run(p,'דף עזר לבגרות באזרחות – מדינת ישראל כמדינה יהודית ודמוקרטית',bold=True,color='FFFFFF',size=13)
 s2=doc.add_section(WD_SECTION.CONTINUOUS); setsec(s2,3)
+SPA_N=int(SPA)
+COLS=['1F3864','7B2D26','1B5E3B','5B2C83','8A5A00','0B5C6B']
+ci=-1
 for line in open('content.txt',encoding='utf-8'):
     line=line.rstrip('\n')
     if not line: continue
     if line.startswith('# '):
-        p=para(60,20,'1F3864',keep=True); run(p,line[2:],bold=True,color='FFFFFF',size=FS+1.5)
+        ci+=1; p=para(90,30,COLS[ci%6],keep=True,border=COLS[ci%6]); p.alignment=WD_ALIGN_PARAGRAPH.CENTER; run(p,line[2:],bold=True,color='FFFFFF',size=FS+2)
+    elif line.startswith('> '):
+        p=para(20,SPA_N,'FFF4CC',border='C9A227'); run(p,'★ ',bold=True,color='C00000'); rich(p,line[2:])
     elif line.startswith('- '):
-        p=para(0,22); run(p,'• ',bold=True,color='C00000'); rich(p,line[2:])
+        p=para(0,SPA_N); run(p,'• ',bold=True,color='C00000'); rich(p,line[2:])
     else:
-        p=para(0,22); rich(p,line)
+        p=para(0,SPA_N); rich(p,line)
 doc.save('civics_cheatsheet.docx')
