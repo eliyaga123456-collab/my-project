@@ -57,26 +57,34 @@ def rich(p,text,acc):
         if tok=='**': bold=not bold
         elif tok=='==': hl=not hl
         elif tok: run(p,tok,bold=bold,hl=hl,color=acc if bold else None)
+def banner(t1,t2):
+    p=para(0,0,'0F2A4D',line='260'); p.alignment=WD_ALIGN_PARAGRAPH.CENTER
+    run(p,t1,bold=True,color='FFFFFF',size=17)
+    p=para(0,40,'C8A24A',line='220'); p.alignment=WD_ALIGN_PARAGRAPH.CENTER
+    run(p,t2,bold=True,color='0F2A4D',size=8.5)
+def emit(fn,fs,start):
+    global FS,SPA_N
+    FS=fs; ci=start-1; n=start-1
+    for line in open(fn,encoding='utf-8'):
+        line=line.rstrip('\n')
+        if not line: continue
+        if line.startswith('# '):
+            ci+=1; n+=1; c=COLS[ci%6]
+            p=para(110,40,c,keep=True)
+            run(p,'%02d  '%n,bold=True,color='FFD966',size=FS+3); run(p,line[2:],bold=True,color='FFFFFF',size=FS+2.5)
+        elif line.startswith('> '):
+            c=COLS[ci%6]; p=para(30,SPA+10,TINT[ci%6],rborder=c); run(p,'◆ ',bold=True,color=c); rich(p,line[2:],c)
+        elif line.startswith('- '):
+            c=COLS[ci%6]; p=para(0,SPA); run(p,'▪ ',bold=True,color=c); rich(p,line[2:],c)
+        else:
+            p=para(0,SPA); rich(p,line,COLS[ci%6])
+FSB=float(sys.argv[4]) if len(sys.argv)>4 else 9
 setsec(doc.sections[0],1)
-p=para(0,0,'0F2A4D',line='260'); p.alignment=WD_ALIGN_PARAGRAPH.CENTER
-run(p,'אזרחות לבגרות · דף עזר מסכם',bold=True,color='FFFFFF',size=17)
-p=para(0,40,'C8A24A',line='220'); p.alignment=WD_ALIGN_PARAGRAPH.CENTER
-run(p,'מגילת העצמאות · בלפור · בחירות · חוקי יסוד · פסקת ההגבלה · חוק השבות · זכויות · שאלות ודרך פתרון',bold=True,color='0F2A4D',size=8.5)
+banner('אזרחות לבגרות · דף עזר מסכם','מגילת העצמאות · בלפור · בחירות · חוקי יסוד · פסקת ההגבלה · חוק השבות · זכויות · הגדרות')
 setsec(doc.add_section(WD_SECTION.CONTINUOUS),3)
-ci=-1; n=0
-for line in open('content.txt',encoding='utf-8'):
-    line=line.rstrip('\n')
-    if not line: continue
-    if line.startswith('# '):
-        ci+=1; n+=1; c=COLS[ci%6]
-        p=para(110,40,c,keep=True)
-        run(p,'%02d  '%n,bold=True,color='FFD966',size=FS+3); run(p,line[2:],bold=True,color='FFFFFF',size=FS+2.5)
-    elif line.startswith('> '):
-        c=COLS[ci%6]
-        p=para(30,SPA+10,TINT[ci%6],rborder=c); run(p,'◆ ',bold=True,color=c); rich(p,line[2:],c)
-    elif line.startswith('- '):
-        c=COLS[ci%6]
-        p=para(0,SPA); run(p,'▪ ',bold=True,color=c); rich(p,line[2:],c)
-    else:
-        p=para(0,SPA); rich(p,line,COLS[ci%6])
+emit('content.txt',FS,1)
+setsec(doc.add_section(WD_SECTION.NEW_PAGE),1)
+banner('איך עונים על שאלה באזרחות','שיטות הפתרון לכל סוג שאלה – אירוע · חצי-אירוע · ידע · קטע שלא נקרא · עמדה')
+setsec(doc.add_section(WD_SECTION.CONTINUOUS),3)
+emit('methods.txt',FSB,15)
 doc.save('civics_cheatsheet.docx')
